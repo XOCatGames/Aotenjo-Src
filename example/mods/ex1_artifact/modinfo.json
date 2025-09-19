@@ -1,0 +1,7 @@
+{
+    "modID":"example_mod_ex1",
+    "name":"Example Mod",
+    "author":"example_author",
+    "description":"This is an example mod of Aotenjo, Containing 2 example artifacts",
+    "version":"1.0.0"
+}
