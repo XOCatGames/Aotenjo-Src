@@ -2795,7 +2795,7 @@ namespace Aotenjo
             return baseFan * multiplier;
         }
 
-        public double GetYakuMultiplier(YakuType yakuType)
+        public virtual double GetYakuMultiplier(YakuType yakuType)
         {
             PlayerYakuEvent.RetrieveMultiplier evt = new(this, yakuType, 1.0D);
             RetrieveYakuMultiplierEvent?.Invoke(evt);

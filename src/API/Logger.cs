@@ -27,7 +27,7 @@ namespace Aotenjo
             string fileName = $"AML_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.log";
             logFilePath = Path.Combine(logDir, fileName);
 
-            WriteToFile("==== Aotenjo ModLoader Logger Initialized ====");
+            Log("==== Aotenjo ModLoader Logger Initialized ====");
         }
 
         public static void Log(string message)

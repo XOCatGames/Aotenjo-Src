@@ -74,6 +74,18 @@ namespace Aotenjo
             return base.EraseBlock(block);
         }
 
+        public override double GetYakuMultiplier(YakuType yakuType)
+        {
+            double baseMul = base.GetYakuMultiplier(yakuType);
+            Permutation permutation = GetCurrentSelectedPerm();
+            if (permutation == null || !inRound) return baseMul;
+            
+            YakuTester.TestYaku(permutation, yakuType, this, out var relatedTiles);
+            
+            if(oracleBlock.Any(t => relatedTiles.Contains(t))) return baseMul * 2;
+            return baseMul;
+        }
+
         public class PlayerSetOracleEvent : PlayerPermutationEvent
         {
             public PlayerSetOracleEvent(Player player, Permutation permutation) : base(player, permutation)
