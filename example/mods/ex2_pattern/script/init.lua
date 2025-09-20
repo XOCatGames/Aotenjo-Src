@@ -16,10 +16,10 @@ function init()
             end
             return true
         end,
-        { CS.Aotenjo.FixedYakuType.DuanYao, CS.Aotenjo.FixedYakuType.QuanXiao, CS.Aotenjo.FixedYakuType.QuanShuangKe }, -- 继承的其他番种
-        { "standard", "galaxy" }, -- 所属分组
-        { 2 },                    -- 所属类别
-        CS.Aotenjo.Rarity.LEGENDARY,
-        "222s222p222m222m22s"
+        { CS.Aotenjo.FixedYakuType.DuanYao, CS.Aotenjo.FixedYakuType.QuanXiao, CS.Aotenjo.FixedYakuType.QuanShuangKe }, -- Inherited Yakus
+        { "standard", "galaxy" }, -- Yaku Groups
+        { 2 },                    -- Pattern Packs that this is in. 1: Wind, 2: Forest, 3: Fire, 4: Mountain
+        CS.Aotenjo.Rarity.LEGENDARY, -- Rarity
+        "222s222p222m222m22s" -- Example Hand, using standard Riichi notation
     )
 end
