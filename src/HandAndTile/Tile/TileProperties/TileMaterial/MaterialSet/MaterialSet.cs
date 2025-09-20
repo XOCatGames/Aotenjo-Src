@@ -155,7 +155,7 @@ namespace Aotenjo
         //     "succubus", "gold_mouse"
         // });
         
-        public static MaterialSet[] materialSets = new []
+        public static MaterialSet[] MaterialSets = new []
         {
             Basic, Ore, Porcelain, Monsters, Wood, Dessert
         };

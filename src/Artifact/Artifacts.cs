@@ -138,9 +138,10 @@ namespace Aotenjo
 
         //万法宗制式万足金
         public static readonly Artifact GoldIngot = Artifact.CreateOnSelfEffectArtifact("gold_ingot", Rarity.EPIC,
-            (player, perm, lst) =>
+            (_, perm, lst) =>
             {
-                if (perm.ContainsYakuRecursive(YakuType.QingYiSe, player)) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
+                if (perm.ToTiles().All(t => !t.IsNumbered())) return;
+                if (perm.ToTiles().Select(t => t.GetCategory()).Count() == 1) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
             }).SetHighlightRequirement((tile, player) => {
                 Permutation perm = player.GetAccumulatedPermutation();
                 if (perm == null) return true;

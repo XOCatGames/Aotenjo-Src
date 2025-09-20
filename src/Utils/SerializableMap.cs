@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Aotenjo
@@ -31,6 +32,11 @@ namespace Aotenjo
         public T[] GetKeys()
         {
             return keys.ToArray();
+        }
+
+        public bool IsEmpty()
+        {
+            return !keys.Any();
         }
 
         public void Add(T key, M value)
@@ -77,6 +83,12 @@ namespace Aotenjo
             }
 
             return default;
+        }
+        
+        public M this[T key]
+        {
+            get => Get(key);
+            set => Add(key, value);
         }
     }
 }

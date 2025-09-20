@@ -19,7 +19,17 @@ namespace Aotenjo
         {
             return 19;
         }
-        
+
+        protected override string GetSpriteSheetName()
+        {
+            return "TileMaterials";
+        }
+
+        protected override string GetSpriteNamespaceID(Player player, string nmSpace = "aotenjo")
+        {
+            return $"tile_material:{nmSpace}:{GetRegName()}";
+        }
+
         public override string GetShortLocalizeKey()
         {
             return base.GetShortLocalizeKey() + "_short";
@@ -88,15 +98,16 @@ namespace Aotenjo
         public static TileMaterial SugarCube() => new TileMaterialSugarCube(213);
         public static TileMaterial IceCream() => new TileMaterialIceCream(216);
         public static TileMaterial Lollipop() => new TileMaterialLollipop(210);
-
-
-        public static TileMaterial[] Materials() => new[]
+        
+        public static TileMaterial[] Materials() => MaterialProviders.Select(p => p()).ToArray();
+        
+        public static Func<TileMaterial>[] MaterialProviders = new Func<TileMaterial>[]
         {
-            PLAIN, Chocolate(), GOLDEN, CRYSTAL, Ore(), COPPER, Jade(), Demon(), Agate(), Voidstone(),
-            BlueAndWhitePorcelain(), BonePorcelain(), GREEN_PORCELAIN, FAMILLE_VERTE_PORCELAIN, WHITE_PORCELAIN,
-            PINK_PORCELAIN, MysteriousColorPorcelain(), Ghost(), GoldMouse(), Taotie(), Succubus(), Nest(), Mo(),
-            NanmuWood(), PaleWood(), EmeraldWood(), MistWood(), HellWood(), JacarandaWood(), PaoRosaWood(),
-            Butter(), ChocolateDessert(), Jelly(), MilleFeuille(), SugarCube(), IceCream(), Lollipop()
+            () => PLAIN, Chocolate, () => GOLDEN, () => CRYSTAL, Ore, () => COPPER, Jade, Demon, Agate, Voidstone,
+            BlueAndWhitePorcelain, BonePorcelain, () => GREEN_PORCELAIN, () => FAMILLE_VERTE_PORCELAIN, () => WHITE_PORCELAIN,
+            () => PINK_PORCELAIN, MysteriousColorPorcelain, Ghost, GoldMouse, Taotie, Succubus, Nest, Mo,
+            NanmuWood, PaleWood, EmeraldWood, MistWood, HellWood, JacarandaWood, PaoRosaWood,
+            Butter, ChocolateDessert, Jelly, MilleFeuille, SugarCube, IceCream, Lollipop
         };
 
         public static TileMaterial GetMaterial(string material)

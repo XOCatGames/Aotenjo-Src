@@ -31,7 +31,7 @@ public class KnowledgelessBoss : Boss
         foreach (var yaku in perm.GetYakus(player)
                      .Where(a => YakuTester.InfoMap[a].rarity > Rarity.COMMON && player.GetSkillSet().GetLevel(a) > 0))
         {
-            if (yaku == YakuType.ShiSanYao || yaku == YakuType.QiDui) return;
+            if (yaku == FixedYakuType.ShiSanYao || yaku == FixedYakuType.QiDui) return;
             robbedYakus.Add(new Tuple<YakuType, int>(yaku, player.GetSkillSet().GetLevel(yaku)));
             player.GetSkillSet().SetLevel(yaku, 0);
         }

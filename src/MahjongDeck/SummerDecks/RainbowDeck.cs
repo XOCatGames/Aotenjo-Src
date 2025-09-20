@@ -23,11 +23,6 @@ namespace Aotenjo
             return player;
         }
 
-        public override MaterialSet[] GetAvailableMaterialSets()
-        {
-            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
-        }
-
         public class RainbowPlayer : Player
         {
             public List<FlowerTile> PlayedFlowerTiles;

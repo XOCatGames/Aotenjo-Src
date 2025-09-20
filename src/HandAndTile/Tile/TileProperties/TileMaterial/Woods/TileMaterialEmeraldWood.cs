@@ -14,7 +14,7 @@ namespace Aotenjo
         {
         }
 
-        protected override int GetSpriteID()
+        public override int GetSpriteID()
         {
             return count switch
             {

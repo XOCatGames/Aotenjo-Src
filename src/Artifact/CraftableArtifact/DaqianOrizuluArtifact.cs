@@ -20,7 +20,7 @@ namespace Aotenjo
                 MessageManager.Instance.OnSoundEvent("book");
                 foreach (var yaku in yakus)
                 {
-                    p.GetSkillSet().AddLevel(yaku.yakuTypeID, 2);
+                    p.GetSkillSet().AddLevel(yaku.GetYakuType(), 2);
                 }
             }, "Book"));
         }

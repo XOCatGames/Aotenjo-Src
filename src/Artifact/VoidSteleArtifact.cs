@@ -33,7 +33,7 @@ namespace Aotenjo
             HashSet<YakuType> validTypesPlayed = new();
             foreach (var validRec in stats.GetPlayedHands())
             {
-                foreach (var activatedYaku in validRec.activatedYakuTypes.Where(y =>
+                foreach (var activatedYaku in validRec.ActivatedYakuTypes.Where(y =>
                              YakuTester.InfoMap[y].rarity >= Rarity.EPIC))
                 {
                     if (YakuTester.InfoMap[activatedYaku].growthFactor == 1

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class PlayerStats
@@ -10,10 +11,50 @@ public class PlayerStats
     [SerializeField] public int maxLevel;
 
     [SerializeField] private double maxScore;
+    
+    
+    [FormerlySerializedAs("yakuCounts")]
+    [SerializeField] private SerializableMap<FixedYakuType, int> legacyYakuCounts;
 
-    [SerializeField] private SerializableMap<YakuType, int> yakuCounts;
-
-    [SerializeField] private SerializableMap<YakuType, int> maxYakuLevel;
+    [FormerlySerializedAs("maxYakuLevel")]
+    [SerializeField] private SerializableMap<FixedYakuType, int> legacyMaxYakuLevel;
+    
+    [SerializeField] private SerializableMap<YakuType, int> _yakuCountsMap;
+    [SerializeField] private SerializableMap<YakuType, int> _maxYakuLevelMap;
+    
+    private SerializableMap<YakuType, int> yakuCountsMap
+    {
+        get
+        {
+            if (legacyYakuCounts != null && !legacyYakuCounts.IsEmpty() && _yakuCountsMap.IsEmpty())
+            {
+                foreach (var key in legacyYakuCounts.GetKeys())
+                {
+                    _yakuCountsMap.Add(new YakuType(key), legacyYakuCounts.Get(key));
+                }
+                legacyYakuCounts = new SerializableMap<FixedYakuType, int>();
+            }
+            return _yakuCountsMap;
+        }
+        set { _yakuCountsMap = value; }
+    }
+    
+    private SerializableMap<YakuType, int> maxYakuLevelMap
+    {
+        get
+        {
+            if (legacyMaxYakuLevel != null && !legacyMaxYakuLevel.IsEmpty() && _maxYakuLevelMap.IsEmpty())
+            {
+                foreach (var key in legacyMaxYakuLevel.GetKeys())
+                {
+                    _maxYakuLevelMap.Add(new YakuType(key), legacyMaxYakuLevel.Get(key));
+                }
+                legacyMaxYakuLevel = new SerializableMap<FixedYakuType, int>();
+            }
+            return _maxYakuLevelMap;
+        }
+        set { _maxYakuLevelMap = value; }
+    }
 
     [SerializeField] private long moneyEarned;
 
@@ -51,8 +92,8 @@ public class PlayerStats
     {
         maxLevel = 0;
         maxScore = 0;
-        yakuCounts = new SerializableMap<YakuType, int>();
-        maxYakuLevel = new SerializableMap<YakuType, int>();
+        yakuCountsMap = new SerializableMap<YakuType, int>();
+        maxYakuLevelMap = new SerializableMap<YakuType, int>();
         moneyEarned = 0;
         moneySpent = 0;
         tileMaterialObtainedCount = new SerializableMap<string, int>();
@@ -122,9 +163,9 @@ public class PlayerStats
             customStats.Add(key, customStats.Get(key) + roundStat.customStats.Get(key));
         }
 
-        foreach (var yaku in roundStat.yakuCounts.GetKeys())
+        foreach (var yaku in roundStat.yakuCountsMap.GetKeys())
         {
-            yakuCounts.Add(yaku, yakuCounts.Get(yaku) + roundStat.yakuCounts.Get(yaku));
+            yakuCountsMap.Add(yaku, yakuCountsMap.Get(yaku) + roundStat.yakuCountsMap.Get(yaku));
             //Debug.Log($"{yaku.ToString()} : {yakuCounts.Get(yaku)}");
         }
 
@@ -156,9 +197,9 @@ public class PlayerStats
                 artifactBoughtCount.Get(artifact) + roundStat.artifactBoughtCount.Get(artifact));
         }
 
-        foreach (var yaku in roundStat.maxYakuLevel.GetKeys())
+        foreach (var yaku in roundStat.maxYakuLevelMap.GetKeys())
         {
-            maxYakuLevel.Add(yaku, Math.Max(maxYakuLevel.Get(yaku), roundStat.maxYakuLevel.Get(yaku)));
+            maxYakuLevelMap.Add(yaku, Math.Max(maxYakuLevelMap.Get(yaku), roundStat.maxYakuLevelMap.Get(yaku)));
         }
 
 
@@ -198,7 +239,7 @@ public class PlayerStats
 
         foreach (var yaku in player.GetSkillSet().GetYakus())
         {
-            maxYakuLevel.Add(yaku, Math.Max(maxYakuLevel.Get(yaku), player.GetSkillSet().GetLevel(yaku)));
+            maxYakuLevelMap.Add(yaku, Math.Max(maxYakuLevelMap.Get(yaku), player.GetSkillSet().GetLevel(yaku)));
         }
     }
 
@@ -208,7 +249,7 @@ public class PlayerStats
         
         foreach (var yakuType in activatedYakus)
         {
-            yakuCounts.Add(yakuType, yakuCounts.Get(yakuType) + 1);
+            yakuCountsMap.Add(yakuType, yakuCountsMap.Get(yakuType) + 1);
         }
 
         playSequence.Add(new SettleRecord(player.Level, player.CurrentPlayingStage,
@@ -230,7 +271,7 @@ public class PlayerStats
         }
         
         //特殊出牌记录
-        if (activatedYakus.Contains(YakuType.WuMenQi) && player.Level == 16)
+        if (activatedYakus.Contains(FixedYakuType.WuMenQi) && player.Level == 16)
         {
             RecordCustomStats(PlayerStatsType.WUMENQI_WIN, 1);
         }
@@ -254,7 +295,7 @@ public class PlayerStats
 
     public int GetYakuCount(Yaku yaku)
     {
-        return yakuCounts.Get(yaku.yakuTypeID);
+        return yakuCountsMap.Get(yaku.GetYakuType());
     }
 
     public double GetMaxScore()
@@ -286,8 +327,8 @@ public class PlayerStats
 
     public YakuType GetRarestPlayedYaku()
     {
-        YakuType yaku = YakuType.Base;
-        yakuCounts.GetKeys().ToList().ForEach(y =>
+        YakuType yaku = FixedYakuType.Base;
+        yakuCountsMap.GetKeys().ToList().ForEach(y =>
         {
             Yaku toCompare = YakuTester.InfoMap[y];
             Yaku currentMax = YakuTester.InfoMap[yaku];
@@ -318,7 +359,7 @@ public class PlayerStats
 
     internal bool PlayedYaku(YakuType yaku)
     {
-        return yakuCounts.Get(yaku) > 0;
+        return yakuCountsMap.Get(yaku) > 0;
     }
 
     public void OnObtainArtifact(Artifact artifact)
@@ -391,7 +432,7 @@ public class PlayerStats
             yakuContributions.GetKeys().ToList(),
             score);
 
-        rec.yakuFanMap = yakuContributions;
+        rec.YakuFanMap = yakuContributions;
 
         lastSettleRecord = rec;
         if (bestSettleRecord.level == -1 || score.GetScore() > bestSettleRecord.score.GetScore())
@@ -402,7 +443,7 @@ public class PlayerStats
 
     public int GetHighestYakuLevel(YakuType yakuTypeID)
     {
-        return maxYakuLevel.Get(yakuTypeID);
+        return maxYakuLevelMap.Get(yakuTypeID);
     }
 
     public int GetGadgetObtainedCount(Gadget g)

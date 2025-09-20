@@ -18,10 +18,5 @@ namespace Aotenjo
             //TODO: 解锁条件
             return true;
         }
-
-        public override MaterialSet[] GetAvailableMaterialSets()
-        {
-            return new MaterialSet[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
-        }
     }
 }

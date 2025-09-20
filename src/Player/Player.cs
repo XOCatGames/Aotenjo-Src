@@ -2159,7 +2159,7 @@ namespace Aotenjo
         public List<Artifact> DrawRandomArtifact(Rarity rarity, int count)
         {
             List<Artifact> validArtifacts = ArtifactBank.Select(Artifacts.GetArtifact)
-                .Where(a => a.IsAvailableInShops(this) && a.GetRarity() == rarity).ToList();
+                .Where(a => a != null && a.IsAvailableInShops(this) && a.GetRarity() == rarity).ToList();
             LotteryPool<Artifact> pool = new LotteryPool<Artifact>();
             pool.AddRange(validArtifacts);
             List<Artifact> res = new();
@@ -2202,17 +2202,17 @@ namespace Aotenjo
         {
             List<PermutationType> types = new();
 
-            if (skillSet.GetYakus().Contains(YakuType.Base))
+            if (skillSet.GetYakus().Contains(FixedYakuType.Base))
             {
                 types.Add(PermutationType.NORMAL);
             }
 
-            if (skillSet.GetYakus().Contains(YakuType.QiDui))
+            if (skillSet.GetYakus().Contains(FixedYakuType.QiDui))
             {
                 types.Add(PermutationType.SEVEN_PAIRS);
             }
 
-            if (skillSet.GetYakus().Contains(YakuType.ShiSanYao))
+            if (skillSet.GetYakus().Contains(FixedYakuType.ShiSanYao))
             {
                 types.Add(PermutationType.THIRTEEN_ORPHANS);
             }

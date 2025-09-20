@@ -34,5 +34,10 @@ namespace Aotenjo
             string toSearch = id.EndsWith("_font") ? id : $"{id}_font";
             return Fonts().First(m => m.GetRegName() == toSearch);
         }
+
+        protected override string GetSpriteSheetName()
+        {
+            return "sheet1";
+        }
     }
 }

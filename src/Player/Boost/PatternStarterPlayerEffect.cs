@@ -17,7 +17,7 @@ public class PatternStarterPlayerEffect : StarterBoostEffect
         MessageManager.Instance.OnSoundEvent("book");
         foreach (var yaku in res)
         {
-            player.GetSkillSet().AddLevel(yaku.yakuTypeID, 2);
+            player.GetSkillSet().AddLevel(yaku.GetYakuType(), 2);
         }
     }
 
@@ -33,7 +33,7 @@ public class PatternStarterPlayerEffect : StarterBoostEffect
             MessageManager.Instance.OnSoundEvent("book");
             foreach (var yaku in yakus)
             {
-                player.GetSkillSet().AddLevel(yaku.yakuTypeID, 2);
+                player.GetSkillSet().AddLevel(yaku.GetYakuType(), 2);
             }
         }
     }
