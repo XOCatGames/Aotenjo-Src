@@ -1,0 +1,8 @@
+{
+    "tile_example_mod_3:ruby_material_name" : "Ruby Tile",
+    "tile_example_mod_3:ruby_material_description" : "+20 Fu while scoring. +1$ on round ends.",
+    "tile_example_mod_3:sapphire_material_name" : "Sapphire Tile",
+    "tile_example_mod_3:sapphire_material_description" : "X2 Fan while scoring, add a ruby duplicate of this tile into The Wall when rounds end.",
+    "material_set_gemstone_name" : "Gemstone",
+    "effect_sapphire" : "Power of Blue!"
+}
