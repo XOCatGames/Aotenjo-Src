@@ -44,7 +44,6 @@ namespace Aotenjo
             {
                 obj.player.AddNewTileToPool(t);
             }
-            MessageManager.Instance.OnAddTileEvent(tiles);
         }
     }
 }

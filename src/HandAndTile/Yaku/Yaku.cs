@@ -70,15 +70,10 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         return "yaku_" + type + "_name";
     }
 
-    public void SyncType()
+    public void BatchProcess()
     {
-        type = fixedYakuType;
-        
-        if (includedYakus == null || includedYakus.Length == 0)
-        {
-            includedYakus = legacyIncludedYakus.Select(a => (YakuType)a).ToArray();
-            legacyIncludedYakus = new FixedYakuType[0];
-        }
+        // if(groups.Contains("standard") && !groups.Contains("shortened"))
+        //     groups = groups.Append("shortened").ToArray();
     }
 
     public string GetNameRomajiKey()
