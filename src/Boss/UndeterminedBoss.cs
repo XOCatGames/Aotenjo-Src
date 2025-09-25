@@ -47,6 +47,11 @@ public class UndeterminedBoss : Boss
             this.baseArtifact = baseArtifact;
         }
 
+        public override string GetDescription(Player player, Func<string, string> localizer)
+        {
+            return string.Format(base.GetDescription(player, localizer), GetChanceMultiplier(player));
+        }
+
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);

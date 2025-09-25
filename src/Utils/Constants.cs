@@ -1,8 +1,8 @@
 ﻿public static class Constants
 {
     public const bool IS_DEMO = false;
-    public static bool DEBUG_MODE = true;
-    public static bool CONSOLE_ENABLED = true;
+    public static bool DEBUG_MODE = false;
+    public static bool CONSOLE_ENABLED = false;
 
     #region 路径和本地化表格名
 

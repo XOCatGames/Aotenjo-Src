@@ -22,7 +22,7 @@ public class UnstableBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.PostSkipRoundEndEvent += OnSkip;
+        player.PostSkipRoundEvent += OnSkip;
         player.PostSettlePermutationEvent += PostSettle;
         player.OnPostAddOnTileAnimationEffectEvent += Persist;
         state = EVEN_AND_WIND;
@@ -30,7 +30,7 @@ public class UnstableBoss : Boss
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PostSkipRoundEndEvent -= OnSkip;
+        player.PostSkipRoundEvent -= OnSkip;
         player.PostSettlePermutationEvent -= PostSettle;
         player.OnPostAddOnTileAnimationEffectEvent -= Persist;
     }
@@ -95,14 +95,14 @@ public class UnstableBoss : Boss
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent += OnSkip;
+            player.PostSkipRoundEvent += OnSkip;
             player.PostSettlePermutationEvent += PostSettle;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent -= OnSkip;
+            player.PostSkipRoundEvent -= OnSkip;
             player.PostSettlePermutationEvent -= PostSettle;
         }
         

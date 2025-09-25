@@ -14,10 +14,10 @@ public class PlayerStats
     
     
     [FormerlySerializedAs("yakuCounts")]
-    [SerializeField] private SerializableMap<FixedYakuType, int> legacyYakuCounts;
+    [SerializeField] private SerializableMap<FixedYakuType, int> yakuCounts;
 
     [FormerlySerializedAs("maxYakuLevel")]
-    [SerializeField] private SerializableMap<FixedYakuType, int> legacyMaxYakuLevel;
+    [SerializeField] private SerializableMap<FixedYakuType, int> maxYakuLevel;
     
     [SerializeField] private SerializableMap<YakuType, int> _yakuCountsMap;
     [SerializeField] private SerializableMap<YakuType, int> _maxYakuLevelMap;
@@ -26,13 +26,13 @@ public class PlayerStats
     {
         get
         {
-            if (legacyYakuCounts != null && !legacyYakuCounts.IsEmpty() && _yakuCountsMap.IsEmpty())
+            if (yakuCounts != null && !yakuCounts.IsEmpty() && _yakuCountsMap.IsEmpty())
             {
-                foreach (var key in legacyYakuCounts.GetKeys())
+                foreach (var key in yakuCounts.GetKeys())
                 {
-                    _yakuCountsMap.Add(new YakuType(key), legacyYakuCounts.Get(key));
+                    _yakuCountsMap.Add(new YakuType(key), yakuCounts.Get(key));
                 }
-                legacyYakuCounts = new SerializableMap<FixedYakuType, int>();
+                yakuCounts = new SerializableMap<FixedYakuType, int>();
             }
             return _yakuCountsMap;
         }
@@ -43,13 +43,13 @@ public class PlayerStats
     {
         get
         {
-            if (legacyMaxYakuLevel != null && !legacyMaxYakuLevel.IsEmpty() && _maxYakuLevelMap.IsEmpty())
+            if (maxYakuLevel != null && !maxYakuLevel.IsEmpty() && _maxYakuLevelMap.IsEmpty())
             {
-                foreach (var key in legacyMaxYakuLevel.GetKeys())
+                foreach (var key in maxYakuLevel.GetKeys())
                 {
-                    _maxYakuLevelMap.Add(new YakuType(key), legacyMaxYakuLevel.Get(key));
+                    _maxYakuLevelMap.Add(new YakuType(key), maxYakuLevel.Get(key));
                 }
-                legacyMaxYakuLevel = new SerializableMap<FixedYakuType, int>();
+                maxYakuLevel = new SerializableMap<FixedYakuType, int>();
             }
             return _maxYakuLevelMap;
         }

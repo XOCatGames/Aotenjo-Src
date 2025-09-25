@@ -9,10 +9,10 @@ public class GetaArtifact : BambooArtifact
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.PostSkipRoundEndEvent += OnSkipRoundEnd;
+        player.PostSkipRoundEvent += OnSkipRound;
     }
 
-    private void OnSkipRoundEnd(PlayerEvent playerEvent)
+    private static void OnSkipRound(PlayerEvent playerEvent)
     {
         BambooDeckPlayer bambooDeckPlayer = (BambooDeckPlayer)playerEvent.player;
         bambooDeckPlayer.RevealIndicator(1);
@@ -21,6 +21,6 @@ public class GetaArtifact : BambooArtifact
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.PostSkipRoundEndEvent -= OnSkipRoundEnd;
+        player.PostSkipRoundEvent -= OnSkipRound;
     }
 }

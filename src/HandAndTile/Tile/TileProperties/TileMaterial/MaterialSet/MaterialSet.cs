@@ -84,6 +84,7 @@ namespace Aotenjo
         {
             LotteryPool<TileMaterial> pool = new LotteryPool<TileMaterial>();
             pool.AddRange(GetMaterialsWithRarity(Rarity.RARE));
+            pool.AddRange(GetMaterialsWithRarity(Rarity.EPIC));
             return pool;
         }
 
@@ -162,7 +163,14 @@ namespace Aotenjo
 
         public virtual UnlockRequirement GetUnlockRequirement()
         {
-            return MaterialSetUnlockRequirements.matSetRequirements[this];
+            try
+            {
+                return MaterialSetUnlockRequirements.matSetRequirements[this];
+            }
+            catch (KeyNotFoundException)
+            {
+                return UnlockRequirement.UnlockedByDefault(); // Default to always unlocked
+            }
         }
     }
 }

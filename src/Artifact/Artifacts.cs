@@ -141,7 +141,7 @@ namespace Aotenjo
             (_, perm, lst) =>
             {
                 if (perm.ToTiles().All(t => !t.IsNumbered())) return;
-                if (perm.ToTiles().Select(t => t.GetCategory()).Count() == 1) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
+                if (perm.ToTiles().Select(t => t.GetCategory()).Distinct().Count() == 1) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
             }).SetHighlightRequirement((tile, player) => {
                 Permutation perm = player.GetAccumulatedPermutation();
                 if (perm == null) return true;
@@ -1287,7 +1287,7 @@ namespace Aotenjo
 
         public static Artifact GetArtifact(string name)
         {
-            if (NameToArtifactMap != null) return NameToArtifactMap.GetValueOrDefault(name, null);
+            if (NameToArtifactMap != null && NameToArtifactMap.ContainsKey(name)) return NameToArtifactMap.GetValueOrDefault(name, null);
             
             NameToArtifactMap = new Dictionary<string, Artifact>();
             foreach (var artifact in ArtifactList)

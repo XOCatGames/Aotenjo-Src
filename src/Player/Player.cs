@@ -223,7 +223,7 @@ namespace Aotenjo
 
         #region 游戏生命周期事件
         public event PlayerEventListener PreSkipRoundEvent;
-        public event PlayerEventListener PostSkipRoundEndEvent;
+        public event PlayerEventListener PostSkipRoundEvent;
         
         //Player, Winning
         public event Action<Player, bool> OnEndRunEvent;
@@ -271,7 +271,6 @@ namespace Aotenjo
         public event PlayerSetAttributeEventListener PreSetMaterialEvent;
         public event PlayerSetAttributeEventListener PreSetFontEvent;
         public event PlayerSetAttributeEventListener PreSetMaskEvent;
-        public event Action<Player, Tile, Category, int> PostModifyTileCarvatureEvent;
         public event PlayerSetPropertiesEventListener PreSetPropertiesEvent;
         public event PlayerSetPropertiesEventListener PreSetTilePropertiesEvent;
 
@@ -344,7 +343,7 @@ namespace Aotenjo
         public virtual List<Artifact> GetArtifacts()
         {
             var artifacts = NewHeldArtifacts.Select(Artifacts.GetArtifact).Where(a => a != null).ToList();
-            if (!artifacts.Any())
+            if (!artifacts.Any() && HeldArtifacts != null && HeldArtifacts.Any())
             {
                 artifacts = HeldArtifacts.Select(a => Artifacts.ArtifactList.First(ar => ar.GetNumberID() == a)).ToList();
                 NewHeldArtifacts = artifacts.Select(a => a.GetRegName()).ToList();
@@ -1109,7 +1108,7 @@ namespace Aotenjo
             SkipCount++;
             DiscardLeft += 10;
             CurrentPlayingStage++;
-            PostSkipRoundEndEvent?.Invoke(new(this));
+            PostSkipRoundEvent?.Invoke(new(this));
         }
 
         public bool OnRoundEndButtonPressed()
@@ -2097,7 +2096,7 @@ namespace Aotenjo
             return result;
         }
 
-        public void PostUsedGadget(Gadget gadget)
+        public void PostUsedGadget(Gadget gadget, Tile tile = null)
         {
             if (gadget.uses < 0) throw new ArgumentException("GADGET USES EXHAUSTED");
             gadget.uses--;
@@ -2109,7 +2108,9 @@ namespace Aotenjo
                 }
             }
 
-            PostUseGadgetEvent?.Invoke(new(this, gadget));
+            var playerGadgetEvent = new PlayerGadgetEvent(this, gadget);
+            playerGadgetEvent.tile = tile;
+            PostUseGadgetEvent?.Invoke(playerGadgetEvent);
         }
 
         public virtual List<Destination> GenerateDestinations()
@@ -2513,7 +2514,7 @@ namespace Aotenjo
             PreSetTilePropertiesEvent?.Invoke(new PlayerSetPropertiesEvent(this, tile, newProperties, false));
         }
 
-        public int GetMaxPlayingStage()
+        public virtual int GetMaxPlayingStage()
         {
             return 4;
         }
@@ -2603,9 +2604,16 @@ namespace Aotenjo
             OnAddSingleDiscardTileAnimationEffectEvent?.Invoke(this, onDiscardTileEffects, tile, withForce);
         }
 
-        public void OnModifyCarvedDesign(Tile tile, Category cat, int order)
+        public bool OnPreModifyCarvedDesign(Tile t, Category newCat, int newOrd)
         {
-            PostModifyTileCarvatureEvent?.Invoke(this, tile, cat, order);
+            var evt = new PlayerModifyCarvedDesignEvent.Pre(t, newCat, newOrd, this);
+            EventBus.Publish(evt);
+            return !evt.canceled;
+        }
+
+        public void OnPostModifyCarvedDesign(Tile tile, Category cat, int order)
+        {
+            EventBus.Publish(new PlayerModifyCarvedDesignEvent.Post(tile, cat, order, this));
         }
 
         public void TriggerDessertTileConsumedEvent(Tile tile, TileMaterialDessert dessert)

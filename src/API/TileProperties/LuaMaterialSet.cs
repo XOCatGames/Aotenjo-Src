@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 
 namespace Aotenjo
 {
+    [Serializable]
     public class LuaMaterialSet : MaterialSet
     {
         

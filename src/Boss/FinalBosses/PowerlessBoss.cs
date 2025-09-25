@@ -47,7 +47,7 @@ public class PowerlessBoss : Boss
 
         private void PlayerOnOnPostAddOnTileAnimationEffectEvent(Permutation arg1, Player arg2, List<IAnimationEffect> arg3)
         {
-            arg3.Add(new TextEffect("effect_powerless_reversed", baseArtifact));
+            arg3.Add(new TextEffect("effect_Powerless_reversed", baseArtifact));
             List<Tile> unusedTiles = arg2.GetUnusedTilesInHand();
             LotteryPool<Tile> pool = new LotteryPool<Tile>();
             pool.AddRange(unusedTiles);

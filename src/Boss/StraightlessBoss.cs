@@ -86,7 +86,7 @@ public class StraightlessBoss : Boss
             if(player.Selecting(tile) && tile.IsNumbered() && !playedTile.Contains(tile.GetOrder()))
             {
                 playedTile.Add(tile.GetOrder());
-                effects.Add(new SimpleEffect("effect_straightl_reversed", this, (p) =>
+                effects.Add(new SimpleEffect("effect_Straightless_reversed", this, (p) =>
                 {
                     p.levelTarget *= 0.95D;
                     MessageManager.Instance.OnSetProgressBarLength(0.95f);

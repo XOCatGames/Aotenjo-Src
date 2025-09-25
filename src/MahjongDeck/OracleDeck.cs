@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Aotenjo
@@ -15,13 +16,11 @@ namespace Aotenjo
             Player player = new OraclePlayer(Hand.PlainFullHand().tiles, seed, this, set, asensionLevel);
             return player;
         }
-        
-
 
         public override bool IsUnlocked(PlayerStats stats)
         {
-            //TODO: 解锁条件
-            return true;
+            return Constants.DEBUG_MODE ||
+                   stats.GetUnseededRunRecords().Any(rec => rec.acsensionLevel >= 4 && rec.won);
         }
     }
 

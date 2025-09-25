@@ -19,13 +19,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent += Golden;
+            player.PostSkipRoundEvent += Golden;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent -= Golden;
+            player.PostSkipRoundEvent -= Golden;
         }
 
         private void Golden(PlayerEvent eventData)

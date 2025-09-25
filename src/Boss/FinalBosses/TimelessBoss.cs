@@ -43,20 +43,39 @@ public class TimelessBoss : Boss
                             permutation.GetPermType() == PermutationType.SEVEN_PAIRS || 
                             permutation.GetPermType() == PermutationType.THIRTEEN_ORPHANS;
             if (triggered || !lastHand) return;
-            effects.Add(new SimpleEffect("effect_timeless_reversed", baseArtifact, (p) =>
+            effects.Add(new SimpleEffect("effect_Timeless_reversed", baseArtifact, (p) => { TryGetTimeShard(p); }, "Agate"));
+        }
+
+        private void TryGetTimeShard(Player p)
+        {
+            if(p.GetGadgets().TrueForAll(g => !g.regName.Equals(new TimeShardGadget().regName)))
             {
-                if(p.GetGadgets().TrueForAll(g => !g.regName.Equals(new TimeShardGadget().regName)))
-                {
-                    p.AddGadget(new TimeShardGadget());
-                    triggered = true;
-                }
-            }, "Agate"));
+                p.AddGadget(new TimeShardGadget());
+                triggered = true;
+            }
         }
 
         public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
             effects.Add(new SilentEffect(() => triggered = false));
+        }
+
+        public override void SubscribeToPlayer(Player player)
+        {
+            base.SubscribeToPlayer(player);
+            player.PostSkipRoundEvent += PostSkipRound;
+        }
+        
+        public override void UnsubscribeToPlayer(Player player)
+        {
+            base.UnsubscribeToPlayer(player);
+            player.PostSkipRoundEvent -= PostSkipRound;
+        }
+
+        private void PostSkipRound(PlayerEvent playerEvent)
+        {
+            TryGetTimeShard(playerEvent.player);
         }
     }
 

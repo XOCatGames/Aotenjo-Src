@@ -42,7 +42,7 @@ namespace Aotenjo
             var tiles = obj.permutation.blocks[0].tiles.ToList();
             foreach (var t in tiles)
             {
-                obj.player.AddNewTileToPool(t);
+                obj.player.AddNewTileToPool(new(t));
             }
         }
     }
