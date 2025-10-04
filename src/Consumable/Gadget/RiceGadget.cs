@@ -13,7 +13,7 @@ public class RiceGadget : Gadget
         if (!ShouldHighlightTile(tile)) return false;
 
         tile.AddTransform(new TileTransformRice(), player);
-        EventManager.Instance.OnSoundEvent("Rice");
+        MessageManager.Instance.OnSoundEvent("Rice");
         return true;
     }
 

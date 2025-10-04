@@ -18,16 +18,16 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent += Grow;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent -= Grow;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
-        public void Grow(PlayerEvent eventData)
+        public void PostRoundEnd(PlayerEvent eventData)
         {
             Player player = eventData.player;
             foreach (var tile in player.GetAllTiles().Where(t => t.properties.mask == this))

@@ -36,25 +36,27 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             player.PostAddSingleTileAnimationEffectEvent += Suppress;
-            player.PostRoundEndEvent += Unsuppress;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
             player.PostAddSingleTileAnimationEffectEvent -= Suppress;
-            player.PostRoundEndEvent -= Unsuppress;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public void Suppress(Permutation permutation, Player player, List<OnTileAnimationEffect> list, OnTileAnimationEffect eff, Tile tile)
         {
-            foreach (var t in player.GetCurrentSelectedPerm().ToTiles().Where(t => t.properties.mask == this))
+            var perm = player.GetCurrentSelectedPerm();
+            if (perm == null) return;
+            foreach (var t in perm.ToTiles().Where(t => t.properties.mask == this))
             {
-                list.RemoveAll(e => e.tile == t);
+                list.RemoveAll(e => e.tile == t && e.GetEffect() is not CleanseEffect);
             }
         }
 
-        public void Unsuppress(PlayerEvent eventData)
+        public void PostRoundEnd(PlayerEvent eventData)
         {
             Player player = eventData.player;
             foreach (var tile in player.GetAllTiles().Where(t => t.properties.mask == this))

@@ -17,9 +17,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), FU_PER_LEVEL, GetFu(player));
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
 
             effects.Add(ScoreEffect.AddFu(() => GetFu(player), this));
         }
@@ -29,7 +29,7 @@ namespace Aotenjo
 
         public double GetFu(Player player)
         {
-            return Level * FU_PER_LEVEL;
+            return this.GetEffectiveJadeStack(player) * FU_PER_LEVEL;
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)

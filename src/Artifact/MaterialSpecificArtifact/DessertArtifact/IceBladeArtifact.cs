@@ -26,7 +26,7 @@ namespace Aotenjo
             base.SubscribeToPlayer(player);
             player.OnDessertTileConsumeAttemptEvent += OnDessertTileConsumeAttempt;
             player.PreAddScoringAnimationEffectEvent += OnPreAddScoringAnimationEffect;
-            player.PostRoundEndEvent += OnResetWinded;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayer(Player player)
@@ -34,7 +34,7 @@ namespace Aotenjo
             base.UnsubscribeToPlayer(player);
             player.OnDessertTileConsumeAttemptEvent -= OnDessertTileConsumeAttempt;
             player.PreAddScoringAnimationEffectEvent -= OnPreAddScoringAnimationEffect;
-            player.PostRoundEndEvent += OnResetWinded;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         private void OnPreAddScoringAnimationEffect(Permutation perm, Player player, List<IAnimationEffect> arg3)
@@ -53,7 +53,7 @@ namespace Aotenjo
             winded = false;
         }
 
-        private void OnResetWinded(PlayerEvent playerEvent)
+        private void PostRoundEnd(PlayerEvent playerEvent)
         {
             winded = false;
         }

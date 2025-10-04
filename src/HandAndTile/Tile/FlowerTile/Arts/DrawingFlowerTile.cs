@@ -9,11 +9,11 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 {
     private const double MUL = 5f;
 
-    [SerializeReference] private Block block = defaultBlock;
+    [SerializeReference] private Block block = _defaultBlock;
 
     [SerializeField] private bool activated;
 
-    private static Block defaultBlock = new("000z");
+    private static Block _defaultBlock = new("000z");
 
     public DrawingFlowerTile() : base(Category.SiYi, 4)
     {
@@ -28,7 +28,7 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 
     public override string GetFlowerDescription(Func<string, string> loc)
     {
-        if (block.CompactWith(defaultBlock))
+        if (block.CompactWith(_defaultBlock))
             return loc("flower_drawing_description_unowned");
         return string.Format(base.GetFlowerDescription(loc), block.GetSpriteString());
     }
@@ -39,7 +39,7 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 
         if (activated)
         {
-            effects.Add(new OnTileAnimationEffect(this, ScoreEffect.MulFan(MUL, null)));
+            effects.Add(ScoreEffect.MulFan(MUL, null).OnTile(this));
             return;
         }
 
@@ -48,26 +48,26 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 
         if (player.GetCurrentSelectedBlocks().Any(playingBlock => playingBlock.CompactWith(block)))
         {
-            effects.Add(new OnTileAnimationEffect(this, new DrawingEffect(this)));
-            effects.Add(new OnTileAnimationEffect(this, ScoreEffect.MulFan(MUL, null)));
+            effects.Add(new DrawingEffect(this).OnTile(this));
+            effects.Add(ScoreEffect.MulFan(MUL, null).OnTile(this));
         }
     }
 
     public override void SubscribeToPlayerEvents(Player player)
     {
         base.SubscribeToPlayerEvents(player);
-        if (block == defaultBlock)
+        if (block == _defaultBlock)
             block = player.GenerateRandomBlock();
-        player.PostRoundEndEvent += ChangeBlock;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     public override void UnsubscribeFromPlayer(Player player)
     {
         base.UnsubscribeFromPlayer(player);
-        player.PostRoundEndEvent -= ChangeBlock;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
-    private void ChangeBlock(PlayerEvent playerEvent)
+    private void PostRoundEnd(PlayerEvent playerEvent)
     {
         activated = false;
         block = playerEvent.player.GenerateRandomBlock();
@@ -75,7 +75,7 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 
     private class DrawingEffect : Effect
     {
-        private DrawingFlowerTile drawingFlowerTile;
+        private readonly DrawingFlowerTile drawingFlowerTile;
 
         public DrawingEffect(DrawingFlowerTile drawingFlowerTile)
         {

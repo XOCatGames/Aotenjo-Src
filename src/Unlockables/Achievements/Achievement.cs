@@ -14,7 +14,7 @@
 
         protected void SetComplete()
         {
-            EventManager.Instance.OnCompleteAchievement(id);
+            MessageManager.Instance.OnCompleteAchievement(id);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Aotenjo
             Player player = data.player;
             YakuType original = data.yakuType;
 
-            List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.yakuTypeID).ToList();
+            List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
             availableYakus.Remove(original);
             DrawYakuResult drawResult = data.pack.Draw(player.GenerateRandomInt, availableYakus, player.Level / 4,
                 (int)YakuTester.InfoMap[original].rarity + 1);

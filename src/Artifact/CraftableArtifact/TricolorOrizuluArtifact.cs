@@ -8,9 +8,9 @@ namespace Aotenjo
         {
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             Block.Jiang jiang = permutation.jiang;
             Dictionary<Tile.Category, Effect> effectsMap = new()
             {

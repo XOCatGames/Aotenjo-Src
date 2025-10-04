@@ -21,7 +21,7 @@ public class RookGadget : ReusableGadget
         if (uses <= 0) return false;
         if (ShouldHighlightTile(tile))
         {
-            EventManager.Instance.OnUseRookEvent(this, tile);
+            MessageManager.Instance.OnUseRookEvent(this, tile);
             return true;
         }
 

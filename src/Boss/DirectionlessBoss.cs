@@ -15,7 +15,7 @@ public class DirectionlessBoss : Boss
     public override void SubscribeToPlayerEvents(Player player)
     {
         player.OnPostAddScoringAnimationEffectEvent += Directionless;
-        player.PostRoundEndEvent += Reset;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         playedYakus.Clear();
     }
 
@@ -23,10 +23,10 @@ public class DirectionlessBoss : Boss
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
         player.OnPostAddScoringAnimationEffectEvent -= Directionless;
-        player.PostRoundEndEvent -= Reset;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
-    private void Reset(PlayerEvent eventData)
+    private void PostRoundEnd(PlayerEvent eventData)
     {
         playedYakus.Clear();
     }
@@ -58,15 +58,15 @@ public class DirectionlessBoss : Boss
             this.baseArtifact = baseArtifact;
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             List<YakuType> yakus = permutation.GetYakus(player)
                 .Where(a => player.GetSkillSet().GetLevel(a) > 0 && !playedYakus.Contains(a)).ToList();
             foreach (YakuType yaku in yakus)
             {
                 playedYakus.Add(yaku);
-                effects.Add(new NewPatternReversedEffect(yaku, this));
+                effects.Add(new NewPatternReversedEffect(yaku, this, baseArtifact));
             }
         }
 
@@ -80,12 +80,14 @@ public class DirectionlessBoss : Boss
         {
             private YakuType yaku;
             private readonly DirectionlessBossReversedArtifact artifact;
+            private readonly Artifact baseArtifact1;
 
             public NewPatternReversedEffect(YakuType yaku,
-                DirectionlessBossReversedArtifact artifact)
+                DirectionlessBossReversedArtifact artifact, Artifact baseArtifact1)
             {
                 this.yaku = yaku;
                 this.artifact = artifact;
+                this.baseArtifact1 = baseArtifact1;
             }
 
             public override string GetEffectDisplay(Func<string, string> func)
@@ -95,13 +97,13 @@ public class DirectionlessBoss : Boss
 
             public override Artifact GetEffectSource()
             {
-                return artifact;
+                return baseArtifact1;
             }
 
             public override void Ingest(Player player)
             {
                 player.levelTarget *= 0.94D;
-                EventManager.Instance.OnSetProgressBarLength(0.94f);
+                MessageManager.Instance.OnSetProgressBarLength(0.94f);
             }
         }
     }

@@ -14,11 +14,11 @@ public class StraightlessBoss : Boss
     public override void SubscribeToPlayerEvents(Player player)
     {
         player.OnPostAddOnTileAnimationEffectEvent += CountTiles;
-        player.PostRoundEndEvent += ClearList;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         playedTile = new List<int>();
     }
 
-    private void ClearList(PlayerEvent eventData)
+    private void PostRoundEnd(PlayerEvent eventData)
     {
         playedTile.Clear();
     }
@@ -26,7 +26,7 @@ public class StraightlessBoss : Boss
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
         player.OnPostAddOnTileAnimationEffectEvent -= CountTiles;
-        player.PostRoundEndEvent -= ClearList;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     private void CountTiles(Permutation perm, Player player, List<OnTileAnimationEffect> lst)
@@ -86,10 +86,10 @@ public class StraightlessBoss : Boss
             if(player.Selecting(tile) && tile.IsNumbered() && !playedTile.Contains(tile.GetOrder()))
             {
                 playedTile.Add(tile.GetOrder());
-                effects.Add(new SimpleEffect("effect_straightl_reversed", this, (p) =>
+                effects.Add(new SimpleEffect("effect_Straightless_reversed", this, (p) =>
                 {
                     p.levelTarget *= 0.95D;
-                    EventManager.Instance.OnSetProgressBarLength(0.95f);
+                    MessageManager.Instance.OnSetProgressBarLength(0.95f);
                 }));
             }
         }

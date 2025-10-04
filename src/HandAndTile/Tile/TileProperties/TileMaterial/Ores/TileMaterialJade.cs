@@ -37,7 +37,7 @@ namespace Aotenjo
             return Rarity.RARE;
         }
 
-        protected override int GetSpriteID()
+        public override int GetSpriteID()
         {
             if (level < cap)
                 return base.GetSpriteID();

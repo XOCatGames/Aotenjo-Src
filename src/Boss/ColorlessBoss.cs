@@ -43,7 +43,7 @@ public class ColorlessBoss : Boss
                 if (player.Selecting(tile) && tile.ContainsRed(player))
                 {
                     effects.Add(new IncreaseTargetEffect(0.94D, "unred", baseArtifact));
-                    EventManager.Instance.OnSetProgressBarLength(0.94f);
+                    MessageManager.Instance.OnSetProgressBarLength(0.94f);
                 }
             });
     }

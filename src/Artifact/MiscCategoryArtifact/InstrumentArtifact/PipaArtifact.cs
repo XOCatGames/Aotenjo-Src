@@ -32,16 +32,16 @@ public class PipaArtifact : InstrumentArtifact, IPersistantAura
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.PostRoundEndEvent += OnRoundEnd;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.PostRoundEndEvent -= OnRoundEnd;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
-    private void OnRoundEnd(PlayerEvent _)
+    private void PostRoundEnd(PlayerEvent _)
     {
         isAffecting = false;
     }
@@ -63,9 +63,9 @@ public class PipaArtifact : InstrumentArtifact, IPersistantAura
         effects.Add(new FractureEffect(this, tile, "effect_pipa_fracture_name"));
     }
 
-    public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+    public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
     {
-        base.AddOnSelfEffects(player, permutation, effects);
+        base.AppendOnSelfEffects(player, permutation, effects);
         if (isAffecting)
         {
             effects.Add(ScoreEffect.MulFan(MULT, this));

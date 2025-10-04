@@ -30,9 +30,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localize), Level, INIT_FU);
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
 
             int count = player.GetCurrentSelectedBlocks().Count(b => b.OfCategory(Tile.Category.Wan));
 

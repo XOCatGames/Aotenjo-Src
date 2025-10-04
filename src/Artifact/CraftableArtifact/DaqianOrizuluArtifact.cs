@@ -17,10 +17,10 @@ namespace Aotenjo
             effects.Add(new SimpleEffect("effect_daqian", this, p =>
             {
                 List<Yaku> yakus = p.deck.GetAvailableYakus().Where(y => y.rarity == Rarity.COMMON).ToList();
-                EventManager.Instance.OnSoundEvent("book");
+                MessageManager.Instance.OnSoundEvent("book");
                 foreach (var yaku in yakus)
                 {
-                    p.GetSkillSet().AddLevel(yaku.yakuTypeID, 2);
+                    p.GetSkillSet().AddLevel(yaku.GetYakuType(), 2);
                 }
             }, "Book"));
         }

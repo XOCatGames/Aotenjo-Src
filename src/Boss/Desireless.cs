@@ -43,7 +43,7 @@ public class DesirelessBoss : Boss
                                                || tile.GetCategory() == Tile.Category.Jian))
                 {
                     effects.Add(new IncreaseTargetEffect(0.95D, "desireless"));
-                    EventManager.Instance.OnSetProgressBarLength(0.95f);
+                    MessageManager.Instance.OnSetProgressBarLength(0.95f);
                 }
             });
     }

@@ -14,7 +14,7 @@ public class CameraGadget : Gadget
         Tile copy = new(tile);
         copy.properties = copy.properties.CopyWithFont(TileFont.COLORLESS);
         player.AddNewTileToPool(copy);
-        EventManager.Instance.OnSoundEvent("Camera");
+        MessageManager.Instance.OnSoundEvent("Camera");
         return true;
     }
 

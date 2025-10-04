@@ -29,7 +29,7 @@ namespace Aotenjo
                 item.AddTransform(new TileTransformTrivial(item.GetCategory(), item.GetOrder() + shiftValue), player);
             }
 
-            EventManager.Instance.OnSoundEvent("HairDryer");
+            MessageManager.Instance.OnSoundEvent("HairDryer");
             return true;
         }
 

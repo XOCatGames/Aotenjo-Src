@@ -44,7 +44,7 @@ namespace Aotenjo
                     gadget.uses = 1;
                     player.AddGadget(gadget);
 
-                    EventManager.Instance.OnSoundEvent("ReceiveGadget");
+                    MessageManager.Instance.OnSoundEvent("ReceiveGadget");
                 }
             }
         }

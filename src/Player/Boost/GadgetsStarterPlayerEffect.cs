@@ -17,7 +17,7 @@ public class GadgetsStarterPlayerEffect : StarterBoostEffect
     public override void Boost(Player player)
     {
         player.GenerateGadgets(AMOUNT, g => !g.IsConsumable(), true, 0, 10).ForEach(g => player.AddGadget(g));
-        EventManager.Instance.OnSoundEvent("ReceiveGadget");
+        MessageManager.Instance.OnSoundEvent("ReceiveGadget");
     }
 
     public class Lite : StarterBoostEffect
@@ -34,7 +34,7 @@ public class GadgetsStarterPlayerEffect : StarterBoostEffect
         public override void Boost(Player player)
         {
             player.GenerateGadgets(1, g => !g.IsConsumable(), true, 0, 10).ForEach(g => player.AddGadget(g));
-            EventManager.Instance.OnSoundEvent("ReceiveGadget");
+            MessageManager.Instance.OnSoundEvent("ReceiveGadget");
         }
     }
 
@@ -47,7 +47,7 @@ public class GadgetsStarterPlayerEffect : StarterBoostEffect
         public override void Boost(Player player)
         {
             player.SetGadgetLimit(player.GetGadgetLimit() + 1);
-            EventManager.Instance.OnSoundEvent("ReceiveGadget");
+            MessageManager.Instance.OnSoundEvent("ReceiveGadget");
         }
     }
 }

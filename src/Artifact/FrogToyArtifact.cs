@@ -22,14 +22,14 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.PostDiscardTileEvent += PostDiscardTile;
-            player.PostRoundEndEvent += OnRoundStart;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
             player.PostDiscardTileEvent -= PostDiscardTile;
-            player.PostRoundStartEvent -= OnRoundStart;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         private void PostDiscardTile(PlayerDiscardTileEvent.Post eventData)
@@ -42,11 +42,11 @@ namespace Aotenjo
                 Level--;
                 bool res = player.RemoveTileFromDiscarded(tile);
                 if (!res) return;
-                EventManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
+                MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
             }
         }
 
-        public void OnRoundStart(PlayerEvent playerEvent)
+        public void PostRoundEnd(PlayerEvent playerEvent)
         {
             Level = MAX;
         }

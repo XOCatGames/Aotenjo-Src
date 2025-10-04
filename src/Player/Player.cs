@@ -222,22 +222,14 @@ namespace Aotenjo
         public delegate void ChoosePathEventListener(PlayerChoosePathEvent evt);
 
         #region 游戏生命周期事件
-        
-        public event PlayerEventListener PreRoundStartEvent;
-        public event PlayerEventListener PostRoundStartEvent;
-        public event PlayerEventListener PrePreRoundEndEvent;
-        public event PlayerEventListener PostPreRoundEndEvent;
-        public event PlayerEventListener PreRoundEndEvent;
-        public event PlayerEventListener PostRoundEndEvent;
         public event PlayerEventListener PreSkipRoundEvent;
-        public event PlayerEventListener PostSkipRoundEndEvent;
+        public event PlayerEventListener PostSkipRoundEvent;
         
         //Player, Winning
         public event Action<Player, bool> OnEndRunEvent;
         public event Action<Player, bool, PlayerStats> PostRunEndEvent;
 
         #endregion
-
 
         public event PlayerPermutationEventListener PreSettlePermutationEvent;
         public event PlayerPermutationEventListener PreAppendSettleScoringEffectsEvent;
@@ -279,7 +271,6 @@ namespace Aotenjo
         public event PlayerSetAttributeEventListener PreSetMaterialEvent;
         public event PlayerSetAttributeEventListener PreSetFontEvent;
         public event PlayerSetAttributeEventListener PreSetMaskEvent;
-        public event Action<Player, Tile, Category, int> PostModifyTileCarvatureEvent;
         public event PlayerSetPropertiesEventListener PreSetPropertiesEvent;
         public event PlayerSetPropertiesEventListener PreSetTilePropertiesEvent;
 
@@ -352,7 +343,7 @@ namespace Aotenjo
         public virtual List<Artifact> GetArtifacts()
         {
             var artifacts = NewHeldArtifacts.Select(Artifacts.GetArtifact).Where(a => a != null).ToList();
-            if (!artifacts.Any())
+            if (!artifacts.Any() && HeldArtifacts != null && HeldArtifacts.Any())
             {
                 artifacts = HeldArtifacts.Select(a => Artifacts.ArtifactList.First(ar => ar.GetNumberID() == a)).ToList();
                 NewHeldArtifacts = artifacts.Select(a => a.GetRegName()).ToList();
@@ -487,7 +478,7 @@ namespace Aotenjo
             return seed;
         }
 
-        public void OnEnterGame()
+        public void InitPointers()
         {
             CachedSelectedPermutation = null;
             CurrentAccumulatedBlock = null;
@@ -506,7 +497,7 @@ namespace Aotenjo
             return skillSet;
         }
 
-        public YakuType[] GetYakus()
+        public YakuType[] GetLearntYakus()
         {
             return skillSet.GetYakus();
         }
@@ -700,7 +691,7 @@ namespace Aotenjo
         public List<Effect> GetScoreEffectsFromArtifacts(Permutation permutation)
         {
             List<Effect> effects = new();
-            GetArtifacts().ForEach(a => a.AddOnSelfEffects(this, permutation, effects));
+            GetArtifacts().ForEach(a => a.AppendOnSelfEffects(this, permutation, effects));
             return effects;
         }
 
@@ -1018,7 +1009,7 @@ namespace Aotenjo
             TilePool.Add(toAdd);
             PlayerTileEvent postAddTileEvt = new PlayerTileEvent(this, toAdd);
             PostAddTileEvent?.Invoke(postAddTileEvt);
-            EventManager.Instance.OnAddTileEvent(new List<Tile> { toAdd });
+            MessageManager.Instance.OnAddTileEvent(new List<Tile> { toAdd });
             return true;
         }
 
@@ -1117,17 +1108,17 @@ namespace Aotenjo
             SkipCount++;
             DiscardLeft += 10;
             CurrentPlayingStage++;
-            PostSkipRoundEndEvent?.Invoke(new(this));
+            PostSkipRoundEvent?.Invoke(new(this));
         }
 
         public bool OnRoundEndButtonPressed()
         {
-            PlayerEvent prePreRoundEndEvent = new(this);
-            PrePreRoundEndEvent?.Invoke(prePreRoundEndEvent);
-
+            PlayerRoundEvent.End.PrePre prePreRoundEndEvent = new(this);
+            EventBus.Publish(prePreRoundEndEvent);
             if (prePreRoundEndEvent.canceled) return false;
 
-            PostPreRoundEndEvent?.Invoke(new(this));
+            PlayerRoundEvent.End.PostPre postPreRoundEndEvent = new(this);
+            EventBus.Publish(postPreRoundEndEvent);
             return true;
         }
 
@@ -1140,11 +1131,10 @@ namespace Aotenjo
             stats.SyncPlayer(this);
             if (Math.Floor(CurrentAccumulatedScore) >= Math.Floor(GetLevelTarget()))
             {
-                PreRoundEndEvent?.Invoke(new PlayerEvent(this));
+                EventBus.Publish(new PlayerRoundEvent.End.Pre(this));
                 SettleMoney();
                 ResetTilePool();
-
-                PostRoundEndEvent?.Invoke(new PlayerEvent(this));
+                EventBus.Publish(new PlayerRoundEvent.End.Post(this));
                 ResetScore();
                 Level++;
 
@@ -1581,7 +1571,7 @@ namespace Aotenjo
         }
 
         public List<Tile> GenerateRandomTileGroupWithEffects(int n, int normalWeight = 80, int commonWeight = 19,
-            int epicWeight = 1, int fontedPercentage = 25, bool canGenerateHonorSeq = true)
+            int epicWeight = 1, int fontedPercentage = 25, bool canGenerateHonorSeq = true, bool canBeMixed = true)
         {
             List<Tile> tiles = new();
             bool isAbc = GenerateRandomInt(4) <= 2;
@@ -1626,8 +1616,8 @@ namespace Aotenjo
                     tiles.Add(new Tile(initialTile));
                 }
 
-                bool IsMixed = GenerateRandomInt(2) == 0;
-                if (IsMixed && initialTile.IsNumbered())
+                bool isMixed = GenerateRandomInt(2) == 0 && !canBeMixed;
+                if (isMixed && initialTile.IsNumbered())
                 {
                     for (int i = 1; i < n; i++)
                     {
@@ -1763,19 +1753,22 @@ namespace Aotenjo
         public void SpendMoney(int v)
         {
             SpendMoneyEvent?.Invoke(new(this, v));
-            EventManager.Instance.OnSpendMoney(v);
+            MessageManager.Instance.OnSpendMoney(v);
             DecreaseMoney(v);
             stats.SpendMoney(v);
         }
 
         public virtual void OnRoundStart()
         {
-            PreRoundStartEvent?.Invoke(new(this));
+            //PreRoundStartEvent?.Invoke(new(this));
+            
+            EventBus.Publish(new PlayerRoundEvent.Start.Pre(this));
+            
             HeldGadgets.ForEach(g => g.ResetState(this));
             InitHandDeck();
             levelTarget = GetBasicLevelTarget();
 
-            PostRoundStartEvent?.Invoke(new(this));
+            EventBus.Publish(new PlayerRoundEvent.Start.Post(this));
             inRound = true;
             stats.SyncPlayer(this);
         }
@@ -2103,7 +2096,7 @@ namespace Aotenjo
             return result;
         }
 
-        public void PostUsedGadget(Gadget gadget)
+        public void PostUsedGadget(Gadget gadget, Tile tile = null)
         {
             if (gadget.uses < 0) throw new ArgumentException("GADGET USES EXHAUSTED");
             gadget.uses--;
@@ -2115,7 +2108,9 @@ namespace Aotenjo
                 }
             }
 
-            PostUseGadgetEvent?.Invoke(new(this, gadget));
+            var playerGadgetEvent = new PlayerGadgetEvent(this, gadget);
+            playerGadgetEvent.tile = tile;
+            PostUseGadgetEvent?.Invoke(playerGadgetEvent);
         }
 
         public virtual List<Destination> GenerateDestinations()
@@ -2165,7 +2160,7 @@ namespace Aotenjo
         public List<Artifact> DrawRandomArtifact(Rarity rarity, int count)
         {
             List<Artifact> validArtifacts = ArtifactBank.Select(Artifacts.GetArtifact)
-                .Where(a => a.IsAvailableInShops(this) && a.GetRarity() == rarity).ToList();
+                .Where(a => a != null && a.IsAvailableInShops(this) && a.GetRarity() == rarity).ToList();
             LotteryPool<Artifact> pool = new LotteryPool<Artifact>();
             pool.AddRange(validArtifacts);
             List<Artifact> res = new();
@@ -2208,17 +2203,17 @@ namespace Aotenjo
         {
             List<PermutationType> types = new();
 
-            if (skillSet.GetYakus().Contains(YakuType.Base))
+            if (skillSet.GetYakus().Contains(FixedYakuType.Base))
             {
                 types.Add(PermutationType.NORMAL);
             }
 
-            if (skillSet.GetYakus().Contains(YakuType.QiDui))
+            if (skillSet.GetYakus().Contains(FixedYakuType.QiDui))
             {
                 types.Add(PermutationType.SEVEN_PAIRS);
             }
 
-            if (skillSet.GetYakus().Contains(YakuType.ShiSanYao))
+            if (skillSet.GetYakus().Contains(FixedYakuType.ShiSanYao))
             {
                 types.Add(PermutationType.THIRTEEN_ORPHANS);
             }
@@ -2411,7 +2406,7 @@ namespace Aotenjo
             foreach (Yaku yaku in yakuList)
             {
                 if (lvBefore[yaku] == lvAfter[yaku]) continue;
-                EventManager.Instance.OnUpgradeYakuEvent(yaku.GetYakuType(), lvBefore[yaku], lvAfter[yaku]);
+                MessageManager.Instance.OnUpgradeYakuEvent(yaku.GetYakuType(), lvBefore[yaku], lvAfter[yaku]);
             }
         }
 
@@ -2519,7 +2514,7 @@ namespace Aotenjo
             PreSetTilePropertiesEvent?.Invoke(new PlayerSetPropertiesEvent(this, tile, newProperties, false));
         }
 
-        public int GetMaxPlayingStage()
+        public virtual int GetMaxPlayingStage()
         {
             return 4;
         }
@@ -2609,9 +2604,16 @@ namespace Aotenjo
             OnAddSingleDiscardTileAnimationEffectEvent?.Invoke(this, onDiscardTileEffects, tile, withForce);
         }
 
-        public void OnModifyCarvedDesign(Tile tile, Category cat, int order)
+        public bool OnPreModifyCarvedDesign(Tile t, Category newCat, int newOrd)
         {
-            PostModifyTileCarvatureEvent?.Invoke(this, tile, cat, order);
+            var evt = new PlayerModifyCarvedDesignEvent.Pre(t, newCat, newOrd, this);
+            EventBus.Publish(evt);
+            return !evt.canceled;
+        }
+
+        public void OnPostModifyCarvedDesign(Tile tile, Category cat, int order)
+        {
+            EventBus.Publish(new PlayerModifyCarvedDesignEvent.Post(tile, cat, order, this));
         }
 
         public void TriggerDessertTileConsumedEvent(Tile tile, TileMaterialDessert dessert)
@@ -2801,7 +2803,7 @@ namespace Aotenjo
             return baseFan * multiplier;
         }
 
-        public double GetYakuMultiplier(YakuType yakuType)
+        public virtual double GetYakuMultiplier(YakuType yakuType)
         {
             PlayerYakuEvent.RetrieveMultiplier evt = new(this, yakuType, 1.0D);
             RetrieveYakuMultiplierEvent?.Invoke(evt);
@@ -2881,10 +2883,10 @@ namespace Aotenjo
                 { ScoreEffect.AddFu(() => GetBaseFuOfTile(tile), null).OnTile(tile) };
         }
 
-        public void EraseBlock(Block block)
+        public virtual bool EraseBlock(Block block)
         {
             Permutation perm = GetAccumulatedPermutation();
-            if(perm == null) return;
+            if(perm == null) return false;
             perm.blocks = perm.blocks.Except(new[] { block }).ToArray();
             if (!perm.blocks.Any() || perm.GetPermType() == PermutationType.SEVEN_PAIRS)
                 SetCurrentAccumulatedBlock(null);
@@ -2892,8 +2894,14 @@ namespace Aotenjo
             CurrentPlayingStage--;
             if (needUnfreeze)
             {
-                EventManager.Instance.OnUnfreezeEvent(this);
+                MessageManager.Instance.OnUnfreezeEvent(this);
             }
+
+            return true;
+        }
+
+        public virtual void PostRoundStart()
+        {
         }
     }
 }

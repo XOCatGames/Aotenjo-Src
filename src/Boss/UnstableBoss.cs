@@ -22,7 +22,7 @@ public class UnstableBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.PostSkipRoundEndEvent += OnSkip;
+        player.PostSkipRoundEvent += OnSkip;
         player.PostSettlePermutationEvent += PostSettle;
         player.OnPostAddOnTileAnimationEffectEvent += Persist;
         state = EVEN_AND_WIND;
@@ -30,7 +30,7 @@ public class UnstableBoss : Boss
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PostSkipRoundEndEvent -= OnSkip;
+        player.PostSkipRoundEvent -= OnSkip;
         player.PostSettlePermutationEvent -= PostSettle;
         player.OnPostAddOnTileAnimationEffectEvent -= Persist;
     }
@@ -87,22 +87,22 @@ public class UnstableBoss : Boss
             this.baseArtifact = baseArtifact;
         }
         
-        public override string GetDescription(Player player, Func<string, string> loc)
+        public override string GetDescription(Func<string, string> loc)
         {
-            return loc("artifact_unstable_reversed_description_" + state);
+            return loc("artifact_Unstable_reversed_description_" + state);
         }
         
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent += OnSkip;
+            player.PostSkipRoundEvent += OnSkip;
             player.PostSettlePermutationEvent += PostSettle;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent -= OnSkip;
+            player.PostSkipRoundEvent -= OnSkip;
             player.PostSettlePermutationEvent -= PostSettle;
         }
         
@@ -134,7 +134,7 @@ public class UnstableBoss : Boss
             
             //防止递归
             if (!affectedTiles.Add(tile)) return;
-            effects.Add(new TextEffect("effect_unstable_reversed", baseArtifact));
+            effects.Add(new TextEffect("effect_Unstable_reversed", baseArtifact));
             //重复计分
             effects.Add(new TileScoringEffectAppendEffect(player, tile, permutation, player.playHandEffectStack));
             effects.Add(new SilentEffect(() => affectedTiles.Remove(tile)));

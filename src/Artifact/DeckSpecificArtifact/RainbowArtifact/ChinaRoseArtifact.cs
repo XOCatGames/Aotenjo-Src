@@ -40,7 +40,7 @@ namespace Aotenjo
             }
 
             player.EarnMoney(MONEY_AMOUNT);
-            EventManager.Instance.OnArtifactEarnMoney(MONEY_AMOUNT, this);
+            MessageManager.Instance.OnArtifactEarnMoney(MONEY_AMOUNT, this);
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)

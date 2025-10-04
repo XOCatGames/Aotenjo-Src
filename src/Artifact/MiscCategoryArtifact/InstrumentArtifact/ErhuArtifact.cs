@@ -20,7 +20,7 @@ public class ErhuArtifact : InstrumentArtifact
         player.RoundAccumulatedScore = player.RoundAccumulatedScore.AddFu(fu);
     }
 
-    public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+    public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
     {
     }
 

@@ -52,16 +52,16 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreRoundEndEvent += OnRoundEnd;
+            EventBus.Subscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreRoundEndEvent -= OnRoundEnd;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
         }
 
-        private void OnRoundEnd(PlayerEvent playerEvent)
+        private void PreRoundEnd(PlayerEvent playerEvent)
         {
             ChangeGhostingTile(playerEvent.player);
         }

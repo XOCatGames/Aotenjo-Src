@@ -15,13 +15,13 @@ public class KnowledgelessBoss : Boss
     {
         robbedYakus = new List<Tuple<YakuType, int>>();
         player.PostSettlePermutationEvent += RobYakus;
-        player.PostRoundEndEvent += GiveBackYakus;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
         player.PostSettlePermutationEvent -= RobYakus;
-        player.PostRoundEndEvent -= GiveBackYakus;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     private void RobYakus(PlayerPermutationEvent eventData)
@@ -31,7 +31,7 @@ public class KnowledgelessBoss : Boss
         foreach (var yaku in perm.GetYakus(player)
                      .Where(a => YakuTester.InfoMap[a].rarity > Rarity.COMMON && player.GetSkillSet().GetLevel(a) > 0))
         {
-            if (yaku == YakuType.ShiSanYao || yaku == YakuType.QiDui) return;
+            if (yaku == FixedYakuType.ShiSanYao || yaku == FixedYakuType.QiDui) return;
             robbedYakus.Add(new Tuple<YakuType, int>(yaku, player.GetSkillSet().GetLevel(yaku)));
             player.GetSkillSet().SetLevel(yaku, 0);
         }
@@ -53,7 +53,7 @@ public class KnowledgelessBoss : Boss
         }
     }
 
-    private void GiveBackYakus(PlayerEvent eventData)
+    private void PostRoundEnd(PlayerEvent eventData)
     {
         Player player = eventData.player;
         foreach (var yaku in robbedYakus)

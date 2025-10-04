@@ -21,9 +21,9 @@ namespace Aotenjo
             return ToAddFanFormat(GetFan(player));
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.AddFan(Level, this));
             if (Level > 20)
                 effects.Add(ScoreEffect.AddFu(80, this));

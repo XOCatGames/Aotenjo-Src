@@ -19,6 +19,6 @@ public class FishingFlowerTile : FlowerTile
     {
         base.OnPlayed(player, perm);
         player.EarnMoney(MONEY);
-        EventManager.Instance.OnSoundEvent("earn_coins");
+        MessageManager.Instance.OnSoundEvent("earn_coins");
     }
 }

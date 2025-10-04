@@ -15,11 +15,11 @@ public class UncompletedBoss : Boss
     public override void SubscribeToPlayerEvents(Player player)
     {
         player.OnPostAddScoringAnimationEffectEvent += CountTypes;
-        player.PostRoundEndEvent += ClearList;
+        EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         playedCategories = new List<Category>();
     }
 
-    private void ClearList(PlayerEvent eventData)
+    private void PostRoundEnd(PlayerEvent eventData)
     {
         playedCategories.Clear();
     }
@@ -27,7 +27,7 @@ public class UncompletedBoss : Boss
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
         player.OnPostAddScoringAnimationEffectEvent -= CountTypes;
-        player.PostRoundEndEvent -= ClearList;
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     private void CountTypes(Permutation perm, Player player, List<IAnimationEffect> lst)

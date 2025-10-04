@@ -14,16 +14,16 @@ public class OneTimeUseFlowerTile : FlowerTile
     public override void SubscribeToPlayerEvents(Player player)
     {
         base.SubscribeToPlayerEvents(player);
-        player.PreRoundEndEvent += ResetStatus;
+        EventBus.Subscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
     }
 
     public override void UnsubscribeFromPlayer(Player player)
     {
         base.UnsubscribeFromPlayer(player);
-        player.PreRoundEndEvent -= ResetStatus;
+        EventBus.Subscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
     }
 
-    private void ResetStatus(PlayerEvent playerEvent)
+    private void PreRoundEnd(PlayerEvent playerEvent)
     {
         used = false;
     }

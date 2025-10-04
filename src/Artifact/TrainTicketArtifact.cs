@@ -36,13 +36,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostRoundStartEvent += OnRoundStart;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostRoundStartEvent -= OnRoundStart;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
         }
 
         public override void AddOnBlockEffects(Player player, Permutation permutation, Block block,
@@ -57,7 +57,7 @@ namespace Aotenjo
             }
         }
 
-        public void OnRoundStart(PlayerEvent playerEvent)
+        public void PostRoundStart(PlayerEvent playerEvent)
         {
             first = true;
         }

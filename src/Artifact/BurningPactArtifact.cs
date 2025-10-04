@@ -50,9 +50,9 @@ namespace Aotenjo
             );
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             double mul = GetMul(player);
             if(mul <= 1.0001D) return;
             effects.Add(ScoreEffect.MulFan(mul, this));

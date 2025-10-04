@@ -32,7 +32,7 @@ namespace Aotenjo
             if (evt.tile.ContainsGreen(evt.player))
             {
                 evt.player.EarnMoney(MONEY);
-                EventManager.Instance.OnArtifactEarnMoney(MONEY, this);
+                MessageManager.Instance.OnArtifactEarnMoney(MONEY, this);
             }
         }
     }

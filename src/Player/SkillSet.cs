@@ -2,13 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Aotenjo
 {
     [Serializable]
     public class SkillSet
     {
-        [SerializeField] private List<YakuType> levelMapKey = new List<YakuType>();
+        [SerializeField] private List<FixedYakuType> levelMapKey = new List<FixedYakuType>();
+
+        [SerializeField]
+        private SerializableMap<string, int> levelMap = new SerializableMap<string, int>();
+        [SerializeField]
+        private SerializableMap<string, int> unlockProgressMap = new SerializableMap<string, int>();
+
         [SerializeField] private List<int> levelMapValue = new List<int>();
         [SerializeField] private List<int> levelUnlockProgressValue = new List<int>();
 
@@ -21,6 +28,20 @@ namespace Aotenjo
         {
         }
 
+        private void TrySyncLegacyValue()
+        {
+            if (!levelMap.IsEmpty() || !unlockProgressMap.IsEmpty() || levelMapKey.Count <= 0) return;
+            
+            Debug.Log("Import legacy skillset value");
+            
+            for (int i = 0; i < levelMapKey.Count; i++)
+            {
+                var key = levelMapKey[i].ToString();
+                levelMap.Add(key, levelMapValue[i]);
+                unlockProgressMap.Add(key, levelUnlockProgressValue[i]);
+            }
+        }
+
         public void SetPlayer(Player p)
         {
             player = p;
@@ -29,77 +50,76 @@ namespace Aotenjo
         public static SkillSet NewSkillSet()
         {
             SkillSet Set = new();
-            foreach (YakuType yaku in Enum.GetValues(typeof(YakuType)))
-            {
-                Set.levelMapKey.Add(yaku);
-                Set.levelMapValue.Add(0);
-                Set.levelUnlockProgressValue.Add(0);
-            }
-
+            // foreach (YakuType yaku in Enum.GetValues(typeof(YakuType)))
+            // {
+            //     Set.legacyYakuLevelMap.Add(yaku);
+            //     Set.levelMapValue.Add(0);
+            //     Set.levelUnlockProgressValue.Add(0);
+            // }
             return Set;
         }
 
         public static SkillSet StandardSkillSet()
         {
             SkillSet Set = NewSkillSet();
-            Set.SetLevel(YakuType.Base, 1);
-            Set.SetLevel(YakuType.PingHu, 1);
-            Set.SetLevel(YakuType.DuanYao, 1);
-            Set.SetLevel(YakuType.ShuangKe, 1);
-            Set.SetLevel(YakuType.JianKe, 1);
-            Set.SetLevel(YakuType.MenFengKe, 1);
-            Set.SetLevel(YakuType.QuanFengKe, 1);
-            Set.SetLevel(YakuType.QiDui, 1);
-            Set.SetLevel(YakuType.ShiSanYao, 1);
-            Set.SetLevel(YakuType.HunYiSe, 1);
+            Set.SetLevel(FixedYakuType.Base, 1);
+            Set.SetLevel(FixedYakuType.PingHu, 1);
+            Set.SetLevel(FixedYakuType.DuanYao, 1);
+            Set.SetLevel(FixedYakuType.ShuangKe, 1);
+            Set.SetLevel(FixedYakuType.JianKe, 1);
+            Set.SetLevel(FixedYakuType.MenFengKe, 1);
+            Set.SetLevel(FixedYakuType.QuanFengKe, 1);
+            Set.SetLevel(FixedYakuType.QiDui, 1);
+            Set.SetLevel(FixedYakuType.ShiSanYao, 1);
+            Set.SetLevel(FixedYakuType.HunYiSe, 1);
             return Set;
         }
 
         public static SkillSet ScarletSkillSet()
         {
             SkillSet Set = NewSkillSet();
-            Set.SetLevel(YakuType.Base, 1);
-            Set.SetLevel(YakuType.PingHu, 1);
-            Set.SetLevel(YakuType.DuanYao, 1);
-            Set.SetLevel(YakuType.ShuangKe, 1);
-            Set.SetLevel(YakuType.QiDui, 1);
+            Set.SetLevel(FixedYakuType.Base, 1);
+            Set.SetLevel(FixedYakuType.PingHu, 1);
+            Set.SetLevel(FixedYakuType.DuanYao, 1);
+            Set.SetLevel(FixedYakuType.ShuangKe, 1);
+            Set.SetLevel(FixedYakuType.QiDui, 1);
             return Set;
         }
 
         public static SkillSet RainbowSkillSet()
         {
             SkillSet Set = NewSkillSet();
-            Set.SetLevel(YakuType.Base, 1);
-            Set.SetLevel(YakuType.PingHu, 1);
-            Set.SetLevel(YakuType.DuanYao, 1);
-            Set.SetLevel(YakuType.ShuangKe, 1);
-            Set.SetLevel(YakuType.JianKe, 1);
-            Set.SetLevel(YakuType.MenFengKe, 1);
-            Set.SetLevel(YakuType.QuanFengKe, 1);
-            Set.SetLevel(YakuType.QiDui, 1);
-            Set.SetLevel(YakuType.ShiSanYao, 1);
-            Set.SetLevel(YakuType.HunYiSe, 1);
-            Set.SetLevel(YakuType.ZhengHua, 1);
-            Set.SetLevel(YakuType.YiTaiHua, 1);
+            Set.SetLevel(FixedYakuType.Base, 1);
+            Set.SetLevel(FixedYakuType.PingHu, 1);
+            Set.SetLevel(FixedYakuType.DuanYao, 1);
+            Set.SetLevel(FixedYakuType.ShuangKe, 1);
+            Set.SetLevel(FixedYakuType.JianKe, 1);
+            Set.SetLevel(FixedYakuType.MenFengKe, 1);
+            Set.SetLevel(FixedYakuType.QuanFengKe, 1);
+            Set.SetLevel(FixedYakuType.QiDui, 1);
+            Set.SetLevel(FixedYakuType.ShiSanYao, 1);
+            Set.SetLevel(FixedYakuType.HunYiSe, 1);
+            Set.SetLevel(FixedYakuType.ZhengHua, 1);
+            Set.SetLevel(FixedYakuType.YiTaiHua, 1);
             return Set;
         }
 
         public static SkillSet ShortenedSkillSet()
         {
             SkillSet Set = NewSkillSet();
-            Set.SetLevel(YakuType.Base, 1);
-            Set.SetLevel(YakuType.PingHu, 1);
-            Set.SetLevel(YakuType.DuanYao, 1);
-            Set.SetLevel(YakuType.ShuangKe, 1);
-            Set.SetLevel(YakuType.JianKe, 1);
-            Set.SetLevel(YakuType.QuanFengKe, 1);
-            Set.SetLevel(YakuType.HunYiSe, 1);
+            Set.SetLevel(FixedYakuType.Base, 1);
+            Set.SetLevel(FixedYakuType.PingHu, 1);
+            Set.SetLevel(FixedYakuType.DuanYao, 1);
+            Set.SetLevel(FixedYakuType.ShuangKe, 1);
+            Set.SetLevel(FixedYakuType.JianKe, 1);
+            Set.SetLevel(FixedYakuType.QuanFengKe, 1);
+            Set.SetLevel(FixedYakuType.HunYiSe, 1);
             return Set;
         }
 
         public YakuPackConsumeResult Consume(YakuPack pack, Player p)
         {
-            List<YakuType> availableYakus = p.deck.GetAvailableYakus().Select(y => y.yakuTypeID).ToList();
+            List<YakuType> availableYakus = p.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
             YakuPackConsumeResult result = new YakuPackConsumeResult(pack, 1);
             for (int i = 0; i < p.GetYakuPackResultCount(); i++)
             {
@@ -112,29 +132,23 @@ namespace Aotenjo
             return result;
         }
 
-
-        private int GetYakuIndex(YakuType yaku)
-        {
-            return levelMapKey.IndexOf(yaku);
-        }
-
         public void SetLevel(YakuType yaku, int level)
         {
-            int index = GetYakuIndex(yaku);
-            levelMapValue[index] = level;
+            TrySyncLegacyValue();
+            levelMap[yaku.ToString()] = level;
         }
 
         public void AddLevel(YakuType yaku, int level)
         {
-            int index = GetYakuIndex(yaku);
+            TrySyncLegacyValue();
 
             level = player.OnPreUpgradeYaku(yaku, level).level;
 
-            int levelBefore = levelMapValue[index];
-            levelMapValue[index] += level;
-            int levelAfter = levelMapValue[index];
+            int levelBefore = GetLevel(yaku);
+            SetLevel(yaku, levelBefore + level);
+            int levelAfter = GetLevel(yaku);
 
-            EventManager.Instance.OnUpgradeYakuEvent(yaku, levelBefore, levelAfter);
+            MessageManager.Instance.OnUpgradeYakuEvent(yaku, levelBefore, levelAfter);
         }
 
         public void IncreaseLevel(YakuType yaku)
@@ -144,31 +158,28 @@ namespace Aotenjo
 
         public void DecreaseLevel(YakuType yaku)
         {
-            int index = GetYakuIndex(yaku);
-            levelMapValue[index]--;
+            AddLevel(yaku, -1);
         }
 
         public void TryUnlockYakuIfLocked(YakuType yaku, bool fullHand)
         {
-            int index = GetYakuIndex(yaku);
-
-            if (GetLevel(yaku) > 1 || levelUnlockProgressValue[index] == -1)
+            if (GetLevel(yaku) > 1 || unlockProgressMap[yaku.ToString()] == -1)
             {
                 return;
             }
 
-            levelUnlockProgressValue[index]++;
-            if (fullHand || levelUnlockProgressValue[index] >= YakuTester.GetUnlockRequirement(yaku))
+            unlockProgressMap[yaku.ToString()]++;
+            if (fullHand || unlockProgressMap[yaku.ToString()] >= YakuTester.GetUnlockRequirement(yaku))
             {
-                levelUnlockProgressValue[index] = -1;
+                unlockProgressMap[yaku.ToString()] = -1;
                 IncreaseLevel(yaku);
             }
         }
 
         public int GetUnlockProgress(YakuType yaku)
         {
-            int index = GetYakuIndex(yaku);
-            return levelUnlockProgressValue[index];
+            TrySyncLegacyValue();
+            return unlockProgressMap[yaku.ToString()];
         }
 
         public int GetLevel(YakuType yaku)
@@ -188,13 +199,14 @@ namespace Aotenjo
 
         public int GetLevel(Yaku yaku)
         {
+            TrySyncLegacyValue();
             return yaku.GetLevel(player);
         }
 
         public int GetExtraLevel(YakuType yakuType)
         {
-            int index = GetYakuIndex(yakuType);
-            return levelMapValue[index];
+            TrySyncLegacyValue();
+            return levelMap[yakuType.ToString()];
         }
 
         public double CalculateFan(YakuType yaku, int blockCount, int extraLevel = 0)
@@ -203,11 +215,6 @@ namespace Aotenjo
             if (GetLevel(yaku) == 0 && extraLevel == 0 && blockCount != 4)
             {
                 return CalculateInheritedFan(yaku, blockCount);
-            }
-
-            if (yaku == YakuType.QuanDa)
-            {
-                Debug.Log(1);
             }
 
             var fan = YakuTester.InfoMap[yaku].fullFan;
@@ -251,12 +258,18 @@ namespace Aotenjo
 
         public YakuType[] GetYakus()
         {
-            return levelMapKey.Where(yaku => GetLevel(yaku) > 0).ToArray();
+            TrySyncLegacyValue();
+            return levelMap.GetKeys().Where(yaku => levelMap[yaku] > 0).Select(YakuType.FromString).ToArray();
         }
 
         public Yaku[] GetUnlockedYakus()
         {
-            return levelMapKey.Where(yaku => GetLevel(yaku) > 0).Select(t => YakuTester.InfoMap[t]).ToArray();
+            TrySyncLegacyValue();
+            return levelMap.GetKeys()
+                .Where(yaku => levelMap[yaku] > 0)
+                .Select(YakuType.FromString)
+                .Select(yakuType => YakuTester.InfoMap[yakuType])
+                .ToArray();;
         }
 
         internal int ClearLevel(YakuType yakuTypeID)
@@ -274,7 +287,11 @@ namespace Aotenjo
 
         internal YakuType[] GetExtraLeveledYakus()
         {
-            return levelMapKey.Where(yaku => GetExtraLevel(yaku) > 0).ToArray();
+            TrySyncLegacyValue();
+            return levelMap.GetKeys()
+                .Select(YakuType.FromString)
+                .Where(yaku => GetExtraLevel(yaku) > 0)
+                .ToArray();;
         }
     }
 }

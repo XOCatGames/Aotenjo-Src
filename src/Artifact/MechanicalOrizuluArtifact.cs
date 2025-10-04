@@ -11,9 +11,9 @@ namespace Aotenjo
                 t.IsNumbered() && (t.GetOrder() == 2 || t.GetOrder() == 5 || t.GetOrder() == 8));
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, perm, effects);
+            base.AppendOnSelfEffects(player, perm, effects);
             if (perm.JiangFulfillAll((t =>
                     t.IsNumbered() && (t.GetOrder() == 2 || t.GetOrder() == 5 || t.GetOrder() == 8))))
                 effects.Add(new MechanicalOrizuluEffect(this, true));

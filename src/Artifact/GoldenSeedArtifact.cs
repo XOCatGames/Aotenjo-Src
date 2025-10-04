@@ -13,9 +13,9 @@ namespace Aotenjo
         {
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.MulFan(GetMul(), this));
         }
 
@@ -39,8 +39,8 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.EarnMoneyEvent += OnEarnMoney;
-            player.PreRoundStartEvent += OnRoundStart;
-            player.PostPreRoundEndEvent += OnRoundEnd;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(OnRoundEnd);
             affecting = player.inRound;
         }
 
@@ -48,8 +48,8 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayer(player);
             player.EarnMoneyEvent -= OnEarnMoney;
-            player.PreRoundStartEvent -= OnRoundStart;
-            player.PrePreRoundEndEvent -= OnRoundEnd;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(OnRoundEnd);
         }
 
         private void OnRoundEnd(PlayerEvent playerEvent)
@@ -100,7 +100,7 @@ namespace Aotenjo
                 Artifact tempArtifact = LotteryPool<Artifact>.DrawFromCollection(list, player.GenerateRandomInt);
                 tempArtifact.IsTemporary = true;
                 player.ObtainArtifact(tempArtifact);
-                EventManager.Instance.OnSoundEvent("Agate");
+                MessageManager.Instance.OnSoundEvent("Agate");
             }
         }
 

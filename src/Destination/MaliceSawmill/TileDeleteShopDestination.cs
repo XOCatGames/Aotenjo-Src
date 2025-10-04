@@ -108,7 +108,7 @@ namespace Aotenjo
                     {
                         bool res = player.RemoveTileFromPool(cand);
                         if (res)
-                            EventManager.Instance.OnRemoveTileEvent(new List<Tile> { cand });
+                            MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { cand });
                     }
                 }
             }

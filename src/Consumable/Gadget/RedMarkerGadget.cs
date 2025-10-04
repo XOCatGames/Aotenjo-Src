@@ -14,7 +14,7 @@ public class RedMarkerGadget : ReusableGadget
         if (ShouldHighlightTile(tile, player))
         {
             tile.AddTransform(new TileTransformRedMarker(), player);
-            EventManager.Instance.OnSoundEvent("RedMarker");
+            MessageManager.Instance.OnSoundEvent("RedMarker");
             return true;
         }
 

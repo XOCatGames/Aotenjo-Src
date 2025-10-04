@@ -84,6 +84,7 @@ namespace Aotenjo
         {
             LotteryPool<TileMaterial> pool = new LotteryPool<TileMaterial>();
             pool.AddRange(GetMaterialsWithRarity(Rarity.RARE));
+            pool.AddRange(GetMaterialsWithRarity(Rarity.EPIC));
             return pool;
         }
 
@@ -112,7 +113,7 @@ namespace Aotenjo
                 case "desserts":
                     return Dessert;
                 default:
-                    return null;
+                    return MaterialSets.FirstOrDefault(m => m.GetRegName() == materialSet);
             }
         }
 
@@ -155,14 +156,21 @@ namespace Aotenjo
         //     "succubus", "gold_mouse"
         // });
         
-        public static MaterialSet[] materialSets = new []
+        public static MaterialSet[] MaterialSets = new []
         {
             Basic, Ore, Porcelain, Monsters, Wood, Dessert
         };
 
         public virtual UnlockRequirement GetUnlockRequirement()
         {
-            return MaterialSetUnlockRequirements.matSetRequirements[this];
+            try
+            {
+                return MaterialSetUnlockRequirements.matSetRequirements[this];
+            }
+            catch (KeyNotFoundException)
+            {
+                return UnlockRequirement.UnlockedByDefault(); // Default to always unlocked
+            }
         }
     }
 }

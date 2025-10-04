@@ -50,7 +50,7 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PreRoundStartEvent += ChangeMaterial;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
             player.DetermineMaterialCompactbilityEvent += DetermineMaterial;
         }
 
@@ -67,7 +67,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PreRoundStartEvent -= ChangeMaterial;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
             player.DetermineMaterialCompactbilityEvent -= DetermineMaterial;
         }
 

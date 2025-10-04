@@ -38,7 +38,7 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent += Player_PostRoundEndEvent;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
             player.OnPrePostAddOnTileAnimationEffectEvent += Player_OnPrePostAddOnTileAnimationEffectEvent;
             player.DetermineSelectingTileEvent += Player_DetermineSelectingTileEvent;
         }
@@ -56,7 +56,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent -= Player_PostRoundEndEvent;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
             player.OnPrePostAddOnTileAnimationEffectEvent -= Player_OnPrePostAddOnTileAnimationEffectEvent;
             player.DetermineSelectingTileEvent -= Player_DetermineSelectingTileEvent;
         }
@@ -112,7 +112,7 @@ namespace Aotenjo
             }
         }
 
-        private void Player_PostRoundEndEvent(PlayerEvent playerEvent)
+        private void PostRoundEnd(PlayerEvent playerEvent)
         {
             queue.Clear();
         }

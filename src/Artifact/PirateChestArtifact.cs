@@ -28,7 +28,7 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent += ConsumeSkipEvent;
+            player.PostSkipRoundEvent += ConsumeSkipEvent;
         }
 
         private void ConsumeSkipEvent(PlayerEvent data)
@@ -37,7 +37,7 @@ namespace Aotenjo
                 Level += 2;
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
             var blocks = player.GetCurrentSelectedBlocks();
             foreach (var block in blocks)
@@ -52,11 +52,11 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEndEvent -= ConsumeSkipEvent;
+            player.PostSkipRoundEvent -= ConsumeSkipEvent;
             if (!player.GetArtifacts().Contains(this))
             {
                 List<PirateChestReward> rewards = GenerateRewards(player.GenerateRandomInt, player);
-                EventManager.Instance.OnOpenPirateChest(rewards, player);
+                MessageManager.Instance.OnOpenPirateChest(rewards, player);
             }
         }
 

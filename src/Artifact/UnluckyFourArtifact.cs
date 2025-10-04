@@ -34,14 +34,14 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
 
-            player.PreRoundStartEvent += OnRoundStart;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
 
-            player.PreRoundStartEvent += OnRoundStart;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
         }
 
         public void OnRoundStart(PlayerEvent playerEvent)

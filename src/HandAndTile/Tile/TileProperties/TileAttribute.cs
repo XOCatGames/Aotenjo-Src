@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Aotenjo
@@ -65,12 +66,27 @@ namespace Aotenjo
             return new[] { effect };
         }
 
+        protected abstract string GetSpriteSheetName();
+        
+        protected virtual string GetSpriteNamespaceID(Player player, string nmSpace = "aotenjo")
+        {
+            return $"{GetSpriteSheetName().ToLower()}:{nmSpace}:{GetRegName()}";
+        }
+        
+        public virtual Sprite GetSprite(Player player)
+        {
+            Sprite sprite = SpriteManager.Instance.GetSingleSprite(GetSpriteNamespaceID(player));
+            if (sprite == null)
+                sprite = SpriteManager.Instance.GetSprites(GetSpriteSheetName()).ElementAtOrDefault(GetSpriteID());
+            return sprite;
+        }
+
         public virtual int GetSpriteID(Player player)
         {
             return GetSpriteID();
         }
 
-        protected virtual int GetSpriteID()
+        public virtual int GetSpriteID()
         {
             return spriteID;
         }

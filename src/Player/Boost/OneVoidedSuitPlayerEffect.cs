@@ -24,7 +24,7 @@ public class OneVoidedSuitPlayerEffect : StarterBoostEffect
 
         removedList.Sort();
 
-        EventManager.Instance.OnRemoveTileEvent(removedList);
+        MessageManager.Instance.OnRemoveTileEvent(removedList);
     }
 
     public class Lite : StarterBoostEffect
@@ -46,7 +46,7 @@ public class OneVoidedSuitPlayerEffect : StarterBoostEffect
             }
 
             removedList.Sort();
-            EventManager.Instance.OnRemoveTileEvent(removedList);
+            MessageManager.Instance.OnRemoveTileEvent(removedList);
         }
     }
 
@@ -62,7 +62,7 @@ public class OneVoidedSuitPlayerEffect : StarterBoostEffect
             List<Tile> removedList = player.GetAllTiles().Where(t => t.GetCategory() == cat).ToList();
             removedList.ForEach(t => player.RemoveTileFromPool(t));
             removedList.Sort();
-            EventManager.Instance.OnRemoveTileEvent(removedList);
+            MessageManager.Instance.OnRemoveTileEvent(removedList);
         }
     }
 }

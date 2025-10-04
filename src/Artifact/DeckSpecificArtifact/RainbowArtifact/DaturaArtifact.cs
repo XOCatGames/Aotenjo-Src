@@ -28,9 +28,9 @@ namespace Aotenjo
             return 1f + (Level * MUL_PER_LEVEL);
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             if (Level > 0)
                 effects.Add(ScoreEffect.MulFan(GetMul(player), this));
         }

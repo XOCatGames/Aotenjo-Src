@@ -64,9 +64,9 @@ namespace Aotenjo
         protected abstract bool EligibleToDowngrade(Block block, Block.Jiang jiang);
         protected abstract Effect GetPlainEffect();
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             if (Level != 0) return;
             if (player.GetArtifacts().Contains(Artifacts.Jigsaw12) && Artifacts.Jigsaw12.Level == 0)
             {

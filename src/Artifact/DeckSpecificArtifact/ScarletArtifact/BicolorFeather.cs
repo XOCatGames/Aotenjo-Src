@@ -11,9 +11,9 @@ namespace Aotenjo
         {
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, perm, effects);
+            base.AppendOnSelfEffects(player, perm, effects);
 
             if (player is not ScarletPlayer scarlet) return;
 

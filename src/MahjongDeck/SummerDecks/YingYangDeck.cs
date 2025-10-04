@@ -15,10 +15,6 @@ namespace Aotenjo
             return new YingYangPlayer(Hand.PlainFullHand().tiles, seed, this, set, asensionLevel);
         }
 
-        public override MaterialSet[] GetAvailableMaterialSets()
-        {
-            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
-        }
 
         public override bool IsUnlocked(PlayerStats stats)
         {

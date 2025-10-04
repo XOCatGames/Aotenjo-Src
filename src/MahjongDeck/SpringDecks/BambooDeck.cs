@@ -19,11 +19,6 @@ namespace Aotenjo
             return player;
         }
 
-        public override MaterialSet[] GetAvailableMaterialSets()
-        {
-            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
-        }
-
         public override bool IsUnlocked(PlayerStats stats)
         {
             return stats.GetWonNumberByDeck("green_deck") > 0 || stats.GetWonNumberByDeck("blue_deck") > 0 ||

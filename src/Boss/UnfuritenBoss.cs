@@ -37,7 +37,7 @@ public class UnfuritenBoss : Boss
     {
         private readonly Artifact baseArtifact;
     
-        private Dictionary<Tile, int> tempGrowths = new Dictionary<Tile, int>();
+        private Dictionary<string, int> tempGrowths = new Dictionary<string, int>();
 
         public UnfuritenBossReversedArtifact(Artifact baseArtifact) : base("Unfuriten_reversed", Rarity.COMMON)
         {
@@ -58,28 +58,49 @@ public class UnfuritenBoss : Boss
 
         private void Upgrade(Tile tile)
         {
-            tempGrowths.TryAdd(tile, 0);
-            tempGrowths[tile]++;
+            tempGrowths.TryAdd(tile.ToString(), 0);
+            tempGrowths[tile.ToString()]++;
+        }
+
+        public override void SubscribeToPlayer(Player player)
+        {
+            base.SubscribeToPlayer(player);
+            EventBus.Subscribe<PlayerTileEvent.RetrieveBaseFu>(Listener);
+        }
+
+        public override void UnsubscribeToPlayer(Player player)
+        {
+            base.UnsubscribeToPlayer(player);
+            EventBus.Unsubscribe<PlayerTileEvent.RetrieveBaseFu>(Listener);
+        }
+
+        private void Listener(PlayerTileEvent.RetrieveBaseFu obj)
+        {
+            if(obj.player != null && obj.tile != null && tempGrowths.TryGetValue(obj.tile.ToString(), out int growth))
+            {
+                obj.baseFu += 10 * growth;
+            }
         }
 
         public class GroupTempGrowFuEffect : OnMultipleTileAnimationEffect
         {
             private readonly UnfuritenBossReversedArtifact artifact;
             private readonly Tile tile;
-            private readonly Artifact baseArtifact1;
 
             public GroupTempGrowFuEffect(UnfuritenBossReversedArtifact artifact, Tile tile, Artifact baseArtifact1): base(
-                new SimpleEffect("effect_unfuriten_reversed", baseArtifact1, p => artifact.Upgrade(tile))
+                new SimpleEffect("effect_Unfuriten_reversed", baseArtifact1, p => artifact.Upgrade(tile))
             )
             {
                 this.artifact = artifact;
                 this.tile = tile;
-                this.baseArtifact1 = baseArtifact1;
             }
 
             public override List<Tile> GetAffectedTiles(Player player)
             {
-                return player.GetHandDeckCopy().Union(player.GetSelectedTilesCopy()).Where(t => t.CompactWith(tile)).ToList();
+                return player.GetHandDeckCopy()
+                    .Union(player.GetAccumulatedPermutation()?.ToTiles() ?? new List<Tile>())
+                    .Where(t => t.CompactWith(tile))
+                    .ToList();
             }
 
             public override Tile GetMainTile(Player player)

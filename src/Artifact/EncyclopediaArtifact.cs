@@ -15,9 +15,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), Math.Min(30, player.GetNonNativeYaku().Count()));
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.AddFan(Math.Min(30, player.GetNonNativeYaku().Count()), this));
         }
     }

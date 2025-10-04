@@ -35,7 +35,7 @@ namespace Aotenjo
             effects.Add(new SimpleEffect("effect_jacaranda_wood", null, p =>
             {
                 p.AddTileToDiscarded(newTile);
-                EventManager.Instance.OnAddTileEvent(new List<Tile> { newTile });
+                MessageManager.Instance.OnAddTileEvent(new List<Tile> { newTile });
             }).OnTile(tile));
             if (withForce)
             {

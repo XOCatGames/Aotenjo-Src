@@ -9,6 +9,6 @@ public class LessGadgetSlotEffect : StarterBoostEffect
     public override void Boost(Player player)
     {
         player.SetGadgetLimit(player.GetGadgetLimit() - 1);
-        EventManager.Instance.OnSoundEvent("ReceiveGadget");
+        MessageManager.Instance.OnSoundEvent("ReceiveGadget");
     }
 }

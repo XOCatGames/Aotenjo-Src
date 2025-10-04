@@ -6,6 +6,7 @@ using Aotenjo;
 using Newtonsoft.Json;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine.Localization.Tables;
@@ -15,7 +16,10 @@ using static Skill;
 [Serializable]
 public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 {
-    [LabelText("番种类型枚举")] public YakuType yakuTypeID;
+    [LabelText("番种类型")] public YakuType type;
+    
+    [FormerlySerializedAs("yakuTypeID")]
+    [LabelText("番种类型枚举")] public FixedYakuType fixedYakuType;
 
     [LabelText("稀有度"), EnumToggleButtons] public Rarity rarity;
 
@@ -25,6 +29,9 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     [LabelText("成长番数")] public double levelingFactor;
 
+    [FormerlySerializedAs("includedYakus")] [LabelText("（旧）继承番种")]
+    public FixedYakuType[] legacyIncludedYakus;
+    
     [LabelText("继承番种")] public YakuType[] includedYakus;
 
     [LabelText("可用番种范围")] public string[] groups;
@@ -38,9 +45,9 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
     [LabelText("番种图显示顺序")] public int order;
 
     public Yaku(YakuType yakuType, int fullFan, double growthFactor, double levelingFactor, YakuType[] includedYakus,
-        string[] groups, Rarity rarity, string example)
+        string[] groups, Rarity rarity, string example, int[] yakuCategories)
     {
-        yakuTypeID = yakuType;
+        type = yakuType;
         this.fullFan = fullFan;
         this.growthFactor = growthFactor;
         this.levelingFactor = levelingFactor;
@@ -48,28 +55,35 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         this.groups = groups;
         this.rarity = rarity;
         this.example = example;
+        this.yakuCategories = yakuCategories.ToList();
     }
 
     public Yaku(YakuType yakuType, int fullFan, double growthFactor, double levelingFactor, YakuType[] includedYakus,
-        string[] groups, Rarity rarity, string example, int v) : this(yakuType, fullFan, growthFactor, levelingFactor,
-        includedYakus, groups, rarity, example)
+        string[] groups, Rarity rarity, string example, int v, int[] yakuCategories) : this(yakuType, fullFan, growthFactor, levelingFactor,
+        includedYakus, groups, rarity, example, yakuCategories)
     {
         order = v;
     }
 
     public string GetNameLocalizeKey()
     {
-        return "yaku_" + yakuTypeID + "_name";
+        return "yaku_" + type + "_name";
+    }
+
+    public void BatchProcess()
+    {
+        // if(groups.Contains("standard") && !groups.Contains("shortened"))
+        //     groups = groups.Append("shortened").ToArray();
     }
 
     public string GetNameRomajiKey()
     {
-        return $"yaku_{yakuTypeID.ToString()}_romaji_name";
+        return $"yaku_{type.ToString()}_romaji_name";
     }
 
     public string GetDescriptionLocalizationKey()
     {
-        return "yaku_" + yakuTypeID + "_description";
+        return "yaku_" + type + "_description";
     }
 
     public string GetExampleText()
@@ -82,7 +96,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         for (int i = 0; i < tiles.Count; i++)
         {
             sb.Append($"<sprite name=\"{tiles[i]}\">");
-            int interval = (Utils.IsSevenPairYaku(this) ? 2 : (yakuTypeID == YakuType.ShiSanYao ? 12 : 3));
+            int interval = (Utils.IsSevenPairYaku(this) ? 2 : (type == FixedYakuType.ShiSanYao ? 12 : 3));
             if (Utils.IsKongYaku(this))
                 interval = 4;
             if ((i + 1) % interval == 0)
@@ -114,7 +128,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     public YakuType GetYakuType()
     {
-        return yakuTypeID;
+        return type;
     }
 
     public int CompareTo(Yaku other)
@@ -142,7 +156,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         {
             Player player = GameManager.Instance.player;
 
-            int baseLv = GetLevel(player) - player.GetSkillSet().GetExtraLevel(yakuTypeID);
+            int baseLv = GetLevel(player) - player.GetSkillSet().GetExtraLevel(type);
             foreach (SkillType skill in skillMap.Keys.Where(s => skillMap[s] > 0))
             {
                 sb.AppendLine(string.Format(format, (baseLv + 1) * skillMap[skill],
@@ -200,15 +214,15 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
     {
         int requirementForEveryLevel = requiredSkillLevel[skill];
         int currentYakuLevel = player.GetSkillSet().GetLevel(this) * requirementForEveryLevel -
-                               player.GetSkillSet().GetExtraLevel(yakuTypeID);
+                               player.GetSkillSet().GetExtraLevel(type);
         return (currentYakuLevel + 1) * requirementForEveryLevel;
     }
 
     public bool ShouldHighlightTile(Tile tile, Player player)
     {
-        Permutation permutation = player.GetAccumulatedPermutation();
+        Permutation permutation = player.GetCurrentSelectedPerm() ?? player.GetAccumulatedPermutation();
         if(permutation == null) return false;
-        YakuTester.TestYaku(permutation, yakuTypeID, player, out var tiles);
+        YakuTester.TestYaku(permutation, type, player, out var tiles);
         return tiles.Contains(tile);
     }
 }
@@ -314,7 +328,7 @@ public class YakuContainer
             Yaku yaku = ScriptableObject.CreateInstance<Yaku>();
             var a = (YakuType)Enum.Parse(typeof(YakuType), yakuTypeID);
             
-            yaku.yakuTypeID = a;
+            yaku.type = a;
             yaku.fullFan = fullFan;
             yaku.growthFactor = growthFactor;
             yaku.levelingFactor = levelingFactor;

@@ -25,7 +25,7 @@ public class WhiskGadget : Gadget
 
         if (res)
         {
-            EventManager.Instance.OnSoundEvent("Whisk");
+            MessageManager.Instance.OnSoundEvent("Whisk");
             return true;
         }
 

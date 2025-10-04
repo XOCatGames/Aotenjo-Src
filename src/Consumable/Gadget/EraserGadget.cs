@@ -14,9 +14,9 @@ public class EraserGadget : ReusableGadget
         if (!ShouldHighlightTile(tile, player)) return false;
         Permutation perm = player.GetAccumulatedPermutation();
         Block block = perm.blocks.First(b => b.tiles.Contains(tile));
-        player.EraseBlock(block);
+        bool res = player.EraseBlock(block);
 
-        return true;
+        return res;
     }
 
     public override Rarity GetRarity()

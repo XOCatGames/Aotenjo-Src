@@ -49,7 +49,7 @@ namespace Aotenjo
         {
             Player player = eventData.player;
             player.EarnMoney(moneyBonus);
-            EventManager.Instance.OnArtifactEarnMoney(moneyBonus, this);
+            MessageManager.Instance.OnArtifactEarnMoney(moneyBonus, this);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Aotenjo
         {
             foreach (Tile t in player.GetHandDeckCopy().Where(t => t.GetCategory() == tile.GetCategory()))
             {
-                EventManager.Instance.EnqueueToDiscard(t, true);
+                MessageManager.Instance.EnqueueToDiscard(t, true);
             }
 
             return true;

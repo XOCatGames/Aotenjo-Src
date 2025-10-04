@@ -17,11 +17,6 @@ namespace Aotenjo
             return player;
         }
 
-        public override MaterialSet[] GetAvailableMaterialSets()
-        {
-            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
-        }
-
         public override bool IsUnlocked(PlayerStats stats)
         {
             return true;
@@ -38,7 +33,7 @@ namespace Aotenjo
 
             public YakuType OnRerollYaku(YakuPack pack, Player player, YakuType exceptedYaku)
             {
-                List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.yakuTypeID).ToList();
+                List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
                 availableYakus.Remove(exceptedYaku);
                 DrawYakuResult drawResult = pack.Draw(player.GenerateRandomInt, availableYakus, player.Level / 4);
 

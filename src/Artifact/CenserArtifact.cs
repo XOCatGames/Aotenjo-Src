@@ -15,9 +15,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), player.GetSkillSet().GetYakus().Count());
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             if (player.GetSkillSet().GetYakus().Count() < 24)
                 effects.Add(ScoreEffect.MulFan(2f, this));
         }

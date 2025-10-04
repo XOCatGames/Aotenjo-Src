@@ -88,7 +88,7 @@ public class UnlockByUnlockSetsRequirement : UnlockRequirement
 
     public override int GetCurrent(PlayerStats stats)
     {
-        return MaterialSet.materialSets.Count(s => s.IsUnlocked(stats));
+        return MaterialSet.MaterialSets.Count(s => s.IsUnlocked(stats));
     }
 
     public override int GetMax()

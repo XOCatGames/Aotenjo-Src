@@ -8,12 +8,12 @@ namespace Aotenjo
     public class PurpleGourdArtifact : Artifact
     {
         [Serializable]
-        private class PurpleGourdData
+        public class PurpleGourdData
         {
             public List<string> consumedBosses = new List<string>();
         }
         
-        private List<Artifact> bossArtifacts = new List<Artifact>();
+        public List<Artifact> bossArtifacts = new List<Artifact>();
         
         private class ConsumeBossEffect : Effect
         {
@@ -48,12 +48,12 @@ namespace Aotenjo
                 purpleGourdArtifact.ConsumeBoss(playerCurrentBoss, player);
             }
         }
-        
-        private PurpleGourdData data;
+
+        public PurpleGourdData data;
 
         public PurpleGourdArtifact() : base("purple_gourd", Rarity.EPIC)
         {
-            this.data = new PurpleGourdData();
+            data = new PurpleGourdData();
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
@@ -63,7 +63,7 @@ namespace Aotenjo
                           base.GetDescription(player,localizer) + "\n\n";
 
             // 已吸收 Boss
-            if (data.consumedBosses.Count > 0)
+            if (data.consumedBosses.Count is > 0 and <= 5)
             {
                 int index = 1;
                 for (var i = 0; i < data.consumedBosses.Count; i++)
@@ -75,9 +75,25 @@ namespace Aotenjo
                     string bossLine = $"{index}. <style=\"red\">{boss.GetName(player, localizer)}</style>\n";
 
                     // 效果（boss 的反转 Artifact 描述）
-                    string effectLine = "- " + bossArtifacts[i].GetDescription(localizer) +"\n";
+                    string effectLine = "- " + bossArtifacts[i].GetDescription(player, localizer) +"\n";
 
                     desc += bossLine + effectLine + "\n";
+                    index++;
+                }
+            }
+            else if (data.consumedBosses.Count > 5)
+            {
+                int index = 1;
+                for (var i = 0; i < data.consumedBosses.Count; i++)
+                {
+                    string bossName = data.consumedBosses[i];
+                    Boss boss = Bosses.GetBossOrElseRedraw(bossName, player.ascensionLevel >= 8);
+
+                    // 名字
+                    string bossLine = $"<link=\"boss_reversed_effect_{boss.name}\"><style=\"red\">{boss.GetName(player, localizer)}</style></link>";
+                    desc += bossLine;
+                    if(i != data.consumedBosses.Count - 1)
+                        desc += ", ";
                     index++;
                 }
             }
@@ -86,19 +102,19 @@ namespace Aotenjo
         }
 
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             foreach (var bossArtifact in GetConsumedBossArtifacts(player))
             {
-                bossArtifact.AddOnSelfEffects(player, permutation, effects);
+                bossArtifact.AppendOnSelfEffects(player, permutation, effects);
             }
         }
 
         public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
-            if (player.Level % 4 == 0 && player.currentBoss != null && (player.currentBoss.name != Bosses.Timeless.name || !
+            if ((player.CurrentAccumulatedScore + 1) >= player.levelTarget && player.Level % 4 == 0 && player.currentBoss != null && (player.currentBoss.name != Bosses.Timeless.name || !
                     ((TimelessBoss)Bosses.Timeless).firstTime))
             {
                 effects.Add(new ConsumeBossEffect(player.currentBoss, this));
@@ -151,6 +167,7 @@ namespace Aotenjo
                 bossArtifact.ResetArtifactState(player);
             }
             data.consumedBosses.Clear();
+            bossArtifacts.Clear();
         }
 
         #region 原生函数

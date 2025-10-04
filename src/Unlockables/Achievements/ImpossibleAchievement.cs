@@ -6,18 +6,18 @@ namespace Aotenjo
     {
         private static YakuType[] IMPOSSIBLE_YAKUS =
         {
-            YakuType.WuGuiYi,
-            YakuType.DuoGuiYi,
-            YakuType.ShuangTongZiKe,
-            YakuType.ShuangTongZiShun,
-            YakuType.YiSeShuangTongKe,
-            YakuType.SanTongZiKe,
-            YakuType.SanTongZiShun,
-            YakuType.YiSeSanTongKe,
-            YakuType.SiTongZiKe,
-            YakuType.SiTongZiShun,
-            YakuType.YiSeSiTongKe,
-            YakuType.SiFengShun
+            FixedYakuType.WuGuiYi,
+            FixedYakuType.DuoGuiYi,
+            FixedYakuType.ShuangTongZiKe,
+            FixedYakuType.ShuangTongZiShun,
+            FixedYakuType.YiSeShuangTongKe,
+            FixedYakuType.SanTongZiKe,
+            FixedYakuType.SanTongZiShun,
+            FixedYakuType.YiSeSanTongKe,
+            FixedYakuType.SiTongZiKe,
+            FixedYakuType.SiTongZiShun,
+            FixedYakuType.YiSeSiTongKe,
+            FixedYakuType.SiFengShun
         };
 
         public ImpossibleAchievement(string id) : base(id)

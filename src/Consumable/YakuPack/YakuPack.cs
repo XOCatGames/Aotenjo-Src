@@ -29,7 +29,7 @@ namespace Aotenjo
 
         public bool ContainsYaku(Yaku yaku)
         {
-            YakuType yakuTypeID = yaku.yakuTypeID;
+            YakuType yakuTypeID = yaku.GetYakuType();
             return (common.Contains(yakuTypeID)
                     || rare.Contains(yakuTypeID)
                     || epic.Contains(yakuTypeID)
@@ -120,7 +120,7 @@ namespace Aotenjo
 
             if (range.Count == 0)
             {
-                return new(YakuType.Base, Rarity.COMMON);
+                return new(FixedYakuType.Base, Rarity.COMMON);
             }
 
             List<YakuType> possibleYakus = new List<YakuType>(range);
@@ -159,7 +159,7 @@ namespace Aotenjo
            return Enumerable.Range(0, count)
                .Select(_ => Draw(player.GenerateRandomInt,
                GetYakuPool(player)
-                   .Select(y => y.yakuTypeID)
+                   .Select(y => y.GetYakuType())
                    .ToList(), player.Level).yaku
                )
                .Select(type => YakuTester.InfoMap[type]).ToList();

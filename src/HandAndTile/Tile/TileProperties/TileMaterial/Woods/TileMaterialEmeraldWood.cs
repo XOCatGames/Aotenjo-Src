@@ -14,7 +14,7 @@ namespace Aotenjo
         {
         }
 
-        protected override int GetSpriteID()
+        public override int GetSpriteID()
         {
             return count switch
             {
@@ -51,13 +51,13 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent += PostRoundEnd;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PostRoundEndEvent -= PostRoundEnd;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         private void PostRoundEnd(PlayerEvent playerEvent)

@@ -30,7 +30,7 @@ namespace Aotenjo
             if (evt.amount < 5 && evt.amount > 0)
             {
                 evt.player.EarnMoney(1);
-                EventManager.Instance.OnArtifactEarnMoney(1, this);
+                MessageManager.Instance.OnArtifactEarnMoney(1, this);
                 Level++;
             }
         }

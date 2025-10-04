@@ -8,12 +8,12 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostRoundStartEvent += OnRoundStart;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostRoundStartEvent -= OnRoundStart;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
         }
 
         private void OnRoundStart(PlayerEvent playerEvent)

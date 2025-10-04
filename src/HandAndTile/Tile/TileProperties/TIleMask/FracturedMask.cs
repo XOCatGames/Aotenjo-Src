@@ -26,7 +26,7 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             player.PostSettlePermutationEvent += ScoringListener;
-            player.PostPreRoundEndEvent += Vanish;
+            EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(Vanish);
         }
 
         private void ScoringListener(PlayerPermutationEvent e)
@@ -52,7 +52,7 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayerEvents(player);
             player.PostSettlePermutationEvent -= ScoringListener;
-            player.PostPreRoundEndEvent -= Vanish;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.PostPre>(Vanish);
         }
 
         private void Vanish(PlayerEvent eventData)
@@ -67,14 +67,14 @@ namespace Aotenjo
                     {
                         res = rainbowPlayer.PlayedFlowerTiles.Remove(f);
                         if (res)
-                            EventManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
+                            MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
                     }
                 }
                 else
                 {
                     res = player.RemoveTileFromDiscarded(tile, "fractured");
                     if (res)
-                        EventManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
+                        MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
                 }
             }
         }

@@ -32,11 +32,11 @@ namespace Aotenjo
         {
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
         {
             //先触发加番
             effects.Add(ScoreEffect.MulFan(GetMul(player), this));
-            base.AddOnSelfEffects(player, perm, effects);
+            base.AppendOnSelfEffects(player, perm, effects);
         }
 
         protected override bool CanPlay(Player player, Permutation perm, List<Effect> _, Block block)

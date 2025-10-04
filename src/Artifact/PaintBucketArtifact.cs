@@ -26,13 +26,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostRoundEndEvent += ResetLevel;
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
         
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostRoundEndEvent -= ResetLevel;
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
@@ -58,14 +58,14 @@ namespace Aotenjo
             effects.Add(new SimpleEffect("effect_paint_bucket_reset", this, _ => this.Level = 0));
         }
 
-        private void ResetLevel(PlayerEvent playerEvent)
+        private void PostRoundEnd(PlayerEvent playerEvent)
         {
             Level = 0;
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             if (Level == 0) return;
             effects.Add(ScoreEffect.MulFan(GetMul(player), this));
         }

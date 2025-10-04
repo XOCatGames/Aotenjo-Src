@@ -11,12 +11,12 @@ public class UnrestBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.PreRoundStartEvent += IncreaseLevelTarget;
+        EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(IncreaseLevelTarget);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PreRoundStartEvent -= IncreaseLevelTarget;
+        EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(IncreaseLevelTarget);
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)

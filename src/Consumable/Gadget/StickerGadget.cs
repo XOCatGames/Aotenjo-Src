@@ -13,7 +13,7 @@ public class StickerGadget : Gadget
         if (!ShouldHighlightTile(tile)) return false;
 
         tile.AddTransform(new TileTransformSticker(), player);
-        EventManager.Instance.OnSoundEvent("Sticker");
+        MessageManager.Instance.OnSoundEvent("Sticker");
         return true;
     }
 

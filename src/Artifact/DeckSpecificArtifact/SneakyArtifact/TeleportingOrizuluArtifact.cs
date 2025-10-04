@@ -25,7 +25,7 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostRoundStartEvent += PostRoundStart;
+            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
             player.PreAppendSettleScoringEffectsEvent += PreAppendSettleScoringEffects;
         }
 
@@ -33,7 +33,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostRoundStartEvent -= PostRoundStart;
+            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
             player.PreAppendSettleScoringEffectsEvent -= PreAppendSettleScoringEffects;
         }
 
@@ -48,9 +48,9 @@ namespace Aotenjo
             };
         }
         
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
             if (permutation.GetPermType() == PermutationType.NORMAL && first && permutation.blocks.Count() == 2)
                 effects.Add(new TeleportingEffect(this));
         }

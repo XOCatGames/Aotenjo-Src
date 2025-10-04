@@ -6,7 +6,7 @@ namespace Aotenjo
 {
     public class ClimbingKitArtifact : CountPairArtifact
     {
-        private const int ADD_FU = 60;
+        private const int ADD_FU = 40;
 
         public ClimbingKitArtifact() : base("climbing_kit", Rarity.RARE)
         {
@@ -70,9 +70,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localize), ADD_FU);
         }
 
-        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AddOnSelfEffects(player, permutation, effects);
+            base.AppendOnSelfEffects(player, permutation, effects);
 
             int count = CountPairsWithDiff(permutation, 1, player);
 

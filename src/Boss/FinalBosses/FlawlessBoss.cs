@@ -134,7 +134,7 @@ public class FlawlessBoss : Boss
         {
             list.RemoveAll(effect =>
             {
-                if (debuffEffects.Contains(effect)) return false;
+                if (debuffEffects.Contains(effect) || !effect.GetEffect().WillTrigger()) return false;
                 Effect innerEffect = effect.GetEffect();
                 Artifact artifact = innerEffect.GetEffectSource();
                 if (artifact?.GetNameID() == null || artifact.GetNameID() == "") return false;
