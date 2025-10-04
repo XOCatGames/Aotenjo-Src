@@ -23,7 +23,7 @@ jobs:
       - name: Clone Aotenjo-Unity
         run: |
           echo "🔁 Cloning Aotenjo-Unity..."
-          git clone --depth=1 https://github.com/XOCatGames/Aotenjo-Unity.git tmp_repoA
+          git clone --depth=1 https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/XOCatGames/Aotenjo-Unity.git tmp_repoA
           if [ ! -d "tmp_repoA" ]; then
             echo "❌ Clone failed. Check token or repo access."
             exit 1
