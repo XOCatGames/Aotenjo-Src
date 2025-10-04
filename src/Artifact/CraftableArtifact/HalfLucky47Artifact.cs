@@ -58,13 +58,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            player.PreRoundStartEvent += OnRoundStart;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            player.PreRoundStartEvent -= OnRoundStart;
         }
 
         public void OnRoundStart(PlayerEvent playerEvent)

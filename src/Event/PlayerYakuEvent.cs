@@ -63,7 +63,7 @@
             public Yaku[] results;
             public IBook book;
 
-            public ReadBookResult(Player player, Yaku[] results, IBook book) : base(player, FixedYakuType.Base)
+            public ReadBookResult(Player player, Yaku[] results, IBook book) : base(player, YakuType.Base)
             {
                 this.results = results;
                 this.book = book;

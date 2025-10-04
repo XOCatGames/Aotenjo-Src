@@ -9,9 +9,9 @@ public abstract class InstrumentArtifact : CountingArtifact
     {
     }
 
-    public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+    public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
     {
-        base.AppendOnSelfEffects(player, permutation, effects);
+        base.AddOnSelfEffects(player, permutation, effects);
         List<Block> blocks = permutation.blocks.Where(b => b.tiles.All(t => player.Selecting(t))).ToList();
         foreach (var block in blocks)
         {

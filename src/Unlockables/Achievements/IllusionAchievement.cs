@@ -20,7 +20,7 @@ namespace Aotenjo
 
         private void OnSettlePermutation(Permutation permutation, Player player, List<IAnimationEffect> list)
         {
-            if (permutation.GetYakus(player, true).Contains(FixedYakuType.LyuYiSe))
+            if (permutation.GetYakus(player, true).Contains(YakuType.LyuYiSe))
             {
                 if (permutation.IsFullHand() && permutation.ToTiles().TrueForAll(t =>
                         t.GetCategory() != Tile.Category.Suo && !t.CompactWith(new Tile("6z"))))

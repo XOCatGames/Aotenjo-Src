@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Aotenjo
 {
-    public class MessageManager
+    public class EventManager
     {
-        private static MessageManager _instance;
+        private static EventManager _instance;
 
-        public static MessageManager Instance
+        public static EventManager Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new MessageManager();
+                    _instance = new EventManager();
                 }
 
                 return _instance;
@@ -23,7 +23,7 @@ namespace Aotenjo
 
         public static void RefreshEventBus()
         {
-            _instance = new MessageManager();
+            _instance = new EventManager();
         }
 
         public event Action<PirateChestEvent> PirateChestOpeningEvent;

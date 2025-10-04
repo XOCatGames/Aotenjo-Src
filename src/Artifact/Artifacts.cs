@@ -138,10 +138,9 @@ namespace Aotenjo
 
         //万法宗制式万足金
         public static readonly Artifact GoldIngot = Artifact.CreateOnSelfEffectArtifact("gold_ingot", Rarity.EPIC,
-            (_, perm, lst) =>
+            (player, perm, lst) =>
             {
-                if (perm.ToTiles().All(t => !t.IsNumbered())) return;
-                if (perm.ToTiles().Select(t => t.GetCategory()).Distinct().Count() == 1) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
+                if (perm.ContainsYakuRecursive(YakuType.QingYiSe, player)) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
             }).SetHighlightRequirement((tile, player) => {
                 Permutation perm = player.GetAccumulatedPermutation();
                 if (perm == null) return true;
@@ -940,20 +939,6 @@ namespace Aotenjo
         public static readonly Artifact PurpleGourd = new PurpleGourdArtifact();
 
         #endregion
-        
-        #region 圣旨麻将
-
-        public static readonly Artifact BambooBook = new BambooBookArtifact();
-        public static readonly Artifact WitherAmulet = new WitherAmuletArtifact();
-        public static readonly Artifact ForbiddenAmulet = new ForbiddenAmuletArtifact();
-        public static readonly Artifact StoneSword = new StoneSwordAmuletArtifact();
-        public static readonly Artifact BattleDrum = new BattleDrumArtifact();
-        public static readonly Artifact BicolorSilk = new BicolorSilkArtifact();
-        public static readonly Artifact Hufu = new HufuArtifact();
-        public static readonly Artifact CoinAmulet = new CoinAmuletArtifact();
-        public static readonly Artifact UnknownAmulet = new UnknownAmuletArtifact();
-        
-        #endregion
 
         /// <summary>
         /// 遗物列表
@@ -986,8 +971,7 @@ namespace Aotenjo
             BigEncyclopedia, TrinityForce, BurntAmulet, LivelyBracelet, BranchOfYggdrasil, FiveSealingFulu, ScarletCore, BrocadeOrizulu, BicolorFeather,
             RustCrook, RustCopperRing, ScarletKaleidoscope, ScarletHourglass, RustChest, RustAxe, DottledPig, SoulFlag, SoulScythe, YinYangMirror, YinYangButterfly,
             SoulBottle, GoldenBell, YinYangJadeFlute, BlueCandle, Rosemary, BrownSugar, GildedLionBowl, IceBlade, MeteoriteKnife, WaterPatternPouch, CakeKnife,
-            LuckyCookie, Altar, FirePatternPouch, TaotiePact, PurpleGourd, Dart, Magnifier, BambooBook, WitherAmulet, ForbiddenAmulet, StoneSword, BattleDrum, 
-            BicolorSilk, Hufu, CoinAmulet, UnknownAmulet
+            LuckyCookie, Altar, FirePatternPouch, TaotiePact, PurpleGourd, Dart, Magnifier
         };
 
         public static readonly Dictionary<Artifact, int> ARTIFACT_SPRITE_ID_MAP = new()
@@ -1271,23 +1255,14 @@ namespace Aotenjo
             { GoldenLock, 338 },
             { Magnifier, 339 },
             { PurpleGourd, 340 },
-            { Dart, 341 },
-            { BambooBook, 348 },
-            { WitherAmulet, 349 },
-            { ForbiddenAmulet, 350 },
-            { StoneSword, 351 },
-            { BattleDrum, 352 },
-            { BicolorSilk, 353 },
-            { Hufu, 354 },
-            { CoinAmulet, 355 },
-            { UnknownAmulet, 356 }
+            { Dart, 341 }
         };
 
         public static Dictionary<string, Artifact> NameToArtifactMap;
 
         public static Artifact GetArtifact(string name)
         {
-            if (NameToArtifactMap != null && NameToArtifactMap.ContainsKey(name)) return NameToArtifactMap.GetValueOrDefault(name, null);
+            if (NameToArtifactMap != null) return NameToArtifactMap.GetValueOrDefault(name, null);
             
             NameToArtifactMap = new Dictionary<string, Artifact>();
             foreach (var artifact in ArtifactList)

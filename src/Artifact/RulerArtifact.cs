@@ -26,9 +26,9 @@ namespace Aotenjo
                 GetOrizuruCount(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             double ml = GetMul(player, permutation);
             for (int i = 0; i <= GetOrizuruCount(player); i++)
             {

@@ -61,7 +61,7 @@ namespace Aotenjo
                     handCopy.Remove(t);
                 }
                 
-                toSwap.ForEach( t => MessageManager.Instance.EnqueueToDiscard(t, true));
+                toSwap.ForEach( t => EventManager.Instance.EnqueueToDiscard(t, true));
                 
                 // //2. 弃牌
                 // List<int> posDrew = toSwap.Select(t => player.GetHandDeckCopy().IndexOf(t)).ToList();

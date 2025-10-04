@@ -17,7 +17,7 @@ namespace Aotenjo
             effects.Add(new SimpleEffect("effect_xiaoqian", this, p =>
             {
                 List<Yaku> yakus = p.deck.GetAvailableYakus().Where(y => y.rarity == Rarity.RARE).ToList();
-                MessageManager.Instance.OnSoundEvent("book");
+                EventManager.Instance.OnSoundEvent("book");
                 p.GetSkillSet().AddLevel(yakus.OrderByDescending(y => p.stats.GetYakuCount(y)).First().GetYakuType(),
                     1);
             }, "Book"));

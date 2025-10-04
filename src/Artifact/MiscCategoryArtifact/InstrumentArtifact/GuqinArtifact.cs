@@ -20,8 +20,8 @@ public class GuqinArtifact : InstrumentArtifact
         }
         else
         {
-            List<YakuType> validYakus = rec.ActivatedYakuTypes.Where(y =>
-                !rec.ActivatedYakuTypes.Any(t => YakuTester.GetYakuChildsExcludeSelf(t).Contains(y))).ToList();
+            List<YakuType> validYakus = rec.activatedYakuTypes.Where(y =>
+                !rec.activatedYakuTypes.Any(t => YakuTester.GetYakuChildsExcludeSelf(t).Contains(y))).ToList();
             foreach (var yakuName in validYakus.Select(y => YakuTester.InfoMap[y].GetFormattedName(func)))
             {
                 sb.AppendLine(yakuName);
@@ -61,8 +61,8 @@ public class GuqinArtifact : InstrumentArtifact
 
         if (rec == null) return;
 
-        List<YakuType> validYakus = rec.ActivatedYakuTypes
-            .Where(y => !rec.ActivatedYakuTypes.Any(t => YakuTester.GetYakuChildsExcludeSelf(t).Contains(y))).ToList();
+        List<YakuType> validYakus = rec.activatedYakuTypes
+            .Where(y => !rec.activatedYakuTypes.Any(t => YakuTester.GetYakuChildsExcludeSelf(t).Contains(y))).ToList();
         validYakus.ForEach(y => { player.GetSkillSet().IncreaseLevel(y); });
     }
 

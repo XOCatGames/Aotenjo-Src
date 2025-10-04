@@ -16,6 +16,11 @@ namespace Aotenjo
             return new ScarletPlayer(Hand.NumberedFullHand().tiles, seed, this, set, asensionLevel);
         }
 
+        public override MaterialSet[] GetAvailableMaterialSets()
+        {
+            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
+        }
+
         public override bool IsUnlocked(PlayerStats stats)
         {
             return stats.GetUnseededRunRecords().Any(rec => (rec.acsensionLevel >= 3 && rec.won) || !rec.roundStats.PlayedHonorTile()) || 

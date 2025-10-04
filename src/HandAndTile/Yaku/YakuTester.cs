@@ -18,148 +18,148 @@ namespace Aotenjo
         public static readonly Dictionary<YakuType, Func<Permutation, Player, bool>> YAKUS_PREDICATE_MAP =
             new Dictionary<YakuType, Func<Permutation, Player, bool>>
             {
-                { FixedYakuType.PingHu, VerifyPingHu },
-                { FixedYakuType.YiBanGao, VerifyYiBanGao },
+                { YakuType.PingHu, VerifyPingHu },
+                { YakuType.YiBanGao, VerifyYiBanGao },
 
-                { FixedYakuType.JianKe, VerifyJianKe },
-                { FixedYakuType.QuanFengKe, VerifyQuanFengKe },
-                { FixedYakuType.MenFengKe, VerifyMenFengKe },
-                { FixedYakuType.SanFengKe, VerifySanFengKe },
-                { FixedYakuType.ShuangJianKe, VerifyShuangJianKe },
-                { FixedYakuType.HunYaoJiu, VerifyHunYaoJiu },
-                { FixedYakuType.XiaoSanYuan, VerifyXiaoSanYuan },
-                { FixedYakuType.XiaoSiXi, VerifyXiaoSiXi },
-                { FixedYakuType.ShuangTongZiKe, VerifyShuangTongZiKe },
-                { FixedYakuType.DaSanYuan, VerifyDaSanYuan },
-                { FixedYakuType.DaSiXi, VerifyDaSiXi },
-                { FixedYakuType.QingYaoJiu, VerifyQingYaoJiu },
-                { FixedYakuType.SanTongZiKe, VerifySanTongZiKe },
-                { FixedYakuType.SiTongZiKe, VerifySiTongZiKe },
+                { YakuType.JianKe, VerifyJianKe },
+                { YakuType.QuanFengKe, VerifyQuanFengKe },
+                { YakuType.MenFengKe, VerifyMenFengKe },
+                { YakuType.SanFengKe, VerifySanFengKe },
+                { YakuType.ShuangJianKe, VerifyShuangJianKe },
+                { YakuType.HunYaoJiu, VerifyHunYaoJiu },
+                { YakuType.XiaoSanYuan, VerifyXiaoSanYuan },
+                { YakuType.XiaoSiXi, VerifyXiaoSiXi },
+                { YakuType.ShuangTongZiKe, VerifyShuangTongZiKe },
+                { YakuType.DaSanYuan, VerifyDaSanYuan },
+                { YakuType.DaSiXi, VerifyDaSiXi },
+                { YakuType.QingYaoJiu, VerifyQingYaoJiu },
+                { YakuType.SanTongZiKe, VerifySanTongZiKe },
+                { YakuType.SiTongZiKe, VerifySiTongZiKe },
 
-                { FixedYakuType.HuaLong, VerifyHuaLong },
-                { FixedYakuType.QingLong, VerifyQingLong },
-                { FixedYakuType.QuanDaiYao, VerifyQuanDaiYao },
+                { YakuType.HuaLong, VerifyHuaLong },
+                { YakuType.QingLong, VerifyQingLong },
+                { YakuType.QuanDaiYao, VerifyQuanDaiYao },
 
                 //2024.5.28新加番种
-                { FixedYakuType.LianLiu, VerifyLianLiu },
-                { FixedYakuType.XiXiangFeng, VerifyXiXiangFeng },
-                { FixedYakuType.LaoShaoFu, VerifyLaoShaoFu },
-                { FixedYakuType.SanSeSanBuGao, VerifySanSeSanBuGao },
-                { FixedYakuType.SanSeShuangLongHui, VerifySanSeShuangLongHui },
-                { FixedYakuType.QuanDa, VerifyQuanDa },
-                { FixedYakuType.QuanZhong, VerifyQuanZhong },
-                { FixedYakuType.QuanXiao, VerifyQuanXiao },
-                { FixedYakuType.LyuYiSe, VerifyLyuYiSe },
-                { FixedYakuType.JiuLianBaoDeng, VerifyJiuLianBaoDeng },
+                { YakuType.LianLiu, VerifyLianLiu },
+                { YakuType.XiXiangFeng, VerifyXiXiangFeng },
+                { YakuType.LaoShaoFu, VerifyLaoShaoFu },
+                { YakuType.SanSeSanBuGao, VerifySanSeSanBuGao },
+                { YakuType.SanSeShuangLongHui, VerifySanSeShuangLongHui },
+                { YakuType.QuanDa, VerifyQuanDa },
+                { YakuType.QuanZhong, VerifyQuanZhong },
+                { YakuType.QuanXiao, VerifyQuanXiao },
+                { YakuType.LyuYiSe, VerifyLyuYiSe },
+                { YakuType.JiuLianBaoDeng, VerifyJiuLianBaoDeng },
 
                 //大于/小于/全带五
-                { FixedYakuType.DaYuWu, VerifyDaYuWu },
-                { FixedYakuType.XiaoYuWu, VerifyXiaoYuWu },
-                { FixedYakuType.QuanDaiWu, VerifyQuanDaiWu },
+                { YakuType.DaYuWu, VerifyDaYuWu },
+                { YakuType.XiaoYuWu, VerifyXiaoYuWu },
+                { YakuType.QuanDaiWu, VerifyQuanDaiWu },
 
                 //2024.5.28新加番种2
-                { FixedYakuType.YiSeSiTongShun, VerifyYiSeSiTongShun },
-                { FixedYakuType.YiSeSanBuGao, VerifyYiSeSanBuGao },
-                { FixedYakuType.YiSeShuangLongHui, VerifyYiSeShuangLongHui },
-                { FixedYakuType.LianQiDui, VerifyLianQiDui },
-                { FixedYakuType.TuiBuDao, VerifyTuiBuDao },
-                { FixedYakuType.YiSeSanJieGao, VerifyYiSeSanJieGao },
-                { FixedYakuType.YiSeSiJieGao, VerifyYiSeSiJieGao },
-                { FixedYakuType.WuZi, VerifyWuZi },
+                { YakuType.YiSeSiTongShun, VerifyYiSeSiTongShun },
+                { YakuType.YiSeSanBuGao, VerifyYiSeSanBuGao },
+                { YakuType.YiSeShuangLongHui, VerifyYiSeShuangLongHui },
+                { YakuType.LianQiDui, VerifyLianQiDui },
+                { YakuType.TuiBuDao, VerifyTuiBuDao },
+                { YakuType.YiSeSanJieGao, VerifyYiSeSanJieGao },
+                { YakuType.YiSeSiJieGao, VerifyYiSeSiJieGao },
+                { YakuType.WuZi, VerifyWuZi },
 
                 //2024.5.29新加番种
-                { FixedYakuType.SiGuiYi, VerifySiGuiYi },
-                { FixedYakuType.WuGuiYi, VerifyWuGuiYi },
-                { FixedYakuType.DuoGuiYi, VerifyDuoGuiYi },
-                { FixedYakuType.ShuangSeShuangTongKe, VerifyShuangSeShuangTongKe },
-                { FixedYakuType.SanSeSanTongKe, VerifySanSeSanTongKe },
-                { FixedYakuType.QuanShuangKe, VerifyQuanShuangKe },
-                { FixedYakuType.YiSeShuangTongKe, VerifyYiSeShuangTongKe },
-                { FixedYakuType.YiSeSanTongKe, VerifyYiSeSanTongKe },
-                { FixedYakuType.YiSeSiTongKe, VerifyYiSeSiTongKe },
+                { YakuType.SiGuiYi, VerifySiGuiYi },
+                { YakuType.WuGuiYi, VerifyWuGuiYi },
+                { YakuType.DuoGuiYi, VerifyDuoGuiYi },
+                { YakuType.ShuangSeShuangTongKe, VerifyShuangSeShuangTongKe },
+                { YakuType.SanSeSanTongKe, VerifySanSeSanTongKe },
+                { YakuType.QuanShuangKe, VerifyQuanShuangKe },
+                { YakuType.YiSeShuangTongKe, VerifyYiSeShuangTongKe },
+                { YakuType.YiSeSanTongKe, VerifyYiSeSanTongKe },
+                { YakuType.YiSeSiTongKe, VerifyYiSeSiTongKe },
 
                 //2024.6.3新加番种
-                { FixedYakuType.YiSeSiBuGao, VerifyYiSeSiBuGao },
-                { FixedYakuType.JingTongShun, VerifyJingTongShun },
-                { FixedYakuType.JingTongKe, VerifyJingTongKe },
-                { FixedYakuType.BaiWanShi, VerifyBaiWanShi },
+                { YakuType.YiSeSiBuGao, VerifyYiSeSiBuGao },
+                { YakuType.JingTongShun, VerifyJingTongShun },
+                { YakuType.JingTongKe, VerifyJingTongKe },
+                { YakuType.BaiWanShi, VerifyBaiWanShi },
 
 
                 //2024.6.15新加番种
-                { FixedYakuType.Gang, VerifyGang },
-                { FixedYakuType.ShuangGang, VerifyShuangGang },
-                { FixedYakuType.SanGang, VerifySanGang },
-                { FixedYakuType.SiGang, VerifySiGang },
-                { FixedYakuType.LiangBanGao, VerifyLiangBanGao },
+                { YakuType.Gang, VerifyGang },
+                { YakuType.ShuangGang, VerifyShuangGang },
+                { YakuType.SanGang, VerifySanGang },
+                { YakuType.SiGang, VerifySiGang },
+                { YakuType.LiangBanGao, VerifyLiangBanGao },
 
-                { FixedYakuType.QiDui, VerifyQiDui },
-                { FixedYakuType.ShiSanYao, VerifyThirteenOrphan },
+                { YakuType.QiDui, VerifyQiDui },
+                { YakuType.ShiSanYao, VerifyThirteenOrphan },
 
-                { FixedYakuType.SanSeSanJieGao, VerifySanSeSanJieGao },
-                { FixedYakuType.DuanHong, VerifyDuanHong },
+                { YakuType.SanSeSanJieGao, VerifySanSeSanJieGao },
+                { YakuType.DuanHong, VerifyDuanHong },
 
                 //2024.9.8新加番种
-                { FixedYakuType.JinMenQiao, VerifyJinMenQiao },
-                { FixedYakuType.QiXingDui, VerifyQiXingDui },
-                { FixedYakuType.SanYuanDui, VerifySanYuanDui },
-                { FixedYakuType.SiXiDui, VerifySiXiDui },
-                { FixedYakuType.TiaoPaiKe, VerifyTiaoPaiKe },
-                { FixedYakuType.JinPaiKe, VerifyJinPaiKe },
-                { FixedYakuType.DinSanKe, VerifyDinSanKe },
-                { FixedYakuType.JiangDui, VerifyJiangDui },
-                { FixedYakuType.SanSeTiaoPaiKe, VerifySanSeTiaoPaiKe },
-                { FixedYakuType.SanSeJinPaiKe, VerifySanSeJinPaiKe },
-                { FixedYakuType.SanSeDinSanKe, VerifySanSeDinSanKe },
-                { FixedYakuType.SiTiaoPaiKe, VerifySiTiaoPaiKe },
-                { FixedYakuType.QingDongMen, VerifyQingDongMen },
-                { FixedYakuType.DaCheLun, VerifyDaCheLun },
-                { FixedYakuType.XiaoCheLun, VerifyXiaoCheLun },
-                { FixedYakuType.DaZhuLin, VerifyDaZhuLin },
-                { FixedYakuType.XiaoZhuLin, VerifyXiaoZhuLin },
-                { FixedYakuType.DaShuLin, VerifyDaShuLin },
-                { FixedYakuType.XiaoShuLin, VerifyXiaoShuLin },
-                { FixedYakuType.ChunQuanDaiYao, VerifyChunQuanDaiYao },
-                { FixedYakuType.HongKongQue, VerifyHongKongQue },
+                { YakuType.JinMenQiao, VerifyJinMenQiao },
+                { YakuType.QiXingDui, VerifyQiXingDui },
+                { YakuType.SanYuanDui, VerifySanYuanDui },
+                { YakuType.SiXiDui, VerifySiXiDui },
+                { YakuType.TiaoPaiKe, VerifyTiaoPaiKe },
+                { YakuType.JinPaiKe, VerifyJinPaiKe },
+                { YakuType.DinSanKe, VerifyDinSanKe },
+                { YakuType.JiangDui, VerifyJiangDui },
+                { YakuType.SanSeTiaoPaiKe, VerifySanSeTiaoPaiKe },
+                { YakuType.SanSeJinPaiKe, VerifySanSeJinPaiKe },
+                { YakuType.SanSeDinSanKe, VerifySanSeDinSanKe },
+                { YakuType.SiTiaoPaiKe, VerifySiTiaoPaiKe },
+                { YakuType.QingDongMen, VerifyQingDongMen },
+                { YakuType.DaCheLun, VerifyDaCheLun },
+                { YakuType.XiaoCheLun, VerifyXiaoCheLun },
+                { YakuType.DaZhuLin, VerifyDaZhuLin },
+                { YakuType.XiaoZhuLin, VerifyXiaoZhuLin },
+                { YakuType.DaShuLin, VerifyDaShuLin },
+                { YakuType.XiaoShuLin, VerifyXiaoShuLin },
+                { YakuType.ChunQuanDaiYao, VerifyChunQuanDaiYao },
+                { YakuType.HongKongQue, VerifyHongKongQue },
 
-                { FixedYakuType.TianDiChuangZao, VerifyTianDiChuangZao },
+                { YakuType.TianDiChuangZao, VerifyTianDiChuangZao },
 
-                { FixedYakuType.ShuangTongZiShun, VerifyShuangTongZiShun },
-                { FixedYakuType.SanTongZiShun, VerifySanTongZiShun },
-                { FixedYakuType.SiTongZiShun, VerifySiTongZiShun },
-                { FixedYakuType.SiFengShun, VerifySiXiShun },
-                { FixedYakuType.ZhengHua, VerifyZhengHua },
-                { FixedYakuType.YiTaiHua, VerifyYiTaiHua },
-                { FixedYakuType.BaXianGuoHai, VerifyBaXianGuoHai },
+                { YakuType.ShuangTongZiShun, VerifyShuangTongZiShun },
+                { YakuType.SanTongZiShun, VerifySanTongZiShun },
+                { YakuType.SiTongZiShun, VerifySiTongZiShun },
+                { YakuType.SiFengShun, VerifySiXiShun },
+                { YakuType.ZhengHua, VerifyZhengHua },
+                { YakuType.YiTaiHua, VerifyYiTaiHua },
+                { YakuType.BaXianGuoHai, VerifyBaXianGuoHai },
 
-                { FixedYakuType.HunYiSe, VerifyHunYiSe },
-                { FixedYakuType.WuMenQi, VerifyWuMenQi },
-                { FixedYakuType.QingYiSe, VerifyQingYiSe },
-                { FixedYakuType.ShuangKe, VerifyShuangAnKe },
-                { FixedYakuType.SanKe, VerifySanAnKe },
-                { FixedYakuType.SiKe, VerifySiAnKe },
-                { FixedYakuType.SanSeSanTongShun, VerifySanSeTongShun },
-                { FixedYakuType.YiSeSanTongShun, VerifyYiSeSanTongShun },
-                { FixedYakuType.DuanYao, VerifyDuanYaoJiu },
-                { FixedYakuType.QueYiMen, VerifyQueYiMen },
-                { FixedYakuType.ZiYiSe, VerifyZiYiSe },
+                { YakuType.HunYiSe, VerifyHunYiSe },
+                { YakuType.WuMenQi, VerifyWuMenQi },
+                { YakuType.QingYiSe, VerifyQingYiSe },
+                { YakuType.ShuangKe, VerifyShuangAnKe },
+                { YakuType.SanKe, VerifySanAnKe },
+                { YakuType.SiKe, VerifySiAnKe },
+                { YakuType.SanSeSanTongShun, VerifySanSeTongShun },
+                { YakuType.YiSeSanTongShun, VerifyYiSeSanTongShun },
+                { YakuType.DuanYao, VerifyDuanYaoJiu },
+                { YakuType.QueYiMen, VerifyQueYiMen },
+                { YakuType.ZiYiSe, VerifyZiYiSe },
 
-                { FixedYakuType.QiTongDui, VerifyQiTongDui },
-                { FixedYakuType.WuFanHu, VerifyWuFanHu },
-                { FixedYakuType.QuanDan, VerifyQuanDan },
+                { YakuType.QiTongDui, VerifyQiTongDui },
+                { YakuType.WuFanHu, VerifyWuFanHu },
+                { YakuType.QuanDan, VerifyQuanDan },
 
-                { FixedYakuType.YinYangShun, VerifyYinYangShun },
-                { FixedYakuType.YinKou, VerifyYinKou },
-                { FixedYakuType.YinYangLong, VerifyYinYangLong },
-                { FixedYakuType.YinYangSanBuGao, VerifyYinYangSanBuGao },
-                { FixedYakuType.YinYangLiangBanGao, VerifyYinYangLiangBanGao },
-                { FixedYakuType.NaiHeQiao, VerifyNaiHeQiao },
-                { FixedYakuType.LiangJieQiao, VerifyLiangJieQiao },
+                { YakuType.YinYangShun, VerifyYinYangShun },
+                { YakuType.YinKou, VerifyYinKou },
+                { YakuType.YinYangLong, VerifyYinYangLong },
+                { YakuType.YinYangSanBuGao, VerifyYinYangSanBuGao },
+                { YakuType.YinYangLiangBanGao, VerifyYinYangLiangBanGao },
+                { YakuType.NaiHeQiao, VerifyNaiHeQiao },
+                { YakuType.LiangJieQiao, VerifyLiangJieQiao },
 
-                { FixedYakuType.LongQiDui, VerifyLongQiDui },
-                { FixedYakuType.ShuangLongQiDui, VerifyShuangLongQiDui },
-                { FixedYakuType.SanLongQiDui, VerifySanLongQiDui },
+                { YakuType.LongQiDui, VerifyLongQiDui },
+                { YakuType.ShuangLongQiDui, VerifyShuangLongQiDui },
+                { YakuType.SanLongQiDui, VerifySanLongQiDui },
 
-                { FixedYakuType.Base, ((_, _) => true) }
+                { YakuType.Base, ((_, _) => true) }
             };
 
         private static bool VerifyLongQiDui(Permutation permutation, Player player)
@@ -315,7 +315,7 @@ namespace Aotenjo
         private static bool VerifyWuFanHu(Permutation permutation, Player player)
         {
             return permutation.IsFullHand() &&
-                   !permutation.GetYakus(player, y => !Equals(y, (YakuType)FixedYakuType.WuFanHu) && !Equals(y, (YakuType)FixedYakuType.Base)).Any();
+                   !permutation.GetYakus(player, y => y != YakuType.WuFanHu && y != YakuType.Base).Any();
         }
 
         private static bool VerifyQiTongDui(Permutation permutation, Player player)
@@ -718,7 +718,7 @@ namespace Aotenjo
 
         private static List<Tile> tilesToHighlight; 
 
-        public static bool TestYaku(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
+        public static bool TestYaku(Permutation permutation, YakuType yaku, Player status, out List<Tile> toHighlight)
         {
             tilesToHighlight = permutation.ToTiles();
             Func<Permutation, Player, bool> Predicate;
@@ -726,10 +726,10 @@ namespace Aotenjo
             if (Predicate != null)
             {
                 bool testYaku = Predicate.Invoke(permutation, status);
-                relatedTiles = new (tilesToHighlight);
+                toHighlight = new (tilesToHighlight);
                 return testYaku;
             }
-            relatedTiles = new (tilesToHighlight);
+            toHighlight = new (tilesToHighlight);
             return false;
         }
 

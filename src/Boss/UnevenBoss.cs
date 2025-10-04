@@ -37,36 +37,19 @@ public class UnevenBoss : Boss
 
     protected virtual bool ShouldCorrupt(Tile t, Tile.Category jc, int jNum)
         => t.GetCategory() == jc;
-
-    #region 葫芦效果
-
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return new UnevenBossReversedArtifact(baseArtifact);
-    }
-
-    public class UnevenBossReversedArtifact : Artifact
-    {
-        private readonly Artifact baseArtifact;
-
-        public UnevenBossReversedArtifact(Artifact baseArtifact) : base("Uneven_reversed", Rarity.COMMON)
-        {
-            this.baseArtifact = baseArtifact;
-        }
-
-        public override void AppendOnUnusedTileEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
-        {
-            base.AppendOnUnusedTileEffects(player, perm, tile, effects);
-            if (tile.properties.IsDebuffed() && tile.GetCategory() == perm.jiang.GetCategory())
+        return Artifact.CreateOnTileEffectArtifact($"{name}_reversed", 
+            Rarity.COMMON,
+            (player, perm, tile, effects) =>
             {
-                effects.Add(new CleanseEffect(baseArtifact, tile));
-            }
-        }
+                if (tile.properties.IsDebuffed() && tile.GetCategory() == perm.jiang.GetCategory())
+                {
+                    effects.Add(new CleanseEffect(baseArtifact, tile));
+                }
+            });
     }
-    
-
-    #endregion
 
     public override Boss GetHarderBoss() => new UnevenHarderBoss();
 }

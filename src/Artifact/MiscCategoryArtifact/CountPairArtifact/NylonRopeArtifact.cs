@@ -17,9 +17,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localize), MUL_FAN);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
 
             int count = CountPairsWithDiff(permutation, 1, player);
 

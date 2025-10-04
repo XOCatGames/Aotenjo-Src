@@ -15,13 +15,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            player.PreRoundStartEvent += OnPreRoundStart;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
+            player.PreRoundStartEvent -= OnPreRoundStart;
         }
 
         public override void ResetArtifactState()
@@ -30,7 +30,7 @@ namespace Aotenjo
             usedThisRound = false;
         }
 
-        private void OnRoundStart(PlayerEvent _)
+        private void OnPreRoundStart(PlayerEvent _)
         {
             usedThisRound = false;
         }
@@ -91,7 +91,7 @@ namespace Aotenjo
                 bool needUnfreeze = player.CurrentPlayingStage == 4;
                 player.CurrentPlayingStage = Math.Max(0, player.CurrentPlayingStage - targets.Count);
                 if (needUnfreeze)
-                    MessageManager.Instance.OnUnfreezeEvent(player);
+                    EventManager.Instance.OnUnfreezeEvent(player);
             }
 
             public override string GetEffectDisplay(Func<string, string> f)

@@ -11,6 +11,6 @@ public class BookFlowerTile : OneTimeUseFlowerTile
     public override void OnPlayed(Player player, Permutation perm)
     {
         base.OnPlayed(player, perm);
-        MessageManager.Instance.OnOpenYakuPack(player.GenerateRandomInt(4));
+        EventManager.Instance.OnOpenYakuPack(player.GenerateRandomInt(4));
     }
 }

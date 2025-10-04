@@ -19,6 +19,6 @@ public class MoneyStarterPlayerEffect : StarterBoostEffect
     public override void Boost(Player player)
     {
         player.EarnMoney(Amount);
-        MessageManager.Instance.OnSoundEvent("earn_coins");
+        EventManager.Instance.OnSoundEvent("earn_coins");
     }
 }

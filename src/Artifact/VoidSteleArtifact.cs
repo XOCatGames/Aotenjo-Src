@@ -17,7 +17,7 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), MUL, 1 + MUL * GetUniqueEpicYakuPlayed(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
             int count = GetUniqueEpicYakuPlayed(player);
 
@@ -33,7 +33,7 @@ namespace Aotenjo
             HashSet<YakuType> validTypesPlayed = new();
             foreach (var validRec in stats.GetPlayedHands())
             {
-                foreach (var activatedYaku in validRec.ActivatedYakuTypes.Where(y =>
+                foreach (var activatedYaku in validRec.activatedYakuTypes.Where(y =>
                              YakuTester.InfoMap[y].rarity >= Rarity.EPIC))
                 {
                     if (YakuTester.InfoMap[activatedYaku].growthFactor == 1

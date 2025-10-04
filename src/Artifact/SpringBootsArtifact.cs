@@ -25,9 +25,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(player, localizer), 1 + skipCount);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             int skipCount;
             if (player.GetAccumulatedPermutation() != null)
             {

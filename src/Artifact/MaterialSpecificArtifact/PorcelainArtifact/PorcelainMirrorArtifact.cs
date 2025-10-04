@@ -19,14 +19,14 @@ namespace Aotenjo
             List<Effect> effects)
         {
             base.AddOnBlockEffects(player, permutation, block, effects);
-            if (!block.SelectingBy(player)) return;
-            if (permutation.GetPermType() == PermutationType.THIRTEEN_ORPHANS)
+            if (block.Any(t => !player.Selecting(t))) return;
+            if (permutation is ThirteenOrphansPermutation)
             {
                 return;
             }
 
             if (permutation.blocks.Any(b =>
-                    b.tiles[0] != block.tiles[0] && player.DetermineShiftedPair(block, b, 0, false)))
+                    b.tiles[0] != block.tiles[0] && player.GetCombinator().ASuccB(b, block, false, 0)))
             {
                 effects.Add(new UpgradeEffect(this, block));
             }

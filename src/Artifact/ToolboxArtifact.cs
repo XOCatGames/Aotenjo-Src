@@ -30,7 +30,7 @@ namespace Aotenjo
         public void OnUseTool(PlayerGadgetEvent evt)
         {
             evt.player.EarnMoney(AMOUNT);
-            MessageManager.Instance.OnArtifactEarnMoney(AMOUNT, this);
+            EventManager.Instance.OnArtifactEarnMoney(AMOUNT, this);
         }
     }
 }

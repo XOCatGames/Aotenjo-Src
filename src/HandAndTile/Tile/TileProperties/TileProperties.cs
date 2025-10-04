@@ -120,8 +120,8 @@ namespace Aotenjo
 
         public string GetName(Func<string, string> localizer, Player player)
         {
-            var maskName = (mask.GetRegName() == TileMask.NONE.GetRegName()) ? "" : localizer(mask.GetLocalizeKey()) + " ";
-            var fontName = (font.GetRegName() == TileFont.PLAIN.GetRegName()) ? "" : localizer(font.GetLocalizeKey()) + " ";
+            var maskName = (mask.GetSpriteID(player) == -1) ? "" : localizer(mask.GetLocalizeKey()) + " ";
+            var fontName = (font.GetSpriteID(player) == 0) ? "" : localizer(font.GetLocalizeKey()) + " ";
             var matName = localizer(material.GetLocalizeKey());
             return maskName + fontName + matName;
         }
@@ -134,23 +134,23 @@ namespace Aotenjo
         public string GetDescription(Player player, Func<string, string> localizer)
         {
             TileProperties properties = this;
-            TileMask propertiesMask = properties.mask;
-            string maskName = localizer(propertiesMask.GetLocalizeKey());
+            TileMask mask = properties.mask;
+            string maskName = localizer(mask.GetLocalizeKey());
             string maskDesc = properties.mask.GetDescription(localizer, player);
 
-            string maskContent = properties.mask.GetRegName() == TileMask.NONE.GetRegName() ? "" : $"\n\n{maskName}\n{maskDesc}";
+            string maskContent = properties.mask.GetSpriteID(player) == -1 ? "" : $"\n\n{maskName}\n{maskDesc}";
 
-            TileFont propertiesFont = properties.font;
-            string fontName = localizer(propertiesFont.GetLocalizeKey());
+            TileFont font = properties.font;
+            string fontName = localizer(font.GetLocalizeKey());
             string fontDesc = properties.font.GetDescription(localizer, player);
 
-            string fontContent = propertiesFont.GetRegName() == TileFont.PLAIN.GetRegName() ? "" : $"\n\n{fontName}\n{fontDesc}";
+            string fontContent = font.GetSpriteID(player) == 0 ? "" : $"\n\n{fontName}\n{fontDesc}";
 
-            TileMaterial propertiesMaterial = properties.material;
-            string materialName = localizer(propertiesMaterial.GetLocalizeKey());
+            TileMaterial material = properties.material;
+            string materialName = localizer(material.GetLocalizeKey());
             string materialDesc = properties.material.GetDescription(localizer, player);
 
-            string materialContent = propertiesMaterial.GetRegName() == TileMaterial.PLAIN.GetRegName() ? "" : $"\n\n{materialName}\n{materialDesc}";
+            string materialContent = material.GetSpriteID(player) == 0 ? "" : $"\n\n{materialName}\n{materialDesc}";
 
             return $"{maskContent}{fontContent}{materialContent}";
         }

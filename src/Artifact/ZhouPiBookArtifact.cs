@@ -39,9 +39,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), fanText);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             int addedFan = GetAddedFan(permutation);
 
             effects.Add(ScoreEffect.AddFan(addedFan, this));

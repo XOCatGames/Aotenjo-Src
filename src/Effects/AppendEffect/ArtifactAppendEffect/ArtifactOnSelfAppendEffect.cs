@@ -11,7 +11,7 @@ namespace Aotenjo
         protected override IEnumerable<IAnimationEffect> GetAnimationEffects(Artifact artifact)
         {
             var effects = new List<Effect>();
-            artifact.AppendOnSelfEffects(player, permutation, effects);
+            artifact.AddOnSelfEffects(player, permutation, effects);
             return effects;
         }
 

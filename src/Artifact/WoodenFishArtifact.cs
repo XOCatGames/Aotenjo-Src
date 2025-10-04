@@ -40,7 +40,7 @@ public class WoodenFishArtifact : Artifact
 
         public override void Ingest(Player player)
         {
-            player.GetSkillSet().IncreaseLevel(FixedYakuType.Base);
+            player.GetSkillSet().IncreaseLevel(YakuType.Base);
         }
     }
 }

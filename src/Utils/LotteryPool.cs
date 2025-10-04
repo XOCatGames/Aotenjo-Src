@@ -183,16 +183,4 @@ public class LotteryPool<T>
     {
         return new LotteryPool<T>().AddRange(items).Draw(rng);
     }
-    
-    /// <summary>
-    /// 缩写函数，从集合中抽取多个物品，该函数会自动创建一个抽奖池，并将集合中的物品添加到池中，然后进行抽取。
-    /// </summary>
-    /// <param name="items">物品集合</param>
-    /// <param name="rng">随机数生成器</param>
-    /// <param name="count">需要的物品个数</param>
-    /// <returns>命中到的物品List</returns>
-    public static List<T> DrawFromCollection(IEnumerable<T> items, Func<int, int> rng, int count)
-    {
-        return new LotteryPool<T>().AddRange(items).DrawRange(rng, count);
-    }
 }

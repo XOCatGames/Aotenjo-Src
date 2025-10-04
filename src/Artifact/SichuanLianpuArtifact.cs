@@ -51,9 +51,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), level * EARN_AMOUNT, typeFormat, EARN_AMOUNT);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
 
 
             if (player.GetCurrentSelectedBlocks().Any(b => b.OfCategory(bounty)))

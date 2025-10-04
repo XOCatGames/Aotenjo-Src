@@ -84,7 +84,6 @@ namespace Aotenjo
         {
             LotteryPool<TileMaterial> pool = new LotteryPool<TileMaterial>();
             pool.AddRange(GetMaterialsWithRarity(Rarity.RARE));
-            pool.AddRange(GetMaterialsWithRarity(Rarity.EPIC));
             return pool;
         }
 
@@ -156,21 +155,14 @@ namespace Aotenjo
         //     "succubus", "gold_mouse"
         // });
         
-        public static MaterialSet[] MaterialSets = new []
+        public static MaterialSet[] materialSets = new []
         {
             Basic, Ore, Porcelain, Monsters, Wood, Dessert
         };
 
         public virtual UnlockRequirement GetUnlockRequirement()
         {
-            try
-            {
-                return MaterialSetUnlockRequirements.matSetRequirements[this];
-            }
-            catch (KeyNotFoundException)
-            {
-                return UnlockRequirement.UnlockedByDefault(); // Default to always unlocked
-            }
+            return MaterialSetUnlockRequirements.matSetRequirements[this];
         }
     }
 }

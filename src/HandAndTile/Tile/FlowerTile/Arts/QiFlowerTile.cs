@@ -26,7 +26,7 @@ public class QiFlowerTile : OneTimeUseFlowerTile
 
         foreach (Tile t in tilesToDiscard)
         {
-            MessageManager.Instance.EnqueueToDiscard(t, true);
+            EventManager.Instance.EnqueueToDiscard(t, true);
         }
     }
 }

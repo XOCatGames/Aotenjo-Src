@@ -43,7 +43,7 @@ public class GreedlessBoss : Boss
             {
                 if (!player.Selecting(tile)) return;
                 effects.Add(new EarnMoneyEffect(GetAmount(player)));
-                effects.Add(new IncreaseTargetEffect(1 + DebtMultiplier, "Greedless_reversed"));
+                effects.Add(new IncreaseTargetEffect(1 + DebtMultiplier, "desireless_reversed"));
             });
     }
     

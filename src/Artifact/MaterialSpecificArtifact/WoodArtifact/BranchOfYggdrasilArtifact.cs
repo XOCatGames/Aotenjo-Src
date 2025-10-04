@@ -57,7 +57,7 @@ namespace Aotenjo
                 float ratio = (100f - branchOfYggdrasilArtifact.Level) /
                               (100f - branchOfYggdrasilArtifact.Level + LEVEL_PER_DISCARD);
 
-                MessageManager.Instance.OnSetProgressBarLength(ratio);
+                EventManager.Instance.OnSetProgressBarLength(ratio);
             }
         }
     }

@@ -9,18 +9,18 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostRoundStartEvent += OnPostRoundStart;
             player.ObtainGadgetEvent += OnObtainGadget;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostRoundStartEvent -= OnPostRoundStart;
             player.ObtainGadgetEvent -= OnObtainGadget;
         }
 
-        private void PostRoundStart(PlayerEvent playerEvent)
+        private void OnPostRoundStart(PlayerEvent playerEvent)
         {
             Player player = playerEvent.player;
             player.GetGadgets().ForEach(gadget =>

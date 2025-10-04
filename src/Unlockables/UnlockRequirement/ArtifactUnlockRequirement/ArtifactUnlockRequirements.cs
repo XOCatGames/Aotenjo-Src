@@ -25,16 +25,16 @@ public class ArtifactUnlockRequirements
 
         { Artifacts.MalachiteVase, UnlockRequirement.UnlockByPlayTileAttribute(TileMaterial.COPPER, 20) },
         {
-            Artifacts.IceAxe, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanBuGao)
-                .Or(UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanJieGao))
+            Artifacts.IceAxe, UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanBuGao)
+                .Or(UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanJieGao))
         },
         {
-            Artifacts.NylonRope, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanBuGao)
-                .Or(UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanJieGao))
+            Artifacts.NylonRope, UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanBuGao)
+                .Or(UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanJieGao))
         },
         {
-            Artifacts.TravelBag, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanBuGao)
-                .Or(UnlockRequirement.UnlockByPlayYaku(FixedYakuType.SanSeSanJieGao))
+            Artifacts.TravelBag, UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanBuGao)
+                .Or(UnlockRequirement.UnlockByPlayYaku(YakuType.SanSeSanJieGao))
         },
         { Artifacts.AncientGoldCoin, UnlockRequirement.UnlockByMoneyEarned(500) },
 
@@ -47,8 +47,8 @@ public class ArtifactUnlockRequirements
         { Artifacts.FrogToy, UnlockRequirement.UnlockByCustomStats("discard_yaojiu", 144) },
         { Artifacts.PrincessToy, UnlockRequirement.UnlockByCustomStats("discard_yaojiu", 144) },
 
-        { Artifacts.BlueCrystalBall, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.DuanYao, 72) },
-        { Artifacts.PurpleCrystalBall, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.QuanDaiYao, 36) },
+        { Artifacts.BlueCrystalBall, UnlockRequirement.UnlockByPlayYaku(YakuType.DuanYao, 72) },
+        { Artifacts.PurpleCrystalBall, UnlockRequirement.UnlockByPlayYaku(YakuType.QuanDaiYao, 36) },
 
         { Artifacts.Censer, UnlockRequirement.UnlockByCustomStats($"encounter_boss_{Bosses.Knowledgeless.name}", 1) },
         {
@@ -56,7 +56,7 @@ public class ArtifactUnlockRequirements
             UnlockRequirement.UnlockByCustomStats($"encounter_boss_{Bosses.Knowledgeless.name}", 2)
         },
 
-        { Artifacts.MedusaAmulet, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.ShuangTongZiKe) },
+        { Artifacts.MedusaAmulet, UnlockRequirement.UnlockByPlayYaku(YakuType.ShuangTongZiKe) },
 
         { Artifacts.DemonStatue, UnlockRequirement.UnlockByCustomStats($"encounter_boss_{Bosses.Heartless.name}", 1) },
         { Artifacts.IronHen, UnlockRequirement.UnlockByCustomStats($"encounter_boss_{Bosses.Greedless.name}", 1) },

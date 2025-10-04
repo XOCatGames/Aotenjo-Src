@@ -22,14 +22,14 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.PostDiscardTileEvent += PostDiscardTile;
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
+            player.PostRoundEndEvent += OnRoundStart;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
             player.PostDiscardTileEvent -= PostDiscardTile;
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
+            player.PostRoundStartEvent -= OnRoundStart;
         }
 
         private void PostDiscardTile(PlayerDiscardTileEvent.Post eventData)
@@ -44,7 +44,7 @@ namespace Aotenjo
                 player.DiscardLeft += DISCARD_RETURN;
                 AudioSystem.PlayAddSwapChanceSound();
                 if (!res) return;
-                MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
+                EventManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
             }
         }
 

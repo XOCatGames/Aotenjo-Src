@@ -29,7 +29,7 @@
         public override bool UseOnTile(Player player, Tile tile)
         {
             if (!ShouldHighlightTile(tile, player)) return false;
-            MessageManager.Instance.OnUseFishingRodEvent(new PlayerGadgetEvent(player, this, tile));
+            EventManager.Instance.OnUseFishingRodEvent(new PlayerGadgetEvent(player, this, tile));
             return true;
         }
     }

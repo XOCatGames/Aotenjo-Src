@@ -43,7 +43,7 @@ namespace Aotenjo
 
         public virtual bool HasYakuType(YakuType yakuType)
         {
-            return GetAvailableYakus().Any(yaku => yaku.GetYakuType() == yakuType);
+            return GetAvailableYakus().Any(yaku => yaku.yakuTypeID == yakuType);
         }
 
         public string GetAttributeName(Func<string, string> localizer)
@@ -56,10 +56,7 @@ namespace Aotenjo
             return localizer($"deck_attribute_{regName}_description");
         }
 
-        public virtual MaterialSet[] GetAvailableMaterialSets()
-        {
-            return MaterialSet.MaterialSets.Except(new []{ MaterialSet.Basic }).ToArray();
-        }
+        public abstract MaterialSet[] GetAvailableMaterialSets();
 
         public string GetLocalizedName(Func<string, string> gameLoc)
         {

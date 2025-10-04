@@ -34,22 +34,22 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostRoundStartEvent += DecreaseTarget;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostRoundStartEvent -= DecreaseTarget;
         }
 
-        private void PostRoundStart(PlayerEvent player)
+        private void DecreaseTarget(PlayerEvent player)
         {
             if (player.player.Level % 4 == 0)
             {
                 removedTargets += (player.player.levelTarget * 0.5d);
                 player.player.levelTarget *= 0.5d;
-                MessageManager.Instance.OnSetProgressBarLength(0.5f);
+                EventManager.Instance.OnSetProgressBarLength(0.5f);
             }
         }
 

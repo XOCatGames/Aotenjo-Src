@@ -13,7 +13,7 @@ public class StimulantGadget : Gadget
         if (!ShouldHighlightTile(tile, player)) return false;
         TileProperties properties = player.GenerateRandomTileProperties(0, 80, 20, 100);
         tile.MergeAndSetProperties(properties.CopyWithMask(TileMask.Fractured()), player);
-        MessageManager.Instance.OnSoundEvent("Stimulant");
+        EventManager.Instance.OnSoundEvent("Stimulant");
         return true;
     }
 

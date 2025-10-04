@@ -17,7 +17,7 @@ public class ChiselGadget : ReusableGadget
 
         ApplyTransform(player, block);
 
-        MessageManager.Instance.OnSoundEvent("Chisel");
+        EventManager.Instance.OnSoundEvent("Chisel");
         return true;
     }
 
@@ -38,7 +38,7 @@ public class ChiselGadget : ReusableGadget
 
         ApplyTransform(player, block);
 
-        MessageManager.Instance.OnSoundEvent("Chisel");
+        EventManager.Instance.OnSoundEvent("Chisel");
         return true;
     }
 
@@ -85,7 +85,7 @@ public class ChiselGadget : ReusableGadget
             memberTile.AddTransform(new TileTransformChisel(predTile.GetOrder(), predTile.GetCategory()), player);
         }
 
-        MessageManager.Instance.OnSoundEvent("Chisel");
+        EventManager.Instance.OnSoundEvent("Chisel");
         return true;
     }
 }

@@ -42,7 +42,7 @@ namespace Aotenjo
                 player.RemoveTileFromDiscarded(cand);
                 player.AddTileToPool(cand);
                 player.priortizedDrawingList.Add(cand);
-                MessageManager.Instance.OnSoundEvent("WaterSplash");
+                EventManager.Instance.OnSoundEvent("WaterSplash");
             }
         }
     }

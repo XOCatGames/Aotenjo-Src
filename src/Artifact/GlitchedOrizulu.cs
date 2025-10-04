@@ -10,9 +10,9 @@ namespace Aotenjo
         {
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             if (!permutation.JiangFulfillAll(t => t.IsHonor(player))) return;
             effects.Add(ScoreEffect.MulFan(3, this));
             effects.Add(new GlitchedOrizuluEffect(this));

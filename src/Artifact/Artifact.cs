@@ -14,7 +14,7 @@ namespace Aotenjo
         public Rarity rarity;
 
         /// <summary>
-        /// 遗物标签，可多选，用于部分遗物的效果判断（例如铜质匕首）
+        ///     遗物标签，可多选，用于部分遗物的效果判断（例如铜质匕首）
         /// </summary>
         public List<ArtifactTag> tags;
 
@@ -56,7 +56,7 @@ namespace Aotenjo
         public int Price => GetBasePrice();
 
         /// <summary>
-        /// 是否在悬停时高亮显示牌，通常用于遗物的效果触发条件
+        ///     是否在悬停时高亮显示牌，通常用于遗物的效果触发条件
         /// </summary>
         /// <param name="tile">需要判断的麻将牌</param>
         /// <param name="player">玩家实例</param>
@@ -317,15 +317,15 @@ namespace Aotenjo
 
         public virtual void SubscribeToPlayer(Player player)
         {
-            if (IsBroken) EventBus.Subscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
-            if (IsTemporary) EventBus.Subscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
+            if (IsBroken) player.PreRoundEndEvent += RemoveFromPlayerInv;
+            if (IsTemporary) player.PreRoundEndEvent += RemoveFromPlayerInv;
         }
 
 
         public virtual void UnsubscribeToPlayer(Player player)
         {
-            if (IsBroken) EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
-            if (IsTemporary) EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
+            if (IsBroken) player.PreRoundEndEvent -= RemoveFromPlayerInv;
+            if (IsTemporary) player.PreRoundEndEvent -= RemoveFromPlayerInv;
         }
 
         private void RemoveFromPlayerInv(PlayerEvent evt)
@@ -489,7 +489,7 @@ namespace Aotenjo
         {
         }
 
-        public virtual void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public virtual void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
             selfEffect?.Invoke(player, permutation, effects);
         }

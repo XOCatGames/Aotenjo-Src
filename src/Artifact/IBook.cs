@@ -18,7 +18,7 @@ namespace Aotenjo
             
             foreach (var yaku in drawYakusToUpgrade)
             {
-                player.UpgradeYaku(yaku.GetYakuType(), 1);           
+                player.UpgradeYaku(yaku.yakuTypeID, 1);           
             }
 
             player.PostReadIBook(book, drawYakusToUpgrade);

@@ -24,7 +24,7 @@ public class DandelionSeedGadget : Gadget
         player.AddTileToHand(toAdd);
         player.SortDeck();
         int index = player.GetHandDeckCopy().IndexOf(toAdd);
-        MessageManager.Instance.OnDrawTiles(new List<int> { index });
+        EventManager.Instance.OnDrawTiles(new List<int> { index });
         return true;
     }
 

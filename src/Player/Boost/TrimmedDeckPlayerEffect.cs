@@ -22,7 +22,7 @@ public class TrimmedDeckPlayerEffect : StarterBoostEffect
 
         tiles.Sort();
 
-        MessageManager.Instance.OnRemoveTileEvent(tiles);
+        EventManager.Instance.OnRemoveTileEvent(tiles);
     }
 
     public static IEnumerable<T> DistinctBy<T, TKey>(IEnumerable<T> items, Func<T, TKey> property)

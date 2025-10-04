@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Aotenjo
 {
@@ -34,12 +33,6 @@ namespace Aotenjo
         private Action<Player, Permutation, List<IAnimationEffect>, Artifact> onRoundEndEffect;
         private Action<Player, Artifact> onSubscribeToPlayer;
         private Action<Player, Artifact> onUnsubscribeToPlayer;
-        
-        private List<string> deckIn = new List<string>();
-        private List<string> deckBlocked = new List<string>();
-        private List<string> setIn = new List<string>();
-        private List<string> setBlocked = new List<string>();
-        private List<string> materialRequired = new List<string>();
 
         private LuaArtifactBuilder() { }
 
@@ -74,12 +67,6 @@ namespace Aotenjo
         
         public LuaArtifactBuilder OnSubscribeToPlayer(Action<Player, Artifact> f) { onSubscribeToPlayer = f; return this; }
         public LuaArtifactBuilder OnUnsubscribeToPlayer(Action<Player, Artifact> f) { onUnsubscribeToPlayer = f; return this; }
-        
-        public LuaArtifactBuilder WithDeckIn(string[] ids) { deckIn = ids.ToList(); return this; }
-        public LuaArtifactBuilder WithDeckBlocked(string[] ids) { deckBlocked = ids.ToList(); return this; }
-        public LuaArtifactBuilder WithSetIn(string[] ids) { setIn = ids.ToList(); return this; }
-        public LuaArtifactBuilder WithSetBlocked(string[] ids) { setBlocked = ids.ToList(); return this; }
-        public LuaArtifactBuilder WithMaterialRequired(string[] ids) { materialRequired = ids.ToList(); return this; }
 
         // --- Build ---
         public LuaArtifact Build()
@@ -110,23 +97,15 @@ namespace Aotenjo
                 getSpriteID,
                 onSubscribeToPlayer,
                 onUnsubscribeToPlayer
-            )
-            {
-                deckIn = deckIn,
-                deckBlocked = deckBlocked,
-                setIn = setIn,
-                setBlocked = setBlocked,
-                materialRequired = materialRequired
-            };
+            );
 
             return artifact;
         }
 
-        public LuaArtifact BuildAndRegister()
+        public void BuildAndRegister()
         {
             LuaArtifact artifact = Build();
             Artifacts.ArtifactList.Add(artifact);
-            return artifact;
         }
     }
 }

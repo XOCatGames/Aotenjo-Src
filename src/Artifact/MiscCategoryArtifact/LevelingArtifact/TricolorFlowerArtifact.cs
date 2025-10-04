@@ -60,9 +60,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), Level, typeFormat, LEVEL_PER_PROC);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.AddFan(() => GetFan(player), this));
             if (player.GetCurrentSelectedBlocks().Any(b => b.OfCategory(bounty)))
             {

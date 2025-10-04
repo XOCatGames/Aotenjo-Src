@@ -30,22 +30,22 @@ public class LuoyangShovelArtifact : Artifact
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        EventBus.Subscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
+        player.PreRoundEndEvent += DestoryPorcelains;
     }
     
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
+        player.PreRoundEndEvent -= DestoryPorcelains;
     }
 
-    private void PreRoundEnd(PlayerEvent playerEvent)
+    private void DestoryPorcelains(PlayerEvent playerEvent)
     {
         Player player = playerEvent.player;
         List<Tile> heldPorcelains = player.GetHandDeckCopy()
             .Where(t => t.properties.material is TileMaterialPorcelain)
             .ToList();
         heldPorcelains.ForEach(t => player.RemoveTileFromHand(t, destroyed:true));
-        MessageManager.Instance.OnRemoveTileEvent(heldPorcelains);
+        EventManager.Instance.OnRemoveTileEvent(heldPorcelains);
     }
 }

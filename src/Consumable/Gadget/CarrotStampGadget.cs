@@ -23,7 +23,7 @@ public class CarrotStampGadget : Gadget
         tile.ModifyCarvedDesign(cat, ord, player);
 
         tile.ClearTransform(player);
-        MessageManager.Instance.OnSoundEvent("Rice");
+        EventManager.Instance.OnSoundEvent("Rice");
 
         return true;
     }

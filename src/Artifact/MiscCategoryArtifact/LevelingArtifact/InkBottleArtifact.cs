@@ -22,9 +22,9 @@ namespace Aotenjo
             return ToAddFuFormat(GetFu(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             if (Level == 0) return;
             effects.Add(ScoreEffect.AddFu(() => GetFu(player), this));
         }

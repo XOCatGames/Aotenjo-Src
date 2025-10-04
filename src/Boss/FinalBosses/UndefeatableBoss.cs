@@ -11,12 +11,12 @@ public class UndefeatableBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+        player.PostRoundStartEvent += IncreaseLevelTarget;
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+        player.PostRoundStartEvent -= IncreaseLevelTarget;
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
@@ -29,7 +29,7 @@ public class UndefeatableBoss : Boss
             });
     }
     
-    private void PostRoundStart(PlayerEvent eventData)
+    private void IncreaseLevelTarget(PlayerEvent eventData)
     {
         Player player = eventData.player;
         player.levelTarget *= Multiplier;

@@ -32,7 +32,7 @@ namespace Aotenjo
             return new TileMaterialBlueAndWhite(spriteID, level);
         }
 
-        public override int GetSpriteID()
+        protected override int GetSpriteID()
         {
             if (level < MAX_LEVEL)
                 return base.GetSpriteID();

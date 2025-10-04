@@ -19,7 +19,7 @@ public class SnakesEyeGadget : Gadget
             memberTile.AddTransform(new TileTransformSnakesEye(tile), player);
         }
 
-        MessageManager.Instance.OnSoundEvent("SnakesEye");
+        EventManager.Instance.OnSoundEvent("SnakesEye");
         return true;
     }
 

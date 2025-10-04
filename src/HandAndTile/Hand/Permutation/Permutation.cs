@@ -76,7 +76,7 @@ namespace Aotenjo
             var yakus = new List<YakuType>();
             
             
-            foreach (YakuType yaku in YakuTester.InfoMap.Keys)
+            foreach (YakuType yaku in YakuType.GetValues(typeof(YakuType)))
             {
                 if (!pred(yaku)) continue;
                 if (YakuTester.TestYaku(this, yaku, player, out _) && player.deck.HasYakuType(yaku))

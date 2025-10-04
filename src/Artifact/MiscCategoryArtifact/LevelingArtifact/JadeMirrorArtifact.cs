@@ -29,9 +29,9 @@ namespace Aotenjo
             return ToMulFanFormat(GetMul(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.MulFan(1 + FAN_BONUS_MULTIPLIER * Level, this));
             if (permutation is SevenPairsPermutation or ThirteenOrphansPermutation)
             {

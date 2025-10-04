@@ -19,9 +19,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), BASE + LEVEL_INCREMENT * Level, LEVEL_INCREMENT);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.AddFu(BASE + LEVEL_INCREMENT * Level, this));
         }
 

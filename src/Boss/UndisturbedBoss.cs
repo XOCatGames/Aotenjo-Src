@@ -11,12 +11,12 @@ public class UndisturbedBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(Suppress);
+        player.PreRoundStartEvent += Suppress;
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(Suppress);
+        player.PreRoundStartEvent -= Suppress;
     }
 
     private void Suppress(PlayerEvent eventData)

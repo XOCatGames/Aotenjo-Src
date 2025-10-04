@@ -13,13 +13,13 @@ public class TimelessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        EventBus.Subscribe<PlayerRoundEvent.End.PrePre>(Timeless);
+        player.PrePreRoundEndEvent += Timeless;
         firstTime = true;
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        EventBus.Unsubscribe<PlayerRoundEvent.End.PrePre>(Timeless);
+        player.PrePreRoundEndEvent -= Timeless;
     }
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
@@ -36,46 +36,27 @@ public class TimelessBoss : Boss
             this.baseArtifact = baseArtifact;
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             bool lastHand = player.CurrentPlayingStage == player.GetMaxPlayingStage() - 1 || 
                             permutation.GetPermType() == PermutationType.SEVEN_PAIRS || 
                             permutation.GetPermType() == PermutationType.THIRTEEN_ORPHANS;
             if (triggered || !lastHand) return;
-            effects.Add(new SimpleEffect("effect_Timeless_reversed", baseArtifact, (p) => { TryGetTimeShard(p); }, "Agate"));
-        }
-
-        private void TryGetTimeShard(Player p)
-        {
-            if(p.GetGadgets().TrueForAll(g => !g.regName.Equals(new TimeShardGadget().regName)))
+            effects.Add(new SimpleEffect("effect_timeless_reversed", baseArtifact, (p) =>
             {
-                p.AddGadget(new TimeShardGadget());
-                triggered = true;
-            }
+                if(p.GetGadgets().TrueForAll(g => !g.regName.Equals(new TimeShardGadget().regName)))
+                {
+                    p.AddGadget(new TimeShardGadget());
+                    triggered = true;
+                }
+            }, "Agate"));
         }
 
         public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
             effects.Add(new SilentEffect(() => triggered = false));
-        }
-
-        public override void SubscribeToPlayer(Player player)
-        {
-            base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += PostSkipRound;
-        }
-        
-        public override void UnsubscribeToPlayer(Player player)
-        {
-            base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= PostSkipRound;
-        }
-
-        private void PostSkipRound(PlayerEvent playerEvent)
-        {
-            TryGetTimeShard(playerEvent.player);
         }
     }
 

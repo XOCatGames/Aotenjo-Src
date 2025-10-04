@@ -16,9 +16,9 @@ namespace Aotenjo
             return string.Format(base.GetDescription(player, localizer), FU_PER_EXTRA_TILE * GetExtraTileCount(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             if (player.GetAllTiles().Count > player.GetInitialWall().Count)
             {
                 int amount = GetExtraTileCount(player);

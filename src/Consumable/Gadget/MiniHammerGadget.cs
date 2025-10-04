@@ -11,7 +11,7 @@ public class MiniHammerGadget : Gadget
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        MessageManager.Instance.OnSoundEvent("MiniHammer");
+        EventManager.Instance.OnSoundEvent("MiniHammer");
         tile.SetMask(TileMask.Fractured(), player);
         var cands = player.GetHandDeckCopy().Where(t => t != tile && t.IsSameCategory(tile)
                                                                   && !t.properties.mask.GetRegName()

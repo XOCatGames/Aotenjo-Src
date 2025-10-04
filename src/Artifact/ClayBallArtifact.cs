@@ -19,8 +19,8 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.PreSetTransformEvent += OnSetTransform;
+            player.PostModifyTileCarvatureEvent += OnModifyFace;
             player.PreSetFontEvent += OnSetFont;
-            EventBus.Subscribe<PlayerModifyCarvedDesignEvent.Post>(OnModifyFace);
         }
 
         private void OnSetFont(PlayerSetAttributeEvent evt)
@@ -35,13 +35,13 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayer(player);
             player.PreSetTransformEvent -= OnSetTransform;
+            player.PostModifyTileCarvatureEvent -= OnModifyFace;
             player.PreSetFontEvent -= OnSetFont;
-            EventBus.Unsubscribe<PlayerModifyCarvedDesignEvent.Post>(OnModifyFace);
         }
 
-        private void OnModifyFace(PlayerModifyCarvedDesignEvent.Post evt)
+        private void OnModifyFace(Player _, Tile tile, Tile.Category cat, int ord)
         {
-            evt.tile.addonFu += ADDON_FU_AMOUNT;
+            tile.addonFu += ADDON_FU_AMOUNT;
         }
 
         private void OnSetTransform(PlayerSetTransformEvent evt)

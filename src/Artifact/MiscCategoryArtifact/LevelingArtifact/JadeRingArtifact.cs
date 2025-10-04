@@ -17,13 +17,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent += Reset;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent -= Reset;
         }
 
         public override (string, double) GetAdditionalDisplayingInfo(Player player)
@@ -31,7 +31,7 @@ namespace Aotenjo
             return ToMulFanFormat(GetMul(player));
         }
 
-        private void PostRoundEnd(PlayerEvent data)
+        private void Reset(PlayerEvent data)
         {
             first = true;
         }
@@ -53,9 +53,9 @@ namespace Aotenjo
             return 1.5f + FAN_BONUS_MULTIPLIER * this.GetEffectiveJadeStack(player);
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             if (permutation.ToTiles().Where(t => t.IsNumbered()).Select(t => t.GetOrder()).Distinct().Count() == 9)
             {
                 effects.Add(ScoreEffect.MulFan(GetMul(player), this));

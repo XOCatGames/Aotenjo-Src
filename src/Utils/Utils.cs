@@ -173,20 +173,20 @@ namespace Aotenjo
 
         public static bool IsSevenPairYaku(Yaku yaku)
         {
-            YakuType typeID = yaku.GetYakuType();
-            return typeID == FixedYakuType.QiDui || typeID == FixedYakuType.LianQiDui || typeID == FixedYakuType.DaCheLun
-                   || typeID == FixedYakuType.XiaoCheLun || typeID == FixedYakuType.DaShuLin || typeID == FixedYakuType.XiaoShuLin
-                   || typeID == FixedYakuType.DaZhuLin || typeID == FixedYakuType.XiaoZhuLin || typeID == FixedYakuType.QiXingDui
-                   || typeID == FixedYakuType.SanYuanDui || typeID == FixedYakuType.SiXiDui || typeID == FixedYakuType.QiTongDui
-                   || typeID == FixedYakuType.LongQiDui || typeID == FixedYakuType.ShuangLongQiDui ||
-                   typeID == FixedYakuType.SanLongQiDui;
+            YakuType typeID = yaku.yakuTypeID;
+            return typeID == YakuType.QiDui || typeID == YakuType.LianQiDui || typeID == YakuType.DaCheLun
+                   || typeID == YakuType.XiaoCheLun || typeID == YakuType.DaShuLin || typeID == YakuType.XiaoShuLin
+                   || typeID == YakuType.DaZhuLin || typeID == YakuType.XiaoZhuLin || typeID == YakuType.QiXingDui
+                   || typeID == YakuType.SanYuanDui || typeID == YakuType.SiXiDui || typeID == YakuType.QiTongDui
+                   || typeID == YakuType.LongQiDui || typeID == YakuType.ShuangLongQiDui ||
+                   typeID == YakuType.SanLongQiDui;
         }
 
         public static bool IsKongYaku(Yaku yaku)
         {
-            YakuType typeID = yaku.GetYakuType();
-            return typeID == FixedYakuType.Gang || typeID == FixedYakuType.ShuangGang || typeID == FixedYakuType.SanGang
-                   || typeID == FixedYakuType.SiGang || typeID == FixedYakuType.TianDiChuangZao;
+            YakuType typeID = yaku.yakuTypeID;
+            return typeID == YakuType.Gang || typeID == YakuType.ShuangGang || typeID == YakuType.SanGang
+                   || typeID == YakuType.SiGang || typeID == YakuType.TianDiChuangZao;
         }
 
         public static Vector2 WorldToCanvasPosition(Canvas canvas, RectTransform canvasRect, Camera camera,

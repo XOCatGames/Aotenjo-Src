@@ -29,16 +29,16 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent += OnRoundEnd;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent -= OnRoundEnd;
         }
 
-        private void PostRoundEnd(PlayerEvent playerEvent)
+        private void OnRoundEnd(PlayerEvent playerEvent)
         {
             triggeredCategories.Clear();
         }
@@ -60,9 +60,9 @@ namespace Aotenjo
             return localizer($"yakucategory_{index}_name_grey");
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             int id_added_predicted = 0;
             List<YakuType> yakuTypes =
                 permutation.GetYakus(player).Where(y => player.GetSkillSet().GetLevel(y) > 0).ToList();

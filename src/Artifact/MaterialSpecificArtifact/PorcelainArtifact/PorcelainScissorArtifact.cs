@@ -12,13 +12,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += Bone;
+            player.PostSkipRoundEndEvent += Bone;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= Bone;
+            player.PostSkipRoundEndEvent -= Bone;
         }
 
         private void Bone(PlayerEvent eventData)

@@ -20,24 +20,40 @@ namespace Aotenjo
 
         public YakuPack ToYakuPack()
         {
-            YakuPack yakuPack = new()
-            {
-                id = id,
-                name = name,
-                common = ParseStringYakus(common),
-                rare = ParseStringYakus(rare),
-                epic = ParseStringYakus(epic),
-                legendary = ParseStringYakus(legendary),
-                ancient = ParseStringYakus(ancient),
-                weights = new List<int>(weights)
-            };
+            YakuPack yakuPack = new();
+            yakuPack.id = id;
+            yakuPack.name = name;
+            yakuPack.common = parseStringYakus(common);
+            yakuPack.rare = parseStringYakus(rare);
+            yakuPack.epic = parseStringYakus(epic);
+            yakuPack.legendary = parseStringYakus(legendary);
+            yakuPack.ancient = parseStringYakus(ancient);
+            yakuPack.weights = new(weights);
 
             return yakuPack;
         }
 
-        private static List<YakuType> ParseStringYakus(List<string> yakus)
+        private static List<YakuType> parseStringYakus(List<string> yakus)
         {
-            return yakus == null ? new List<YakuType>() : yakus.Select(YakuType.FromString).ToList();
+            if (yakus == null)
+            {
+                return new List<YakuType>();
+            }
+
+            //Debug.Log(yakus.ToCommaSeparatedString());
+            List<YakuType> yakuList = new List<YakuType>();
+            foreach (string yaku in yakus)
+            {
+                if (!Enum.GetNames(typeof(YakuType)).Contains(yaku))
+                {
+                    Debug.LogError("Cannot find Yaku " + yaku);
+                    continue;
+                }
+
+                yakuList.Add(Enum.Parse<YakuType>(yaku));
+            }
+
+            return yakuList;
         }
     }
 }

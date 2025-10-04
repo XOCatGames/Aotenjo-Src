@@ -22,7 +22,7 @@ public class CloudGlovesGadget : ReusableGadget
         if (ShouldHighlightTile(tile, player))
         {
             SneakyPlayer sneakyPlayer = (SneakyPlayer)player;
-            MessageManager.Instance.OnSneakTile(tile, sneakyPlayer);
+            EventManager.Instance.OnSneakTile(tile, sneakyPlayer);
             return true;
         }
 

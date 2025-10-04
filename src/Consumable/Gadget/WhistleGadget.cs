@@ -62,7 +62,7 @@ namespace Aotenjo
             player.AddTileToDiscarded(t2);
             perm.jiang.tile1 = t1;
             perm.jiang.tile2 = t2;
-            MessageManager.Instance.OnSoundEvent("Whistle");
+            EventManager.Instance.OnSoundEvent("Whistle");
             return new List<Tile> { jiang1, jiang2 };
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Aotenjo
 {
@@ -15,10 +14,14 @@ namespace Aotenjo
             return new TileMaterialOre(spriteID);
         }
 
-        public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
+
+        public override Effect[] GetEffects(Player player, Permutation permutation)
         {
-            base.AppendBonusEffects(player, perm, tile, effects);
-            effects.Add(new TransformEffect(tile));
+            Effect[] baseEffects = base.GetEffects();
+            Array.Resize(ref baseEffects, baseEffects.Length + 1);
+            baseEffects[baseEffects.Length - 1] =
+                new TransformEffect(player.GetAllTiles().Find(t => t.properties.material == this));
+            return baseEffects;
         }
 
         public class TransformEffect : Effect

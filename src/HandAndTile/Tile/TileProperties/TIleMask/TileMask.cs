@@ -22,9 +22,5 @@ namespace Aotenjo
 
         public static TileMask Grow() => new TileMaskGrow(6);
         public static TileMask Frozen() => new TileMaskFrozen(5);
-        protected override string GetSpriteSheetName()
-        {
-            return "TileMask";
-        }
     }
 }

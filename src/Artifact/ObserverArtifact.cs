@@ -44,7 +44,7 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.PostIngestEffect += OnPostIngest;
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent += OnPostRoundEnd;
             player.PreAppendSettleScoringEffectsEvent += OnPreAppendSettleScoringEffects;
             player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffect;
         }
@@ -78,12 +78,12 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayer(player);
             player.PostIngestEffect -= OnPostIngest;
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent -= OnPostRoundEnd;
             player.PreAppendSettleScoringEffectsEvent -= OnPreAppendSettleScoringEffects;
             player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffect;
         }
 
-        private void PostRoundEnd(PlayerEvent playerEvent)
+        private void OnPostRoundEnd(PlayerEvent playerEvent)
         {
             Level = 0;
         }

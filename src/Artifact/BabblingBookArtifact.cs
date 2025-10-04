@@ -43,7 +43,7 @@ namespace Aotenjo
             public override void Ingest(Player player)
             {
                 artifact.UpgradeYaku(player);
-                MessageManager.Instance.OnSoundEvent("book");
+                EventManager.Instance.OnSoundEvent("book");
             }
         }
 

@@ -18,9 +18,9 @@ namespace Aotenjo
 
         public override (string, double) GetAdditionalDisplayingInfo(Player player) => ToMulFanFormat(GetMul(player));
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.MulFan(() => GetMul(player), this));
         }
 
@@ -28,10 +28,10 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             player.PostDiscardTileEvent += OnPostDiscardTileEvent;
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent += OnPostRoundEndEvent;
         }
 
-        private void PostRoundEnd(PlayerEvent playerEvent)
+        private void OnPostRoundEndEvent(PlayerEvent playerEvent)
         {
             Level = 0;
         }
@@ -48,7 +48,7 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayer(player);
             player.PostDiscardTileEvent -= OnPostDiscardTileEvent;
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent -= OnPostRoundEndEvent;
         }
 
         public double GetMul(Player player) => 1 + MUL * Level;

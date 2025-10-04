@@ -38,9 +38,9 @@ namespace Aotenjo
             return INIT_FU - Level * FU_PER_LEVEL;
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation perm, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, perm, effects);
+            base.AddOnSelfEffects(player, perm, effects);
             effects.Add(ScoreEffect.AddFu(GetFu(), this));
             effects.Add(ScoreEffect.AddFan(GetFan(), this));
         }

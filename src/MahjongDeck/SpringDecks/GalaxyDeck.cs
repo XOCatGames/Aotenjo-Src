@@ -16,6 +16,11 @@ namespace Aotenjo
             return player;
         }
 
+        public override MaterialSet[] GetAvailableMaterialSets()
+        {
+            return new[] { MaterialSet.Ore, MaterialSet.Porcelain, MaterialSet.Monsters, MaterialSet.Wood, MaterialSet.Dessert };
+        }
+
         public override bool IsUnlocked(PlayerStats stats)
         {
             return Constants.DEBUG_MODE ||

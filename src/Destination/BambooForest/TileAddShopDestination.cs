@@ -150,7 +150,7 @@ namespace Aotenjo
                 Tile cand = cands[player.GenerateRandomInt(cands.Count)];
                 bool res = player.RemoveTileFromPool(cand);
                 if (res)
-                    MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { cand });
+                    EventManager.Instance.OnRemoveTileEvent(new List<Tile> { cand });
             }
         }
     }

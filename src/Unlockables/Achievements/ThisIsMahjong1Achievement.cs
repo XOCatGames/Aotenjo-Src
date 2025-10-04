@@ -12,15 +12,14 @@
         {
             player.PostDiscardTileEvent += PostDiscardTile;
             player.PostDrawTileEvent += PostDrawTile;
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostRoundStartEvent += PostRoundStart;
             discarding = "";
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
             player.PostDiscardTileEvent -= PostDiscardTile;
-            player.PostDrawTileEvent -= PostDrawTile;
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
+            player.PostDrawTileEvent += PostDrawTile;
         }
 
         private void PostDiscardTile(PlayerDiscardTileEvent.Post discardTileEvent)

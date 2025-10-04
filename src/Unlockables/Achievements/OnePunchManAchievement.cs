@@ -11,15 +11,15 @@ namespace Aotenjo
         }
 
         public override void SubscribeToPlayer(Player player)
-        {   
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
+        {
+            player.PostRoundStartEvent += OnRoundStart;
             player.PostSettlePermutationEvent += OnSettlePermutation;
             playCount = 0;
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(OnRoundStart);
+            player.PostRoundStartEvent -= OnRoundStart;
             player.PostSettlePermutationEvent -= OnSettlePermutation;
         }
 

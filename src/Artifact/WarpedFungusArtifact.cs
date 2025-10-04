@@ -22,19 +22,19 @@ namespace Aotenjo
             return ToMulFanFormat(GetMul(player));
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        public override void AddOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            base.AppendOnSelfEffects(player, permutation, effects);
+            base.AddOnSelfEffects(player, permutation, effects);
             effects.Add(ScoreEffect.MulFan(GetMul(player), this));
         }
 
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent += OnPostRoundEndEvent;
         }
 
-        private void PostRoundEnd(PlayerEvent playerEvent)
+        private void OnPostRoundEndEvent(PlayerEvent playerEvent)
         {
             Level = 0;
         }
@@ -42,7 +42,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            player.PostRoundEndEvent -= OnPostRoundEndEvent;
         }
 
         public override void AddDiscardTileEffects(Player player, Tile tile,

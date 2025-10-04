@@ -115,7 +115,7 @@ namespace Aotenjo
             
             if (newMask.GetRegName() != preMask.GetRegName())
             {
-                MessageManager.Instance.OnChangeTileMask(this, newMask.GetRegName());
+                EventManager.Instance.OnChangeTileMask(this, newMask.GetRegName());
             }
             return this;
         }
@@ -446,16 +446,17 @@ namespace Aotenjo
 
         public Tile ModifyCarvedDesign(Tile tile, Player player)
         {
-            return ModifyCarvedDesign(tile.GetCategory(), tile.GetOrder(), player);
+            order = tile.GetOrder();
+            category = tile.GetCategory();
+            player.OnModifyCarvedDesign(this, category, order);
+            return this;
         }
 
-        public Tile ModifyCarvedDesign(Category newCat, int newOrd, Player player)
+        public Tile ModifyCarvedDesign(Category category, int v, Player player)
         {
-            bool preModifyRes = player.OnPreModifyCarvedDesign(this, category, newOrd);
-            if (!preModifyRes) return this;
-            order = newOrd;
-            category = newCat;
-            player.OnPostModifyCarvedDesign(this, category, newOrd);
+            order = v;
+            this.category = category;
+            player.OnModifyCarvedDesign(this, category, v);
             return this;
         }
 

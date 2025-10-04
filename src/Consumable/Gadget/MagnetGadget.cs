@@ -13,7 +13,7 @@ public class MagnetGadget : Gadget
         if (ShouldHighlightTile(tile))
         {
             tile.AddTransform(new TileTransformMagnet(), player);
-            MessageManager.Instance.OnSoundEvent("Magnet");
+            EventManager.Instance.OnSoundEvent("Magnet");
             return true;
         }
 

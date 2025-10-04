@@ -18,7 +18,7 @@ public class MiniBrushGadget : ReusableGadget
         if (uses <= 0) return false;
         if (ShouldHighlightTile(tile))
         {
-            MessageManager.Instance.OnUseMiniBrushEvent(this, tile);
+            EventManager.Instance.OnUseMiniBrushEvent(this, tile);
             return true;
         }
 

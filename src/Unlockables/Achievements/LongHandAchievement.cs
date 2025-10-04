@@ -8,7 +8,7 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            EventBus.Subscribe<PlayerRoundEvent.Start.Post>(Player_PostRoundStartEvent);
+            player.PostRoundStartEvent += Player_PostRoundStartEvent;
         }
 
         private void Player_PostRoundStartEvent(PlayerEvent playerEvent)
@@ -21,7 +21,7 @@
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(Player_PostRoundStartEvent);
+            player.PostRoundStartEvent -= Player_PostRoundStartEvent;
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Aotenjo
         private void OnPostPlayFlowerTileEvent(Player player, FlowerTile flowerTile)
         {
             player.EarnMoney(AMOUNT);
-            MessageManager.Instance.OnArtifactEarnMoney(AMOUNT, this);
+            EventManager.Instance.OnArtifactEarnMoney(AMOUNT, this);
         }
     }
 }
