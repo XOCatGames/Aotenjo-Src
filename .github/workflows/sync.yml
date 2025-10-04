@@ -1,0 +1,44 @@
+name: Sync LogicScripts
+
+on:
+  workflow_dispatch:        # manual trigger
+  schedule:
+    - cron: "0 16 * * *"    # every day at 16:00 UTC
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Aotenjo-Src
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          persist-credentials: false
+
+      - name: Clone Aotenjo-Unity
+        run: |
+          git clone --depth=1 https://github.com/XOCatGames/Aotenjo-Unity.git tmp_repoA
+          if [ ! -d "tmp_repoA" ]; then
+            echo "❌ Clone failed. Check token or repo access."
+            exit 1
+          fi
+          mkdir -p src
+          rm -rf src/*
+
+      - name: Copy LogicScripts to src
+        run: |
+          # Copy recursively but exclude Unity .meta and other unwanted files
+          rsync -av --exclude='*.meta' --exclude='.git*' --exclude='*.DS_Store' \
+            tmp_repoA/Assets/LogicScripts/ src/
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/
+          if git diff --cached --quiet; then
+            echo "✅ No changes detected."
+          else
+            git commit -m "Sync from Aotenjo-Unity: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/XOCatGames/Aotenjo-Src.git HEAD:main
+          fi
