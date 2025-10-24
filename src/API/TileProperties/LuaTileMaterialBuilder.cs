@@ -9,7 +9,7 @@ namespace Aotenjo
         private int id;
         private string nameKey;
         private Rarity rarity = Rarity.COMMON;
-        private Dictionary<string, string> data = new();
+        private SerializableMap<string, string> _data = new();
 
         // --- delegates ---
         private Func<TileMaterial, bool> isDebuff;
@@ -32,7 +32,7 @@ namespace Aotenjo
 
         // --- Chainable setters ---
         public LuaTileMaterialBuilder WithRarity(Rarity rarity) { this.rarity = rarity; return this; }
-        public LuaTileMaterialBuilder WithData(string key, string value) { data[key] = value; return this; }
+        public LuaTileMaterialBuilder WithData(string key, string value) { _data[key] = value; return this; }
         public LuaTileMaterialBuilder WithDebuff(Func<TileMaterial, bool> f) { isDebuff = f; return this; }
 
         public LuaTileMaterialBuilder OnScoringEffect(Action<Player, Permutation, Tile, List<Effect>, TileMaterial> f) { onScoringEffects = f; return this; }
@@ -51,7 +51,7 @@ namespace Aotenjo
             var material = new LuaTileMaterial(id, nameKey)
             {
                 rarity = rarity,
-                data = new Dictionary<string, string>(data),
+                data = _data.Clone(),
 
                 isDebuff = isDebuff,
 

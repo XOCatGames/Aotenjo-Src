@@ -7,8 +7,7 @@ namespace Aotenjo
     [Serializable]
     public class LuaTileMaterial : TileMaterial
     {
-        [SerializeReference]
-        public Dictionary<string, string> data = new Dictionary<string, string>();
+        public SerializableMap<string, string> data = new SerializableMap<string, string>();
         public Rarity rarity;
         public Func<TileMaterial, bool> isDebuff;
 
@@ -25,7 +24,12 @@ namespace Aotenjo
         
         public override TileMaterial Copy()
         {
-            return GetMaterial(GetRegName());
+            var tileMaterial = GetMaterial(GetRegName());
+            if (tileMaterial is LuaTileMaterial luaMaterial)
+            {
+                luaMaterial.data = data.Clone();
+            }
+            return tileMaterial;
         }
 
         public override Rarity GetRarity()
@@ -96,7 +100,7 @@ namespace Aotenjo
         
         public string GetDataOrDefault(string key, string defaultValue)
         {
-            return data.GetValueOrDefault(key, defaultValue);
+            return data.Get(key) ?? defaultValue;
         }
         
         public void SetData(string key, string value)
