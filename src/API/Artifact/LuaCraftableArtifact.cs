@@ -5,10 +5,7 @@ using XLua;
 
 namespace Aotenjo
 {
-    [CSharpCallLua]
-    public delegate int NumGetter();
-    
-    public class LuaArtifact : Artifact
+    public class LuaCraftableArtifact : CraftableArtifact
     {
         private Dictionary<string, string> luaData = new();
         
@@ -63,7 +60,7 @@ namespace Aotenjo
             return JsonConvert.SerializeObject(luaData);
         }
 
-        public LuaArtifact(
+        public LuaCraftableArtifact(
             string name,
             Rarity rarity,
             // delegates ...

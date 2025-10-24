@@ -17,7 +17,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             if (!player.Selecting(tile)) return;
-            if (tile.CompactWith(new("3p")) ||
+            if (tile.CompatWith("3p") ||
                 (tile.GetCategory() == Tile.Category.Bing && player.GenerateRandomInt(18) == 0))
             {
                 effects.Add(new TransformMaterialEffect(TileMaterial.GOLDEN, this, tile, "effect_golden", "Agate"));

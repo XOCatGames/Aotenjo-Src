@@ -9,7 +9,7 @@ public class TotsukaBladeArtifact : BambooArtifact
 
     public TotsukaBladeArtifact() : base("totsuka_blade", Rarity.RARE)
     {
-        SetHighlightRequirement((t, _) => t.CompactWithCategory(Tile.Category.Suo));
+        SetHighlightRequirement((t, _) => t.CompatWithCategory(Tile.Category.Suo));
     }
 
     public override string GetDescription(Func<string, string> localizer)
@@ -26,7 +26,7 @@ public class TotsukaBladeArtifact : BambooArtifact
         if (count > 0)
         {
             effects.Add(new TotsukaBladeEffect(this, tile,
-                player.GetHandDeckCopy().Where(t => t.CompactWithCategory(Tile.Category.Suo)).ToArray()));
+                player.GetHandDeckCopy().Where(t => t.CompatWithCategory(Tile.Category.Suo)).ToArray()));
         }
     }
 

@@ -9,7 +9,7 @@ namespace Aotenjo
 
         public CopperDaggerArtifact() : base("copper_dagger", Rarity.COMMON)
         {
-            SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.COPPER, player));
+            SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.COPPER, player));
         }
 
         public override string GetDescription(Func<string, string> localizer)
@@ -20,7 +20,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.CompactWithMaterial(TileMaterial.COPPER, player))
+            if (tile.CompatWithMaterial(TileMaterial.COPPER, player))
             {
                 effects.Add(ScoreEffect.AddFu(FU, this));
             }

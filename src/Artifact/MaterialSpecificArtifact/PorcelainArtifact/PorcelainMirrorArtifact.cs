@@ -55,7 +55,7 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                List<Tile> cand = block.tiles.Where(t => t.CompactWithMaterial(TileMaterial.PLAIN, player)).ToList();
+                List<Tile> cand = block.tiles.Where(t => t.CompatWithMaterial(TileMaterial.PLAIN, player)).ToList();
                 if (cand.Count == 0)
                 {
                     return;

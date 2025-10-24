@@ -170,9 +170,14 @@ namespace Aotenjo
             return baseOrderDiff == 0 ? Comparer.Default.Compare(base.GetHashCode(), o.GetHashCode()) : baseOrderDiff;
         }
 
-        public virtual bool CompactWith(Tile cand)
+        public virtual bool CompatWith(Tile cand)
         {
             return IsSameCategory(cand) && IsSameOrder(cand);
+        }
+
+        public bool CompatWith(string representation)
+        {
+            return CompatWith(new Tile(representation));
         }
 
         public virtual bool IsSameCategory(Tile cand)
@@ -180,7 +185,7 @@ namespace Aotenjo
             return cand.GetCategory() == GetCategory();
         }
 
-        public virtual bool CompactWithCategory(Category cat)
+        public virtual bool CompatWithCategory(Category cat)
         {
             return GetCategory() == cat;
         }
@@ -320,7 +325,7 @@ namespace Aotenjo
         {
             if (transforms != null && transforms.Count > 0 &&
                 (transforms[^1].GetNameKey() == new TileTransformMagnet().GetNameKey())) return true;
-            return player.DetermineFontCompactbility(this, TileFont.BLUE);
+            return player.DetermineFontCompatibility(this, TileFont.BLUE);
         }
 
         public bool ContainsRed(Player player)
@@ -418,7 +423,7 @@ namespace Aotenjo
         {
             if (ContainsGreen(player)) return false;
             if (ContainsRed(player)) return false;
-            if (player.DetermineFontCompactbility(this, TileFont.BLUE)) return false;
+            if (player.DetermineFontCompatibility(this, TileFont.BLUE)) return false;
             return true;
         }
 
@@ -546,9 +551,9 @@ namespace Aotenjo
             return newProp;
         }
 
-        public bool CompactWithMaterial(TileMaterial mat, Player player)
+        public bool CompatWithMaterial(TileMaterial mat, Player player)
         {
-            return player.DetermineMaterialCompactbility(this, mat);
+            return player.DetermineMaterialCompatibility(this, mat);
         }
 
         public void AppendToListUnusedEffect(Player player, Permutation perm, List<Effect> effects)

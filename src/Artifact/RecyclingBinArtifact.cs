@@ -50,7 +50,7 @@ namespace Aotenjo
             effects.Add(new SimpleEffect("effect_reset", this, _ => dupTile = null));
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile,
+        public override void AppendDiscardTileEffects(Player player, Tile tile,
             List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
             if (tile.properties.material is not TileMaterialWood) return;

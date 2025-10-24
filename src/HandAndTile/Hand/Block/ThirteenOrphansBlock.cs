@@ -11,7 +11,7 @@ public class ThirteenOrphansBlock : Block
 
         Tile[] yaoJius = new Hand("19m19s19p1234567z").tiles.ToArray();
 
-        if (!(yaoJius.Any(excluded => yaoJius.All(t => t != excluded || tiles.Any(inBlock => inBlock.CompactWith(t))))))
+        if (!(yaoJius.Any(excluded => yaoJius.All(t => t != excluded || tiles.Any(inBlock => inBlock.CompatWith(t))))))
             throw new ArgumentException();
         this.tiles = tiles;
     }
@@ -41,7 +41,7 @@ public class ThirteenOrphansBlock : Block
         return false;
     }
 
-    public override bool CompactWith(Block other)
+    public override bool CompatWith(Block other)
     {
         return false;
     }

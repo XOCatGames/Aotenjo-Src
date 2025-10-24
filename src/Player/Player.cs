@@ -201,9 +201,9 @@ namespace Aotenjo
 
         public delegate void PlayerUpgradeYakuEventListener(PlayerYakuEvent.Upgrade evt);
 
-        public delegate void DetermineMaterialCompactbilityEventListener(PlayerDetermineMaterialCompactibilityEvent evt);
+        public delegate void DetermineMaterialCompatibilityEventListener(PlayerDetermineMaterialCompatibilityEvent evt);
 
-        public delegate void DetermineFontCompactbilityEventListener(PlayerDetermineFontCompactbilityEvent evt);
+        public delegate void DetermineFontCompatibilityEventListener(PlayerDetermineFontCompatibilityEvent evt);
 
         public delegate void PlayerGadgetEventListener(PlayerGadgetEvent evt);
 
@@ -217,7 +217,7 @@ namespace Aotenjo
 
         public delegate void PlayerEarnMoneyEventListener(PlayerMoneyEvent evt);
 
-        public delegate void DetermineTileCompactbilityEventListener(PlayerDetermineTileFaceCompactbilityEvent evt);
+        public delegate void DetermineTileCompatibilityEventListener(PlayerDetermineTileFaceCompatibilityEvent evt);
 
         public delegate void ChoosePathEventListener(PlayerChoosePathEvent evt);
 
@@ -279,14 +279,14 @@ namespace Aotenjo
 
         public event PlayerTileEventListener DetermineTileSelectivityEvent;
         public event Action<PlayerKongTileEvent> PreKongTileEvent;
-        public event DetermineMaterialCompactbilityEventListener DetermineMaterialCompactbilityEvent;
-        public event DetermineFontCompactbilityEventListener DetermineFontCompactbilityEvent;
-        public event DetermineTileCompactbilityEventListener DetermineTileCompactbilityEvent;
+        public event DetermineMaterialCompatibilityEventListener DetermineMaterialCompatibilityEvent;
+        public event DetermineFontCompatibilityEventListener DetermineFontCompatibilityEvent;
+        public event DetermineTileCompatibilityEventListener DetermineTileCompatibilityEvent;
 
         public event Action<PlayerDiscardTileEvent.Determine> DetermineDiscardTileEvent;
         public event Action<PlayerDiscardTileEvent.DetermineForce> DetermineForceDiscardTileEvent;
         public event Action<DeterminePlayerSelectingTileEvent> DetermineSelectingTileEvent;
-        public event Action<PlayerDiscardTileEvent.Pre> PreDiscardTileEvent;
+        public event PlayerPreDiscardTileEventListener PreDiscardTileEvent;
         public event PlayerPostDiscardTileEventListener PostDiscardTileEvent;
 
         public event PlayerTileEventListener PreRemoveTileEvent;
@@ -835,7 +835,7 @@ namespace Aotenjo
 
         public void AddPrioritizedDrawingTile(Tile tile)
         {
-            Tile cand = GetTilePool().Except(priortizedDrawingList).FirstOrDefault(t => t.CompactWith(tile));
+            Tile cand = GetTilePool().Except(priortizedDrawingList).FirstOrDefault(t => t.CompatWith(tile));
             if (cand != null)
             {
                 priortizedDrawingList.Add(cand);
@@ -2193,7 +2193,7 @@ namespace Aotenjo
             HandDeck.Clear();
             foreach (var tile in hand)
             {
-                TilePool.Remove(TilePool.First(t => t.CompactWith(tile)));
+                TilePool.Remove(TilePool.First(t => t.CompatWith(tile)));
                 HandDeck.Add(tile);
             }
         }
@@ -2261,24 +2261,24 @@ namespace Aotenjo
             return evt;
         }
 
-        public bool DetermineMaterialCompactbility(Tile tile, TileMaterial mat)
+        public bool DetermineMaterialCompatibility(Tile tile, TileMaterial mat)
         {
-            PlayerDetermineMaterialCompactibilityEvent evt = new(this, tile, mat);
-            DetermineMaterialCompactbilityEvent?.Invoke(evt);
+            PlayerDetermineMaterialCompatibilityEvent evt = new(this, tile, mat);
+            DetermineMaterialCompatibilityEvent?.Invoke(evt);
             return evt.res;
         }
 
-        public bool DetermineFontCompactbility(Tile tile, TileFont font)
+        public bool DetermineFontCompatibility(Tile tile, TileFont font)
         {
-            PlayerDetermineFontCompactbilityEvent evt = new(this, tile, font);
-            DetermineFontCompactbilityEvent?.Invoke(evt);
+            PlayerDetermineFontCompatibilityEvent evt = new(this, tile, font);
+            DetermineFontCompatibilityEvent?.Invoke(evt);
             return evt.res;
         }
 
-        public bool DetermineTileCompactbility(Tile tile, int cat, int order)
+        public bool DetermineTileCompatibility(Tile tile, int cat, int order)
         {
-            PlayerDetermineTileFaceCompactbilityEvent evt = new(this, tile, cat, order);
-            DetermineTileCompactbilityEvent?.Invoke(evt);
+            PlayerDetermineTileFaceCompatibilityEvent evt = new(this, tile, cat, order);
+            DetermineTileCompatibilityEvent?.Invoke(evt);
             return evt.res;
         }
 
@@ -2593,7 +2593,7 @@ namespace Aotenjo
                 isClone);
             foreach (Artifact artifact in GetArtifacts())
             {
-                artifact.AddDiscardTileEffects(this, tile, onDiscardTileEffects, withForce, isClone);
+                artifact.AppendDiscardTileEffects(this, tile, onDiscardTileEffects, withForce, isClone);
             }
 
             TriggerOnAddDiscardTileAnimationEffectEvent(onDiscardTileEffects, tile, withForce);

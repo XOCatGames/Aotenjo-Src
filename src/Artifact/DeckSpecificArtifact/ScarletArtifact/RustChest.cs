@@ -18,10 +18,10 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), CHANCE, GetChanceMultiplier(player));
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> effects,
+        public override void AppendDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> effects,
             bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, effects, withForce, isClone);
+            base.AppendDiscardTileEffects(player, tile, effects, withForce, isClone);
 
             if (player is not ScarletPlayer scarlet) return;
             if (scarlet.IsCompatibleWithMainCategory(tile.GetCategory())) return;

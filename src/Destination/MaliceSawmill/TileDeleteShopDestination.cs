@@ -102,7 +102,7 @@ namespace Aotenjo
                 base.OnPurchased(tiles, price);
                 foreach (Tile t in tiles)
                 {
-                    List<Tile> cands = player.GetTilePool().Where(t2 => t2.CompactWith(t)).ToList();
+                    List<Tile> cands = player.GetTilePool().Where(t2 => t2.CompatWith(t)).ToList();
                     if (cands.Count == 0) continue;
                     foreach (Tile cand in cands)
                     {
@@ -156,7 +156,7 @@ namespace Aotenjo
             {
                 if (cands == null || cands.Count == 0) return base.PollTilesToDelete();
                 List<Tile> tiles = player.DrawTilesFromPool(player.GetSelectionCount(),
-                    t => cands.Any(c => t.CompactWithCategory(c)));
+                    t => cands.Any(c => t.CompatWithCategory(c)));
                 tiles.Sort();
                 return tiles;
             }

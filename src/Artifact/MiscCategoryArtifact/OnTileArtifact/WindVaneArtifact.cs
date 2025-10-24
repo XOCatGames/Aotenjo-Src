@@ -21,7 +21,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!tile.CompactWith(new(player.GetPlayerWind() + "z"))) return;
+            if (!tile.CompatWith(player.GetPlayerWind() + "z")) return;
             if (player.Selecting(tile))
             {
                 effects.Add(new EarnMoneyEffect(MONEY, this));

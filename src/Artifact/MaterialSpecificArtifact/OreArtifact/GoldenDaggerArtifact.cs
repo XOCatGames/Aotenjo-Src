@@ -9,7 +9,7 @@ namespace Aotenjo
 
         public GoldenDaggerArtifact() : base("golden_dagger", Rarity.RARE)
         {
-            SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.GOLDEN, player));
+            SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.GOLDEN, player));
         }
 
         public override string GetDescription(Func<string, string> localizer)
@@ -20,7 +20,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.CompactWithMaterial(TileMaterial.GOLDEN, player))
+            if (tile.CompatWithMaterial(TileMaterial.GOLDEN, player))
             {
                 effects.Add(ScoreEffect.AddFan(FAN, this));
             }

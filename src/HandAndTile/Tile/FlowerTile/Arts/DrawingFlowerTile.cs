@@ -28,7 +28,7 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
 
     public override string GetFlowerDescription(Func<string, string> loc)
     {
-        if (block.CompactWith(_defaultBlock))
+        if (block.CompatWith(_defaultBlock))
             return loc("flower_drawing_description_unowned");
         return string.Format(base.GetFlowerDescription(loc), block.GetSpriteString());
     }
@@ -46,7 +46,7 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
         if (used) return;
         used = true;
 
-        if (player.GetCurrentSelectedBlocks().Any(playingBlock => playingBlock.CompactWith(block)))
+        if (player.GetCurrentSelectedBlocks().Any(playingBlock => playingBlock.CompatWith(block)))
         {
             effects.Add(new DrawingEffect(this).OnTile(this));
             effects.Add(ScoreEffect.MulFan(MUL, null).OnTile(this));

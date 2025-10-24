@@ -39,7 +39,7 @@ namespace Aotenjo
                 }
             }
 
-            if (pool.Any(a => a != tile && a.CompactWith(tile))) return false;
+            if (pool.Any(a => a != tile && a.CompatWith(tile))) return false;
             return true;
         }
 
@@ -71,7 +71,7 @@ namespace Aotenjo
                 );
 
             pool.RemoveAll(a => isScored(a));
-            if (pool.Any(a => a != tile && a.CompactWith(tile))) return;
+            if (pool.Any(a => a != tile && a.CompatWith(tile))) return;
             effects.Add(ScoreEffect.MulFan(1.5, this));
         }
 

@@ -12,9 +12,9 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             if (!player.Selecting(tile)) return;
-            if (tile.CompactWithCategory(Tile.Category.Wan))
+            if (tile.CompatWithCategory(Tile.Category.Wan))
             {
-                if (tile.CompactWith(new("5m")))
+                if (tile.CompatWith("5m"))
                 {
                     effects.Add(new UpgradeEffect(this, tile));
                 }

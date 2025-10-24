@@ -39,12 +39,12 @@ public class FlowerTile : Tile
     {
     }
 
-    public override bool CompactWith(Tile cand)
+    public override bool CompatWith(Tile cand)
     {
         return cand == this;
     }
 
-    public override bool CompactWithCategory(Category category)
+    public override bool CompatWithCategory(Category category)
     {
         return false;
     }

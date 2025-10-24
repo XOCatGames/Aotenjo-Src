@@ -122,6 +122,53 @@ namespace Aotenjo
             return artifact;
         }
 
+        public LuaCraftableArtifact BuildCraftable()
+        {
+            LuaCraftableArtifact artifact = null;
+            artifact = new LuaCraftableArtifact(
+                name,
+                rarity,
+                shouldHighlightTile,
+                isAvailableGlobally,
+                getDescription,
+                getInShopDescription,
+                getAdditionalInfo,
+                getNameWithColor,
+                getName,
+                getSubHeader,
+                onObtain,
+                onRemoved,
+                preGameInitialized,
+                resetArtifactState,
+                onTileEffect,
+                onTilePostEffect,
+                onUnusedTileEffect,
+                onBlockEffect,
+                onBlockAnimEffect,
+                onSelfEffect,
+                onRoundEndEffect,
+                getSpriteID,
+                onSubscribeToPlayer,
+                onUnsubscribeToPlayer
+            )
+            {
+                deckIn = deckIn,
+                deckBlocked = deckBlocked,
+                setIn = setIn,
+                setBlocked = setBlocked,
+                materialRequired = materialRequired
+            };
+
+            return artifact;
+        }
+
+        public LuaCraftableArtifact BuildAndRegisterCraftable()
+        {
+            LuaCraftableArtifact artifact = BuildCraftable();
+            Artifacts.ArtifactList.Add(artifact);
+            return artifact;
+        }
+        
         public LuaArtifact BuildAndRegister()
         {
             LuaArtifact artifact = Build();

@@ -10,8 +10,8 @@ namespace Aotenjo
         {
             
             SetPrerequisite(p =>
-                p.GetAllTiles().Any(t => p.DetermineMaterialCompactbility(t, TileMaterial.GoldMouse())));
-            SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.GoldMouse()));
+                p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.GoldMouse())));
+            SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.GoldMouse()));
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
@@ -36,7 +36,7 @@ namespace Aotenjo
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
             if (!player.Selecting(tile)) return;
-            if (player.DetermineMaterialCompactbility(tile, TileMaterial.GoldMouse()))
+            if (player.DetermineMaterialCompatibility(tile, TileMaterial.GoldMouse()))
             {
                 List<Tile> tiles = new List<Tile>(permutation.ToTiles());
                 if (player is RainbowDeck.RainbowPlayer rainbowPlayer)

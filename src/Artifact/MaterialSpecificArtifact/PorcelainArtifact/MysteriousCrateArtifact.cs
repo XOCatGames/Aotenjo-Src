@@ -12,7 +12,7 @@ public class MysteriousCrateArtifact : Artifact
     public override void AppendOnUnusedTileEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
     {
         base.AppendOnUnusedTileEffects(player, perm, tile, effects);
-        if (tile.CompactWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
+        if (tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
         {
             effects.Add(ScoreEffect.AddFu(ADDON_FU, null));
         }

@@ -18,7 +18,7 @@ namespace Aotenjo
 
         public override bool ShouldHighlightTile(Tile tile, Player player)
         {
-            return tile.CompactWithCategory(bounty);
+            return tile.CompatWithCategory(bounty);
         }
 
         protected override int GetSpriteID()

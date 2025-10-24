@@ -20,8 +20,8 @@ namespace Aotenjo
         {
             if (!player.Selecting(tile)) return;
 
-            if ((player.DetermineFontCompactbility(tile, TileFont.COLORLESS) ||
-                 player.DetermineFontCompactbility(tile, TileFont.PLAIN)) &&
+            if ((player.DetermineFontCompatibility(tile, TileFont.COLORLESS) ||
+                 player.DetermineFontCompatibility(tile, TileFont.PLAIN)) &&
                 player.GenerateRandomDeterminationResult(CHANCE))
             {
                 effects.Add(new UpgradeEffect(this, tile));

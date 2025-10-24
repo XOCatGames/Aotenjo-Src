@@ -81,17 +81,17 @@ namespace Aotenjo
             return $"artifact:{nmSpace}:{name}";
         }
 
-        protected static (string, double) ToAddFanFormat(double input)
+        public static (string, double) ToAddFanFormat(double input)
         {
             return ("<style=\"fan\">{0}</style>", input);
         }
 
-        protected static (string, double) ToAddFuFormat(double input)
+        public static (string, double) ToAddFuFormat(double input)
         {
             return ("<style=\"fu\">{0}</style>", input);
         }
 
-        protected static (string, double) ToMulFanFormat(double input)
+        public static (string, double) ToMulFanFormat(double input)
         {
             return ("<style=\"mul\">X{0}</style>", input);
         }
@@ -359,7 +359,7 @@ namespace Aotenjo
                 UnlockRequirement.UnlockedByDefault());
         }
 
-        public virtual void AddDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> onDiscardTileEffects,
+        public virtual void AppendDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> onDiscardTileEffects,
             bool withForce, bool isClone)
         {
         }

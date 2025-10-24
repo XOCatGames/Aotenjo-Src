@@ -177,7 +177,7 @@ namespace Aotenjo
         private void Player_DetermineYaojiuTileEvent(PlayerTileEvent tileEvent)
         {
             ScarletPlayer scarletPlayer = (ScarletPlayer)tileEvent.player;
-            if (tileEvent.tile.CompactWithCategory(Category.Wan) &&
+            if (tileEvent.tile.CompatWithCategory(Category.Wan) &&
                 scarletPlayer.GetCategoryLevel(Category.Wan) >= 4)
             {
                 tileEvent.canceled = false;

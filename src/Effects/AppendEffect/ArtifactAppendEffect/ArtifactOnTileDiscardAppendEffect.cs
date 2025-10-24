@@ -16,7 +16,7 @@ namespace Aotenjo
         protected override IEnumerable<IAnimationEffect> GetAnimationEffects(Artifact artifact)
         {
             List<IAnimationEffect> effects = new List<IAnimationEffect>();
-            artifact.AddDiscardTileEffects(player, tile,effects,forced,false);
+            artifact.AppendDiscardTileEffects(player, tile,effects,forced,false);
             return effects;
         }
 

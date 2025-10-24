@@ -13,10 +13,10 @@ namespace Aotenjo
                 tile.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName());
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile,
+        public override void AppendDiscardTileEffects(Player player, Tile tile,
             List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
+            base.AppendDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
             if (tile.GetCategory() == Tile.Category.Bing &&
                 tile.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName())
             {

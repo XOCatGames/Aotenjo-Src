@@ -9,7 +9,7 @@ namespace Aotenjo
 
         public WarpedFungusArtifact() : base("warped_fungus", Rarity.EPIC, 0)
         {
-            SetHighlightRequirement((t, p) => t.CompactWithMaterial(TileMaterial.HellWood(), p));
+            SetHighlightRequirement((t, p) => t.CompatWithMaterial(TileMaterial.HellWood(), p));
         }
 
         public override string GetDescription(Player p, Func<string, string> localizer)
@@ -45,11 +45,11 @@ namespace Aotenjo
             EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile,
+        public override void AppendDiscardTileEffects(Player player, Tile tile,
             List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
-            if (tile.CompactWithMaterial(TileMaterial.HellWood(), player))
+            base.AppendDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
+            if (tile.CompatWithMaterial(TileMaterial.HellWood(), player))
             {
                 onDiscardTileEffects.Add(GetLevelUpEffect().OnTile(tile));
             }

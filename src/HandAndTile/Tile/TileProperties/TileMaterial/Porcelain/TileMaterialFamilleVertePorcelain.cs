@@ -28,7 +28,7 @@ namespace Aotenjo
             List<Tile> unused = player.GetUnusedTilesInHand();
             if (player.GetArtifacts().Contains(Artifacts.PorcelainSword) && player.GetCurrentSelectedPerm() != null)
                 unused.AddRange(player.GetCurrentSelectedPerm().ToTiles());
-            int diffTypeCount = unused.Where(t => t.CompactWithMaterial(FAMILLE_VERTE_PORCELAIN, player))
+            int diffTypeCount = unused.Where(t => t.CompatWithMaterial(FAMILLE_VERTE_PORCELAIN, player))
                 .Select(t => t.GetCategory()).ToHashSet().Count();
             return 1D + diffTypeCount * MULT_PER_SAME_KIND;
         }

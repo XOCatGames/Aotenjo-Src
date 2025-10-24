@@ -24,7 +24,7 @@ public class StimulantGadget : Gadget
 
     public override bool ShouldHighlightTile(Tile tile, Player player)
     {
-        return (tile.IsNumbered() || tile.IsHonor(player)) && tile.CompactWithMaterial(TileMaterial.PLAIN, player);
+        return (tile.IsNumbered() || tile.IsHonor(player)) && tile.CompatWithMaterial(TileMaterial.PLAIN, player);
     }
 
     public override bool IsConsumable()

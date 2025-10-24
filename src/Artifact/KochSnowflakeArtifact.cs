@@ -42,7 +42,7 @@ namespace Aotenjo
                         }
 
                         Block newBlock = new Block(new[] { block.tiles[0], nextSeq.tiles[0], nextNextSeq.tiles[0] });
-                        if (block.CompactWith(new Block("567z")))
+                        if (block.CompatWith(new Block("567z")))
                         {
                             newBlock = new Block(new[] { block.tiles[0], nextSeq.tiles[1], nextNextSeq.tiles[2] });
                         }
@@ -58,11 +58,11 @@ namespace Aotenjo
 
                 if (block.IsAAA())
                 {
-                    Block nextTri = perm.blocks.FirstOrDefault(b => b != block && block.CompactWith(b));
+                    Block nextTri = perm.blocks.FirstOrDefault(b => b != block && block.CompatWith(b));
                     if (nextTri != null)
                     {
                         Block nextNexTri =
-                            perm.blocks.FirstOrDefault(b => b != block && b != nextTri && nextTri.CompactWith(b));
+                            perm.blocks.FirstOrDefault(b => b != block && b != nextTri && nextTri.CompatWith(b));
                         if (nextNexTri == null)
                         {
                             continue;

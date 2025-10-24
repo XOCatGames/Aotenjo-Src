@@ -10,7 +10,7 @@ public class PrayerBeadsArtifact : BambooArtifact
     public PrayerBeadsArtifact() : base("prayer_beads", Rarity.EPIC)
     {
         SetHighlightRequirement((t, p) =>
-            ((BambooDeckPlayer)p).DetermineDora(t) > 0 && t.CompactWithMaterial(TileMaterial.PLAIN, p));
+            ((BambooDeckPlayer)p).DetermineDora(t) > 0 && t.CompatWithMaterial(TileMaterial.PLAIN, p));
     }
 
     public override string GetDescription(Func<string, string> localizer)
@@ -21,7 +21,7 @@ public class PrayerBeadsArtifact : BambooArtifact
     public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
     {
         base.AppendOnTileEffects(player, permutation, tile, effects);
-        if (!tile.CompactWithMaterial(TileMaterial.PLAIN, player)) return;
+        if (!tile.CompatWithMaterial(TileMaterial.PLAIN, player)) return;
         BambooDeckPlayer bambooDeckPlayer = (BambooDeckPlayer)player;
         int count = bambooDeckPlayer.DetermineDora(tile);
         if (count > 0)

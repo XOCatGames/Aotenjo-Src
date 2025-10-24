@@ -20,6 +20,10 @@ namespace Aotenjo
         {
             List<IAnimationEffect> animationEffects = new List<IAnimationEffect>();
             List<Effect> effects = new();
+            if (tile == null)
+            {
+                return new List<IAnimationEffect>();
+            }
             tile.properties.AppendUnusedEffects(player, permutation, effects);
             
             animationEffects.AddRange(effects.ConvertAll(e => e.OnTile(tile)));

@@ -95,7 +95,7 @@ namespace Aotenjo
             if (tile.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()) return;
 
             List<string> matNames = TileMaterial.Materials()
-                .Where(m => m != TileMaterial.PLAIN && player.DetermineMaterialCompactbility(tile, m))
+                .Where(m => m != TileMaterial.PLAIN && player.DetermineMaterialCompatibility(tile, m))
                 .Select(m => m.GetRegName()).ToList();
 
             bool collected = false;

@@ -11,7 +11,7 @@ namespace Aotenjo
 
         public OrigamiBearArtifact() : base("origami_bear", Rarity.COMMON, 4)
         {
-            SetHighlightRequirement((a, _) => a.CompactWithCategory(Tile.Category.Wan));
+            SetHighlightRequirement((a, _) => a.CompatWithCategory(Tile.Category.Wan));
         }
 
         public override (string, double) GetAdditionalDisplayingInfo(Player player)

@@ -29,7 +29,7 @@ public class UnobstinateBoss : Boss
         List<Tile> tiles = new(player.GetSelectedTilesCopy());
         foreach (var tile in tiles)
         {
-            if (permutation.ToTiles().Any(a => a != tile && a.CompactWith(tile)))
+            if (permutation.ToTiles().Any(a => a != tile && a.CompatWith(tile)))
                 list.Add(new PersistEffect(tile, Multiplier).OnTile(tile));
         }
     }
@@ -40,7 +40,7 @@ public class UnobstinateBoss : Boss
             Rarity.COMMON,
             (_, perm, tile, effects) =>
             {
-                int count = perm.ToTiles().Count(a => a != tile && a.CompactWith(tile));
+                int count = perm.ToTiles().Count(a => a != tile && a.CompatWith(tile));
                 if (count > 0)
                     effects.Add(ScoreEffect.AddFu(count * 5, baseArtifact));
             });

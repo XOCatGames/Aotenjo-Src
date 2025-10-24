@@ -90,11 +90,11 @@ namespace Aotenjo
 
                 if (player.GetArtifacts().Contains(Artifacts.SilverDogLeash))
                 {
-                    cands = cands.Where(t => !taotieTile.CompactWithCategory(t.GetCategory())).ToList();
+                    cands = cands.Where(t => !taotieTile.CompatWithCategory(t.GetCategory())).ToList();
                 }
                 else
                 {
-                    cands = cands.Where(t => taotieTile.CompactWithCategory(t.GetCategory())).ToList();
+                    cands = cands.Where(t => taotieTile.CompatWithCategory(t.GetCategory())).ToList();
                 }
 
                 if (cands.Count == 0) return;

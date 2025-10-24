@@ -32,7 +32,7 @@ namespace Aotenjo
         {
             Player player = eventData.player;
             List<Tile> cands = player.GetHandDeckCopy().Where(t =>
-                (t.IsNumbered() || t.IsHonor(player)) && t.CompactWithMaterial(TileMaterial.PLAIN, player)).ToList();
+                (t.IsNumbered() || t.IsHonor(player)) && t.CompatWithMaterial(TileMaterial.PLAIN, player)).ToList();
             if (cands.Count == 0) return;
             Tile tile = cands[player.GenerateRandomInt(cands.Count())];
             tile.SetMaterial(TileMaterial.GOLDEN, player);

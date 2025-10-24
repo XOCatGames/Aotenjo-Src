@@ -93,5 +93,15 @@ namespace Aotenjo
         public LuaTileMaterial(int ID, string nameKey) : base(ID, nameKey, null)
         {
         }
+        
+        public string GetDataOrDefault(string key, string defaultValue)
+        {
+            return data.GetValueOrDefault(key, defaultValue);
+        }
+        
+        public void SetData(string key, string value)
+        {
+            data[key] = value;
+        }
     }
 }

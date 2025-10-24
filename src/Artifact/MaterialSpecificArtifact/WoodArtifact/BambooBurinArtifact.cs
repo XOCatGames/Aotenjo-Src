@@ -20,7 +20,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             if (!player.Selecting(tile)) return;
-            if (tile.CompactWith(new("7s")) || (tile.GetCategory() == Tile.Category.Suo &&
+            if (tile.CompatWith("7s") || (tile.GetCategory() == Tile.Category.Suo &&
                                                 player.GenerateRandomDeterminationResult(CHANCE)))
             {
                 effects.Add(new TransformMaterialEffect(TileMaterial.EmeraldWood(), this, tile, "effect_bamboo_burin",

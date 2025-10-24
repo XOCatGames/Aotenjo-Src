@@ -7,7 +7,7 @@ public class PairBlock : Block
     public PairBlock(Tile[] tiles)
     {
         if (tiles.Length != 2) throw new ArgumentException();
-        if (!tiles[0].CompactWith(tiles[1])) throw new ArgumentException();
+        if (!tiles[0].CompatWith(tiles[1])) throw new ArgumentException();
         this.tiles = tiles;
     }
 
@@ -42,11 +42,11 @@ public class PairBlock : Block
                 p.tiles[0].GetOrder() + step == tiles[0].GetOrder());
     }
 
-    public override bool CompactWith(Block other)
+    public override bool CompatWith(Block other)
     {
         if (other is not PairBlock) return false;
-        return tiles[0].CompactWith(other.tiles[0])
-               && tiles[1].CompactWith(other.tiles[1]);
+        return tiles[0].CompatWith(other.tiles[0])
+               && tiles[1].CompatWith(other.tiles[1]);
     }
 
     public override bool OfSameCategory(Block other)
@@ -59,7 +59,7 @@ public class PairBlock : Block
     {
         if (other.OfCategory(Tile.Category.Feng) || other.OfCategory(Tile.Category.Jian))
         {
-            return other.CompactWith(this);
+            return other.CompatWith(this);
         }
 
         return tiles[0].IsSameOrder(other.tiles[0])

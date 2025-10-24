@@ -45,10 +45,10 @@ namespace Aotenjo
                 GetChanceMultiplier(player));
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile,
+        public override void AppendDiscardTileEffects(Player player, Tile tile,
             List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
+            base.AppendDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
             if (tile.IsNumbered() && tile.GetOrder() == 4 && player.GenerateRandomDeterminationResult(4) && Level > 0)
             {
                 onDiscardTileEffects.Add(new UnluckyFourEffect(this, tile));

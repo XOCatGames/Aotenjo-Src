@@ -8,7 +8,7 @@ namespace Aotenjo
     {
         public EmeraldWoodBracelet() : base("emerald_wood_bracelet", Rarity.RARE)
         {
-            SetHighlightRequirement((t, p) => t.CompactWithMaterial(TileMaterial.EmeraldWood(), p));
+            SetHighlightRequirement((t, p) => t.CompatWithMaterial(TileMaterial.EmeraldWood(), p));
         }
 
         public override void SubscribeToPlayer(Player player)
@@ -30,7 +30,7 @@ namespace Aotenjo
             foreach (var effect in list)
             {
                 if (effect is OnTileAnimationEffect onTile &&
-                    onTile.tile.CompactWithMaterial(TileMaterial.EmeraldWood(), player))
+                    onTile.tile.CompatWithMaterial(TileMaterial.EmeraldWood(), player))
                 {
                     emeraldWoodEffects.Add(onTile.Clone());
                 }

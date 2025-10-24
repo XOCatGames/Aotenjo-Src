@@ -24,7 +24,7 @@ namespace Aotenjo
         private void Bone(PlayerEvent eventData)
         {
             Player player = eventData.player;
-            List<Tile> cands = player.GetHandDeckCopy().Where(t => t.CompactWithMaterial(TileMaterial.PLAIN, player))
+            List<Tile> cands = player.GetHandDeckCopy().Where(t => t.CompatWithMaterial(TileMaterial.PLAIN, player))
                 .ToList();
             if (cands.Count == 0) return;
             Tile tile1 = cands[player.GenerateRandomInt(cands.Count())];

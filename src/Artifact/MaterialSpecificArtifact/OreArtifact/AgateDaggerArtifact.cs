@@ -10,9 +10,9 @@ namespace Aotenjo
 
         public AgateDaggerArtifact() : base("crystal_dagger", Rarity.EPIC)
         {
-            SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.Agate(), player));
+            SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.Agate(), player));
             SetPrerequisite(player =>
-                player.GetAllTiles().Any(tile => tile.CompactWithMaterial(TileMaterial.Agate(), player)));
+                player.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.Agate(), player)));
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
@@ -24,9 +24,9 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation perm, Tile tile, List<Effect> lst)
         {
             base.AppendOnTileEffects(player, perm, tile, lst);
-            if (tile.CompactWithMaterial(TileMaterial.Agate(), player))
+            if (tile.CompatWithMaterial(TileMaterial.Agate(), player))
             {
-                perm.ToTiles().Count(a => a.CompactWithMaterial(TileMaterial.Agate(), player));
+                perm.ToTiles().Count(a => a.CompatWithMaterial(TileMaterial.Agate(), player));
                 lst.Add(new AgateDaggerEffect(MUL_PER_AGATE, this));
             }
         }

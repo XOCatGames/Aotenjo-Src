@@ -11,7 +11,7 @@ namespace Aotenjo
 
         public override bool IsAvailableInShops(Player player)
         {
-            return player.GetAllTiles().Any(t => player.DetermineMaterialCompactbility(t, TileMaterial.Taotie()));
+            return player.GetAllTiles().Any(t => player.DetermineMaterialCompatibility(t, TileMaterial.Taotie()));
         }
     }
 }

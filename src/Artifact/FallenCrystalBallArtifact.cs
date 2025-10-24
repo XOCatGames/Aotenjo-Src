@@ -11,7 +11,7 @@ namespace Aotenjo
         public FallenCrystalBallArtifact() : base("fallen_crystal_ball", Rarity.EPIC)
         {
             SetHighlightRequirement((t, p) =>
-                t.properties.IsDebuffed() || p.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+                t.properties.IsDebuffed() || p.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
@@ -46,7 +46,7 @@ namespace Aotenjo
         private static int GetNestCount(Player player)
         {
             return player
-                .GetAllTiles().Count(t => t != null && player.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+                .GetAllTiles().Count(t => t != null && player.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
         }
 
         public int GetLevel(Player player)
