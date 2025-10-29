@@ -16,7 +16,7 @@ function init()
             end
             return true
         end,
-        { CS.Aotenjo.FixedYakuType.DuanYao, CS.Aotenjo.FixedYakuType.QuanXiao, CS.Aotenjo.FixedYakuType.QuanShuangKe }, -- Inherited Yakus
+        { "DuanYao", "QuanXiao", "QuanShuangKe" }, -- Inherited Yakus
         { "standard", "galaxy" }, -- Yaku Groups
         { 2 },                    -- Pattern Packs that this is in. 1: Wind, 2: Forest, 3: Fire, 4: Mountain
         CS.Aotenjo.Rarity.LEGENDARY, -- Rarity
