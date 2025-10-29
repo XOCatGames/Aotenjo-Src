@@ -30,7 +30,8 @@ namespace Aotenjo
 
         [SerializeField] public Block oracleBlock;
         
-        public OraclePlayer(List<Tile> tiles, string seed, OracleDeck oracleDeck, MaterialSet set, int asensionLevel) : base(tiles, seed, oracleDeck, set, asensionLevel)
+        public OraclePlayer(List<Tile> tiles, string seed, OracleDeck oracleDeck, MaterialSet set, int ascensionLevel) : 
+            base(tiles, seed, oracleDeck,PlayerProperties.DEFAULT, 0, SkillSet.ShortenedSkillSet(), set, ascensionLevel)
         {
         }
         

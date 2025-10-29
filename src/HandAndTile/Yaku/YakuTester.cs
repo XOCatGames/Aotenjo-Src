@@ -1,12 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XLua;
 
 namespace Aotenjo
 {
     public class YakuTester
     {
         public static Dictionary<YakuType, Yaku> InfoMap;
+        
+        public static List<Tile> RelatedTiles; 
+
+        public static bool TestYaku(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
+        {
+            RelatedTiles = permutation.ToTiles();
+            YAKUS_PREDICATE_MAP.TryGetValue(yaku, out var predicate);
+            if (predicate != null)
+            {
+                bool testYaku = predicate.Invoke(permutation, status);
+                relatedTiles = new (RelatedTiles);
+                return testYaku;
+            }
+            relatedTiles = new (RelatedTiles);
+            return false;
+        }
+
+        public static bool IncludeYaku(YakuType a, YakuType b)
+        {
+            return GetYakuChilds(a).Contains(b);
+        }
+
+        public static double GetFan(YakuType yaku, int blockCount, SkillSet skillSet, int extraFan = 0)
+        {
+            return (skillSet.CalculateFan(yaku, blockCount, extraFan));
+        }
+
+        private static HashSet<YakuType> GetYakuChilds(YakuType yaku)
+        {
+            HashSet<YakuType> yakus = new() { yaku };
+            foreach (YakuType child in InfoMap[yaku].includedYakus)
+            {
+                yakus.UnionWith(GetYakuChilds(child));
+            }
+
+            return yakus;
+        }
+
+        public static HashSet<YakuType> GetYakuChildsExcludeSelf(YakuType yaku)
+        {
+            HashSet<YakuType> yakus = GetYakuChilds(yaku);
+            yakus.Remove(yaku);
+            return yakus;
+        }
+
+        public static string GetColoredYakuName(YakuType yaku, Rarity rarity)
+        {
+            string color = rarity switch
+            {
+                Rarity.COMMON => "#FFFFFF",
+                Rarity.RARE => "#0000FF",
+                Rarity.EPIC => "#FF00FF",
+                Rarity.LEGENDARY => "#FFA500",
+                Rarity.ANCIENT => "#FF0000",
+                _ => throw new ArgumentOutOfRangeException("Invalid rarity")
+            };
+            return $"<color={color}>{YakuLocalizationManager.GetYakuName(InfoMap[yaku])}</color>";
+        }
+
 
         private static readonly Dictionary<int, Tile.Category> CateDict = new()
         {
@@ -161,6 +221,8 @@ namespace Aotenjo
 
                 { FixedYakuType.Base, ((_, _) => true) }
             };
+        
+        #region 番种验证函数
 
         private static bool VerifyLongQiDui(Permutation permutation, Player player)
         {
@@ -170,7 +232,7 @@ namespace Aotenjo
             (Block, Block)? pair = FindIdenticalBlockPair(blocks);
             if (pair != null)
             {
-                tilesToHighlight = pair?.Item1.tiles.Union(pair?.Item2.tiles).ToList();
+                RelatedTiles = pair?.Item1.tiles.Union(pair?.Item2.tiles).ToList();
                 return true; 
             }
             return false;
@@ -189,7 +251,7 @@ namespace Aotenjo
             (Block, Block)? pair2 = FindIdenticalBlockPair(blocks);
             if (pair2 != null)
             {
-                tilesToHighlight = pair?.Item1.tiles.Union(pair?.Item2.tiles).Union(pair2?.Item1.tiles).Union(pair2?.Item2.tiles).ToList();
+                RelatedTiles = pair?.Item1.tiles.Union(pair?.Item2.tiles).Union(pair2?.Item1.tiles).Union(pair2?.Item2.tiles).ToList();
                 return true; 
             }
             return false;
@@ -214,7 +276,7 @@ namespace Aotenjo
 
             if (pair3 != null)
             {
-                tilesToHighlight = pair?.Item1.tiles
+                RelatedTiles = pair?.Item1.tiles
                     .Union(pair?.Item2.tiles)
                     .Union(pair2?.Item1.tiles)
                     .Union(pair2?.Item2.tiles)
@@ -230,7 +292,7 @@ namespace Aotenjo
         {
             foreach (var b in blocks)
             {
-                Block copy = blocks.FirstOrDefault(b2 => b2 != b && b.CompactWith(b2));
+                Block copy = blocks.FirstOrDefault(b2 => b2 != b && b.CompatWith(b2));
                 if (copy != null)
                 {
                     return (b, copy);
@@ -244,7 +306,7 @@ namespace Aotenjo
         {
             return VerifyForTwoBlocks(permutation, player,
                 a => a.IsABC() && a.IsYinSeq(),
-                (a, b) => b.IsABC() && b.OfSameCategory(a) && !b.IsYinSeq() && b.tiles[1].CompactWith(a.tiles[1])
+                (a, b) => b.IsABC() && b.OfSameCategory(a) && !b.IsYinSeq() && b.tiles[1].CompatWith(a.tiles[1])
             );
         }
 
@@ -259,9 +321,9 @@ namespace Aotenjo
         private static bool VerifyYinYangLong(Permutation permutation, Player player)
         {
             return VerifyForThreeBlocks(permutation, player,
-                a => a.CompactWithNumbers("123"),
-                (a, b) => b.CompactWithNumbers("789") && b.OfSameCategory(a),
-                (a, _, c) => c.CompactWithNumbers("357") && c.OfSameCategory(a)
+                a => a.CompatWithNumbers("123"),
+                (a, b) => b.CompatWithNumbers("789") && b.OfSameCategory(a),
+                (a, _, c) => c.CompatWithNumbers("357") && c.OfSameCategory(a)
             );
         }
 
@@ -281,29 +343,29 @@ namespace Aotenjo
         {
             return VerifyForFourBlocks(permutation, player,
                 a => a.IsABC() && a.IsYinSeq(),
-                (a, b) => b.IsABC() && !b.IsYinSeq() && b.tiles[1].CompactWith(a.tiles[1]),
+                (a, b) => b.IsABC() && !b.IsYinSeq() && b.tiles[1].CompatWith(a.tiles[1]),
                 (_, _, c) => c.IsABC() && c.IsYinSeq(),
-                (_, _, c, d) => d.IsABC() && !d.IsYinSeq() && d.tiles[1].CompactWith(c.tiles[1])
+                (_, _, c, d) => d.IsABC() && !d.IsYinSeq() && d.tiles[1].CompatWith(c.tiles[1])
             );
         }
 
         private static bool VerifyNaiHeQiao(Permutation permutation, Player player)
         {
             return VerifyForFourBlocks(permutation, player,
-                a => a.CompactWithNumbers("123"),
-                (a, b) => b.CompactWithNumbers("789") && b.OfSameCategory(a),
-                (a, _, c) => c.CompactWithNumbers("246") && c.OfSameCategory(a),
-                (a, _, _, d) => d.CompactWithNumbers("468") && d.OfSameCategory(a)
+                a => a.CompatWithNumbers("123"),
+                (a, b) => b.CompatWithNumbers("789") && b.OfSameCategory(a),
+                (a, _, c) => c.CompatWithNumbers("246") && c.OfSameCategory(a),
+                (a, _, _, d) => d.CompatWithNumbers("468") && d.OfSameCategory(a)
             );
         }
 
         private static bool VerifyLiangJieQiao(Permutation permutation, Player player)
         {
             return VerifyForFourBlocks(permutation, player,
-                a => a.CompactWithNumbers("123"),
-                (a, b) => b.CompactWithNumbers("789") && b.OfSameCategory(a),
-                (a, _, c) => c.CompactWithNumbers("246") && !c.OfSameCategory(a),
-                (_, _, c, d) => d.CompactWithNumbers("468") && d.OfSameCategory(c)
+                a => a.CompatWithNumbers("123"),
+                (a, b) => b.CompatWithNumbers("789") && b.OfSameCategory(a),
+                (a, _, c) => c.CompatWithNumbers("246") && !c.OfSameCategory(a),
+                (_, _, c, d) => d.CompatWithNumbers("468") && d.OfSameCategory(c)
             );
         }
 
@@ -321,7 +383,7 @@ namespace Aotenjo
         private static bool VerifyQiTongDui(Permutation permutation, Player player)
         {
             return permutation.GetPermType() == PermutationType.SEVEN_PAIRS &&
-                   permutation.TilesFulfullAll(t => t.CompactWith(permutation.ToTiles()[0]));
+                   permutation.TilesFulfullAll(t => t.CompatWith(permutation.ToTiles()[0]));
         }
 
         private static bool VerifySiXiShun(Permutation permutation, Player player)
@@ -384,9 +446,9 @@ namespace Aotenjo
             
             return VerifyForFourBlocks(permutation, player,
                 a => a.IsHonor(player) && a.IsABC(),
-                (a, b) => b.CompactWith(a),
-                (a, _, c) => c.CompactWith(a),
-                (a, _, _, d) => d.CompactWith(a)
+                (a, b) => b.CompatWith(a),
+                (a, _, c) => c.CompatWith(a),
+                (a, _, _, d) => d.CompatWith(a)
             );
         }
 
@@ -394,30 +456,30 @@ namespace Aotenjo
         {
             return VerifyForThreeBlocks(permutation, player,
                 a => a.IsHonor(player) && a.IsABC(),
-                (a, b) => b.CompactWith(a),
-                (a, _, c) => c.CompactWith(a)
+                (a, b) => b.CompatWith(a),
+                (a, _, c) => c.CompatWith(a)
             );
         }
 
         private static bool VerifyShuangTongZiShun(Permutation permutation, Player player)
         {
             return VerifyForTwoBlocks(permutation, player, a => a.IsHonor(player) && a.IsABC(),
-                (a, b) => a.CompactWith(b));
+                (a, b) => a.CompatWith(b));
         }
 
         private static bool VerifyTianXiaGuiZhong(Permutation perm, Player player)
         {
-            return VerifySiGang(perm, player) && perm.ToTiles().All(t => t.CompactWith(new Tile("7z")));
+            return VerifySiGang(perm, player) && perm.ToTiles().All(t => t.CompatWith(new Tile("7z")));
         }
 
         private static bool VerifyWanWuShengZhang(Permutation perm, Player player)
         {
-            return VerifySiGang(perm, player) && perm.ToTiles().All(t => t.CompactWith(new Tile("6z")));
+            return VerifySiGang(perm, player) && perm.ToTiles().All(t => t.CompatWith(new Tile("6z")));
         }
 
         private static bool VerifyTianDiChuangZao(Permutation perm, Player player)
         {
-            return VerifySiGang(perm, player) && VerifyForAllTiles(perm, player, t => t.CompactWith(new Tile("5z")));
+            return VerifySiGang(perm, player) && VerifyForAllTiles(perm, player, t => t.CompatWith(new Tile("5z")));
         }
 
         private static bool VerifyDaShuLin(Permutation perm, Player player)
@@ -621,24 +683,24 @@ namespace Aotenjo
         {
             List<Tile> tiles = new Hand("248p12346z").tiles;
             List<Tile> candTiles = perm.ToTiles();
-            if (!candTiles.Any(t => t.CompactWith(new Tile("6z")))) return false;
-            if (candTiles.All(t => t.CompactWith(new Tile("6z")))) return false;
-            return VerifyForAllTiles(perm, player, t => tiles.Any(t.CompactWith));
+            if (!candTiles.Any(t => t.CompatWith(new Tile("6z")))) return false;
+            if (candTiles.All(t => t.CompatWith(new Tile("6z")))) return false;
+            return VerifyForAllTiles(perm, player, t => tiles.Any(t.CompatWith));
         }
 
         private static bool VerifyHeiYiSe(Permutation perm, Player player)
         {
             List<Tile> tiles = new Hand("248p1234z").tiles;
             List<Tile> candTiles = perm.ToTiles();
-            return candTiles.All(t => tiles.Any(t2 => t.CompactWith(t2)));
+            return candTiles.All(t => tiles.Any(t2 => t.CompatWith(t2)));
         }
 
         private static bool VerifyHongKongQue(Permutation perm, Player player)
         {
             List<Tile> tiles = new Hand("1579s7z").tiles;
             List<Tile> candTiles = perm.ToTiles();
-            return tiles.All(t => candTiles.Any(t2 => t.CompactWith(t2))) &&
-                   VerifyForAllTiles(perm, player, t => tiles.Any(t2 => t.CompactWith(t2)));
+            return tiles.All(t => candTiles.Any(t2 => t.CompatWith(t2))) &&
+                   VerifyForAllTiles(perm, player, t => tiles.Any(t2 => t.CompatWith(t2)));
         }
 
         private static bool VerifyChunQuanDaiYao(Permutation perm, Player player)
@@ -659,7 +721,7 @@ namespace Aotenjo
             for (int i = 1; i < 5; i++)
             {
                 Tile tile = new Tile(i + "z");
-                if (blocks.All(b => !b.All(t => t.CompactWith(tile)))) return false;
+                if (blocks.All(b => !b.All(t => t.CompatWith(tile)))) return false;
             }
 
             return true;
@@ -673,7 +735,7 @@ namespace Aotenjo
             for (int i = 1; i < 8; i++)
             {
                 Tile tile = new Tile(i + "z");
-                if (blocks.All(b => !b.All(t => t.CompactWith(tile)))) return false;
+                if (blocks.All(b => !b.All(t => t.CompatWith(tile)))) return false;
             }
 
             return true;
@@ -687,7 +749,7 @@ namespace Aotenjo
             for (int i = 5; i < 8; i++)
             {
                 Tile tile = new Tile(i + "z");
-                if (blocks.All(b => !b.All(t => t.CompactWith(tile)))) return false;
+                if (blocks.All(b => !b.All(t => t.CompatWith(tile)))) return false;
             }
 
             return true;
@@ -716,74 +778,15 @@ namespace Aotenjo
             return false;
         }
 
-        private static List<Tile> tilesToHighlight; 
-
-        public static bool TestYaku(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
-        {
-            tilesToHighlight = permutation.ToTiles();
-            Func<Permutation, Player, bool> Predicate;
-            YAKUS_PREDICATE_MAP.TryGetValue(yaku, out Predicate);
-            if (Predicate != null)
-            {
-                bool testYaku = Predicate.Invoke(permutation, status);
-                relatedTiles = new (tilesToHighlight);
-                return testYaku;
-            }
-            relatedTiles = new (tilesToHighlight);
-            return false;
-        }
-
-        public static bool IncludeYaku(YakuType a, YakuType b)
-        {
-            return GetYakuChilds(a).Contains(b);
-        }
-
-        public static double GetFan(YakuType yaku, int blockCount, SkillSet skillSet, int extraFan = 0)
-        {
-            return (skillSet.CalculateFan(yaku, blockCount, extraFan));
-        }
-
-        private static HashSet<YakuType> GetYakuChilds(YakuType yaku)
-        {
-            HashSet<YakuType> yakus = new() { yaku };
-            foreach (YakuType child in InfoMap[yaku].includedYakus)
-            {
-                yakus.UnionWith(GetYakuChilds(child));
-            }
-
-            return yakus;
-        }
-
-        public static HashSet<YakuType> GetYakuChildsExcludeSelf(YakuType yaku)
-        {
-            HashSet<YakuType> yakus = GetYakuChilds(yaku);
-            yakus.Remove(yaku);
-            return yakus;
-        }
-
-        public static string GetColoredYakuName(YakuType yaku, Rarity rarity)
-        {
-            string color = rarity switch
-            {
-                Rarity.COMMON => "#FFFFFF",
-                Rarity.RARE => "#0000FF",
-                Rarity.EPIC => "#FF00FF",
-                Rarity.LEGENDARY => "#FFA500",
-                Rarity.ANCIENT => "#FF0000",
-                _ => throw new ArgumentOutOfRangeException("Invalid rarity")
-            };
-            return $"<color={color}>{YakuLocalizationManager.GetYakuName(InfoMap[yaku])}</color>";
-        }
-
 
         //番种验证函数
         private static bool VerifyPingHu(Permutation permutation, Player player)
         {
             if (player.deck.regName.Equals(MahjongDeck.BambooDeck.regName))
             {
-                if (permutation.jiang.All(t => t.CompactWith(new(player.GetPrevalentWind() + "z")))) return false;
-                if (permutation.jiang.All(t => t.CompactWith(new(player.GetPlayerWind() + "z")))) return false;
-                if (permutation.jiang.All(t => t.CompactWithCategory(Tile.Category.Jian))) return false;
+                if (permutation.jiang.All(t => t.CompatWith(player.GetPrevalentWind() + "z"))) return false;
+                if (permutation.jiang.All(t => t.CompatWith(player.GetPlayerWind() + "z"))) return false;
+                if (permutation.jiang.All(t => t.CompatWithCategory(Tile.Category.Jian))) return false;
                 return permutation.BlocksFulfillAll(block => block.IsABC());
             }
 
@@ -858,32 +861,32 @@ namespace Aotenjo
         {
             return VerifyForFourBlocks(permutation, status,
                 a => a.IsABC(),
-                (a, b) => a.CompactWith(b),
+                (a, b) => a.CompatWith(b),
                 (_, _, c) => c.IsABC(),
-                (_, _, c, d) => d.CompactWith(c));
+                (_, _, c, d) => d.CompatWith(c));
         }
 
         private static bool VerifyQingYiSe(Permutation permutation, Player status)
         {
             return VerifyForAllTiles(permutation, status,tile =>
-                       tile.CompactWithCategory(Tile.Category.Suo)) ||
+                       tile.CompatWithCategory(Tile.Category.Suo)) ||
                    VerifyForAllTiles(permutation, status,tile =>
-                       tile.CompactWithCategory(Tile.Category.Bing)) ||
+                       tile.CompatWithCategory(Tile.Category.Bing)) ||
                    VerifyForAllTiles(permutation, status,tile =>
-                       tile.CompactWithCategory(Tile.Category.Wan));
+                       tile.CompatWithCategory(Tile.Category.Wan));
         }
 
         private static bool VerifyHunYiSe(Permutation permutation, Player status)
         {
             return VerifyForAllTiles(permutation, status,tile =>
                        tile.IsHonor(status) ||
-                       tile.CompactWithCategory(Tile.Category.Suo)) ||
+                       tile.CompatWithCategory(Tile.Category.Suo)) ||
                    VerifyForAllTiles(permutation, status,tile =>
                        tile.IsHonor(status) ||
-                       tile.CompactWithCategory(Tile.Category.Bing)) ||
+                       tile.CompatWithCategory(Tile.Category.Bing)) ||
                    VerifyForAllTiles(permutation, status,tile =>
                        tile.IsHonor(status) ||
-                       tile.CompactWithCategory(Tile.Category.Wan));
+                       tile.CompatWithCategory(Tile.Category.Wan));
         }
 
         private static bool VerifyWuMenQi(Permutation permutation, Player status)
@@ -989,9 +992,9 @@ namespace Aotenjo
                 if (VerifyForThreeBlocks(
                         permutation, 
                         status, 
-                        b => b.CompactWith(new Block($"{i}{i}{i}z")),
-                        ((_, b1) => b1.CompactWith(new Block($"{j}{j}{j}z"))),
-                        ((_, _, b2) => b2.CompactWith(new Block($"{k}{k}{k}z")))
+                        b => b.CompatWith(new Block($"{i}{i}{i}z")),
+                        ((_, b1) => b1.CompatWith(new Block($"{j}{j}{j}z"))),
+                        ((_, _, b2) => b2.CompatWith(new Block($"{k}{k}{k}z")))
                         ))
                 {
                     return true;
@@ -1003,16 +1006,15 @@ namespace Aotenjo
 
         private static bool VerifyShuangJianKe(Permutation permutation, Player status)
         {
-            //TODO
             for (int i = 5; i < 8; i++)
             {
                 int j = ((i - 5 + 1) % 3) + 5;
-                if (permutation.blocks.Any(a => a.CompactWith(new(i.ToString() + i + i + "z"))
-                                                && permutation.blocks.Any(b => b != a &&
-                                                                               b.CompactWith(new(j.ToString() + j + j +
-                                                                                   "z"))
-                                                )
-                    )
+                if(
+                    VerifyForTwoBlocks(
+                       permutation, 
+                       status, 
+                       b => b.IsAAAOf($"{i}z"), 
+                       (b1, b2) => b2.IsAAAOf($"{j}z"))
                    )
                 {
                     return true;
@@ -1029,48 +1031,39 @@ namespace Aotenjo
 
         private static bool VerifyXiaoSanYuan(Permutation permutation, Player status)
         {
-            //TODO
             for (int i = 5; i < 8; i++)
             {
                 int j = ((i - 4) % 3) + 5;
                 int k = ((j - 4) % 3) + 5;
-                if (permutation.blocks.Any(a => a.CompactWith(new(i.ToString() + i + i + "z"))
-                                                && permutation.blocks.Any(b => b != a &&
-                                                                               b.CompactWith(new(j.ToString() + j + j +
-                                                                                   "z"))
-                                                )
-                    ) && permutation.jiang.All(a => a.CompactWith(new Tile(k + "z")))
-                   )
+                if(VerifyForTwoBlocks(permutation, status, b1 => b1.IsAAAOf($"{i}z"),
+                       (b1, b2) => b2.IsAAAOf($"{j}z")))
                 {
-                    return true;
+                    if (permutation.JiangFulfillAll(t => t.CompatWith(new Tile($"{k}z"))))
+                    {
+                        RelatedTiles.AddRange(new[] { permutation.jiang.tile1, permutation.jiang.tile2 });
+                        return true;
+                    }
                 }
             }
-
             return false;
         }
 
         private static bool VerifyXiaoSiXi(Permutation permutation, Player status)
         {
-            //TODO
             for (int i = 1; i < 5; i++)
             {
                 int j = (i) % 4 + 1;
                 int k = (j) % 4 + 1;
                 int l = (k) % 4 + 1;
-                if (permutation.blocks.Any(a => a.CompactWith(new(i.ToString() + i + i + "z"))
-                                                && permutation.blocks.Any(b => b != a &&
-                                                                               b.CompactWith(new(j.ToString() + j + j +
-                                                                                   "z"))
-                                                                               && permutation.blocks.Any(c => c != a &&
-                                                                                   c != b &&
-                                                                                   c.CompactWith(new(k.ToString() + k +
-                                                                                       k + "z"))
-                                                                               )
-                                                )
-                    ) && permutation.jiang.All(a => a.CompactWith(new(l + "z")))
-                   )
+                if(VerifyForThreeBlocks(permutation, status, b1 => b1.IsAAAOf($"{i}z"),
+                       (b1, b2) => b2.IsAAAOf($"{j}z"),
+                       (b1, b2, b3) => b3.IsAAAOf($"{k}z")))
                 {
-                    return true;
+                    if (permutation.JiangFulfillAll(t => t.CompatWith(new Tile($"{l}z"))))
+                    {
+                        RelatedTiles.AddRange(new[] { permutation.jiang.tile1, permutation.jiang.tile2 });
+                        return true;
+                    }
                 }
             }
 
@@ -1080,24 +1073,22 @@ namespace Aotenjo
         private static bool VerifyShuangTongZiKe(Permutation permutation, Player status)
         {
             return VerifyForTwoBlocks(permutation, status, a => a.IsHonor(status) && a.IsAAA(),
-                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompactWith(a));
+                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompatWith(a));
         }
 
         private static bool VerifyDaSanYuan(Permutation permutation, Player status)
         {
-            //TODO
-            return permutation.blocks.Any(a => a.CompactWith(new("555z"))
-                                               && permutation.blocks.Any(b => a != b && b.CompactWith(new Block("666z"))
-                                                   && permutation.blocks.Any(c =>
-                                                       c != b && c != a && c.CompactWith(new Block("777z")))));
+            return VerifyForThreeBlocks(permutation, status, b1 => b1.IsAAAOf("5z"),
+                (_, b2) => b2.IsAAAOf("6z"),
+                (_, _, b3) => b3.IsAAAOf("7z"));
         }
 
         private static bool VerifyDaSiXi(Permutation permutation, Player status)
         {
-            return VerifyForFourBlocks(permutation, status, (a => a.IsAAA() && a.All(t => t.CompactWith(new("1z")))),
-                (_, b) => b.IsAAA() && b.All(t => t.CompactWith(new("2z"))),
-                (_, _, c) => c.IsAAA() && c.All(t => t.CompactWith(new("3z"))),
-                (_, _, _, d) => d.IsAAA() && d.All(t => t.CompactWith(new("4z"))));
+            return VerifyForFourBlocks(permutation, status, b1 => b1.IsAAAOf("1z"),
+                (_, b2) => b2.IsAAAOf("2z"),
+                (_, _, b3) => b3.IsAAAOf("3z"),
+                (_, _, _, b4) => b4.IsAAAOf("4z"));
         }
 
         private static bool VerifyQingYaoJiu(Permutation permutation, Player status)
@@ -1109,17 +1100,17 @@ namespace Aotenjo
         {
             return VerifyForThreeBlocks(permutation, status,
                 a => a.IsHonor(status) && a.IsAAA(),
-                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompactWith(a),
-                (a, _, c) => c.IsHonor(status) && c.IsAAA() && c.CompactWith(a));
+                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompatWith(a),
+                (a, _, c) => c.IsHonor(status) && c.IsAAA() && c.CompatWith(a));
         }
 
         private static bool VerifySiTongZiKe(Permutation permutation, Player status)
         {
             return VerifyForFourBlocks(permutation, status,
                 a => a.IsHonor(status) && a.IsAAA(),
-                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompactWith(a),
-                (a, _, c) => c.IsHonor(status) && c.IsAAA() && c.CompactWith(a),
-                (a, _, _, d) => d.IsHonor(status) && d.IsAAA() && d.CompactWith(a));
+                (a, b) => b.IsHonor(status) && b.IsAAA() && b.CompatWith(a),
+                (a, _, c) => c.IsHonor(status) && c.IsAAA() && c.CompatWith(a),
+                (a, _, _, d) => d.IsHonor(status) && d.IsAAA() && d.CompatWith(a));
         }
 
         private static bool VerifyHuaLong(Permutation permutation, Player status)
@@ -1263,8 +1254,8 @@ namespace Aotenjo
             {
                 if (VerifyForTwoBlocks(permutation,
                         status,
-                        block => block.CompactWithNumbers("123"),
-                        (b1, b2) => b2.CompactWithNumbers("789") && b2.OfSameCategory(b1)))
+                        block => block.CompatWithNumbers("123"),
+                        (b1, b2) => b2.CompatWithNumbers("789") && b2.OfSameCategory(b1)))
                 {
                     return true;
                 }
@@ -1293,7 +1284,7 @@ namespace Aotenjo
                         if (HasLaoShaoFu(CateDict[i], permutation)
                             && HasLaoShaoFu(CateDict[j], permutation)
                             && permutation.JiangFulfillAll(t =>
-                                t.CompactWithCategory(CateDict[k]) && t.GetOrder() == 5))
+                                t.CompatWithCategory(CateDict[k]) && t.GetOrder() == 5))
                             return true;
                     }
                 }
@@ -1311,7 +1302,7 @@ namespace Aotenjo
                         .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 1) == 2
                     && perm.blocks
                         .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 7) == 2
-                    && perm.JiangFulfillAll(t => t.CompactWithCategory(CateDict[i]) && t.GetOrder() == 5))
+                    && perm.JiangFulfillAll(t => t.CompatWithCategory(CateDict[i]) && t.GetOrder() == 5))
                 {
                     return true;
                 }
@@ -1396,9 +1387,9 @@ namespace Aotenjo
         {
             return perm.ToTiles().Any(t =>
             {
-                var sameTiles = perm.ToTiles().Where(t.CompactWith).ToList();
+                var sameTiles = perm.ToTiles().Where(t.CompatWith).ToList();
                 bool res = sameTiles.Count >= count;
-                if(res) tilesToHighlight = sameTiles;
+                if(res) RelatedTiles = sameTiles;
                 return res;
             });
         }
@@ -1507,7 +1498,7 @@ namespace Aotenjo
 
         private static bool VerifyBaiWanShi(Permutation perm, Player status)
         {
-            return perm.ToTiles().All(a => a.CompactWithCategory(Tile.Category.Wan)) &&
+            return perm.ToTiles().All(a => a.CompatWithCategory(Tile.Category.Wan)) &&
                    perm.ToTiles().Sum(t => t.GetOrder()) >= 100;
         }
 
@@ -1521,28 +1512,32 @@ namespace Aotenjo
         {
             return perm.GetPermType() == PermutationType.THIRTEEN_ORPHANS;
         }
+        
+        #endregion
 
-        private static bool VerifyForAllTiles(Permutation perm, Player status, Func<Tile, bool> pred)
+        #region 验证辅助函数
+        
+        public static bool VerifyForAllTiles(Permutation perm, Player status, Func<Tile, bool> pred)
         {
             var permTiles = perm.ToTiles();
-            tilesToHighlight = permTiles.Union(status.GetHandDeckCopy()).Where(pred).ToList();
-            return permTiles.All(t => tilesToHighlight.Contains(t));
+            RelatedTiles = permTiles.Union(status.GetHandDeckCopy()).Where(t => t != null).Where(pred).ToList();
+            return permTiles.All(t => RelatedTiles.Contains(t));
         }
 
-        private static bool VerifyForBlockCount(Permutation perm, Player status, Func<Block, bool> pred, int num)
+        public static bool VerifyForBlockCount(Permutation perm, Player status, Func<Block, bool> pred, int num)
         {
             var blocks = perm.blocks.Where(pred).ToArray();
             if (blocks.Length < num) return false;
-            tilesToHighlight = blocks.SelectMany(b => b.tiles).ToList();
+            RelatedTiles = blocks.SelectMany(b => b.tiles).ToList();
             return true;
         }
         
-        private static bool VerifyBlock(Permutation perm, Player status, Func<Block, bool> pred)
+        public static bool VerifyBlock(Permutation perm, Player status, Func<Block, bool> pred)
         {
             return VerifyForBlockCount(perm, status, pred, 1);
         }
 
-        private static bool VerifyForFourBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
+        public static bool VerifyForFourBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
             Func<Block, Block, bool> pred2, Func<Block, Block, Block, bool> pred3,
             Func<Block, Block, Block, Block, bool> pred4)
         {
@@ -1555,7 +1550,7 @@ namespace Aotenjo
                                                                                    if (d != a && d != b && d != c &&
                                                                                         pred4(a, b, c, d))
                                                                                    {
-                                                                                       tilesToHighlight =
+                                                                                       RelatedTiles =
                                                                                            a.tiles.Union(b.tiles)
                                                                                                .Union(c.tiles)
                                                                                                .Union(d.tiles)
@@ -1567,7 +1562,7 @@ namespace Aotenjo
                                                                                ))));
         }
 
-        private static bool VerifyForThreeBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
+        public static bool VerifyForThreeBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
             Func<Block, Block, bool> pred2, Func<Block, Block, Block, bool> pred3)
         {
             return perm.blocks.Any(a => pred1(a)
@@ -1576,7 +1571,7 @@ namespace Aotenjo
                                                                            {
                                                                                if (c != a && c != b && pred3(a, b, c))
                                                                                {
-                                                                                   tilesToHighlight =
+                                                                                   RelatedTiles =
                                                                                        a.tiles.Union(b.tiles)
                                                                                            .Union(c.tiles).ToList();
                                                                                       return true;
@@ -1586,7 +1581,7 @@ namespace Aotenjo
                                                                            )));
         }
 
-        private static bool VerifyForTwoBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
+        public static bool VerifyForTwoBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
             Func<Block, Block, bool> pred2)
         {
             return perm.blocks.Any(a => pred1(a)
@@ -1594,24 +1589,15 @@ namespace Aotenjo
                                         {
                                             if (b != a && pred2(a, b))
                                             {
-                                                tilesToHighlight = a.tiles.Union(b.tiles).ToList();
+                                                RelatedTiles = a.tiles.Union(b.tiles).ToList();
                                                 return true;
                                             }
                                             return false;
                                         }));
         }
 
-        private static bool VerifyForOneBlock(Permutation perm, Player status, Func<Block, bool> pred1)
-        {
-            return perm.blocks.Any(a =>
-            {
-                bool b = pred1(a);
-                if(b)
-                    tilesToHighlight = a.tiles.ToList();
-                return b;
-            });
-        }
-
+        #endregion
+        
         public static int GetUnlockRequirement(YakuType yaku)
         {
             return Math.Abs(InfoMap[yaku].growthFactor - 1) < 0.01f ? 2 : 4;

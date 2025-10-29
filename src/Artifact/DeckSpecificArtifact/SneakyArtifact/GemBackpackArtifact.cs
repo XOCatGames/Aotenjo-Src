@@ -53,7 +53,7 @@ namespace Aotenjo
                             .ToList();
                         foreach (var item in new List<TileMaterial>(cands))
                         {
-                            if (p.sneakedTiles.Any(t => p.DetermineMaterialCompactbility(t, item)))
+                            if (p.sneakedTiles.Any(t => p.DetermineMaterialCompatibility(t, item)))
                             {
                                 cands.Remove(item);
                             }

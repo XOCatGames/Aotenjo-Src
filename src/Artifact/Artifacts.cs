@@ -47,29 +47,29 @@ namespace Aotenjo
         public static readonly Artifact TeaCup = Artifact.CreateOnTileEffectArtifact("tea_cup", Rarity.RARE,
             (_, _, tile, lst) =>
             {
-                if (tile.CompactWithCategory(Tile.Category.Jian)) lst.Add(ScoreEffect.AddFu(30, TeaCup));
-            }).SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Jian));
+                if (tile.CompatWithCategory(Tile.Category.Jian)) lst.Add(ScoreEffect.AddFu(30, TeaCup));
+            }).SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Jian));
 
         //空空如也的竹门笔筒
         public static readonly Artifact BambooPenContainer = Artifact.CreateOnTileEffectArtifact("bamboo_pen_container", Rarity.COMMON,
             (_, _, tile, lst) =>
             {
-                if (tile.CompactWithCategory(Tile.Category.Suo)) lst.Add(ScoreEffect.AddFu(10, BambooPenContainer));
-            }).SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Suo));
+                if (tile.CompatWithCategory(Tile.Category.Suo)) lst.Add(ScoreEffect.AddFu(10, BambooPenContainer));
+            }).SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Suo));
 
         //特制的钱币，仅能在周派城镇寻得
         public static readonly Artifact CopperCoin = Artifact.CreateOnTileEffectArtifact("ancient_copper_coin", Rarity.COMMON,
             (_, _, tile, lst) =>
             {
-                if (tile.CompactWithCategory(Tile.Category.Bing)) lst.Add(ScoreEffect.AddFu(8, CopperCoin));
-            }).SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Bing));
+                if (tile.CompatWithCategory(Tile.Category.Bing)) lst.Add(ScoreEffect.AddFu(8, CopperCoin));
+            }).SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Bing));
 
         //奇怪的卡片，似有金钱于内
         public static readonly Artifact BankCard = Artifact.CreateOnTileEffectArtifact("bank_card", Rarity.COMMON,
             (_, _, tile, lst) =>
             {
-                if (tile.CompactWithCategory(Tile.Category.Wan)) lst.Add(ScoreEffect.AddFu(12, BankCard));
-            }).SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Wan));
+                if (tile.CompatWithCategory(Tile.Category.Wan)) lst.Add(ScoreEffect.AddFu(12, BankCard));
+            }).SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Wan));
 
         //普普通通的纸鹤，用尺子折制
         public static readonly Artifact BaseOrizuru = Artifact.CreateOnSelfEffectArtifact("orizulu", Rarity.COMMON,
@@ -186,19 +186,19 @@ namespace Aotenjo
 
         //周派最后的遗产
         public static readonly Artifact Golden3Dots = new Golden3sArtifact()
-            .SetHighlightRequirement((a, _) => a.CompactWithCategory(Tile.Category.Bing));
+            .SetHighlightRequirement((a, _) => a.CompatWithCategory(Tile.Category.Bing));
 
         //一直指向同一个位置，那是哪里？
         public static readonly Artifact Compass = Artifact.CreateOnBlockEffectArtifact("compass", Rarity.COMMON,
             (_, _, block, lst) =>
             {
-                if (block.All(a => a.CompactWithCategory(Tile.Category.Feng))) lst.Add(ScoreEffect.AddFan(12, Compass));
+                if (block.All(a => a.CompatWithCategory(Tile.Category.Feng))) lst.Add(ScoreEffect.AddFan(12, Compass));
             })
-            .SetHighlightRequirement((a, _) => a.CompactWithCategory(Tile.Category.Feng));
+            .SetHighlightRequirement((a, _) => a.CompatWithCategory(Tile.Category.Feng));
 
         //可爱的陶瓷小猪
         public static readonly Artifact PiggyBank = new PiggyBankArtifact()
-            .SetHighlightRequirement((a, _) => a.CompactWithCategory(Tile.Category.Bing));
+            .SetHighlightRequirement((a, _) => a.CompatWithCategory(Tile.Category.Bing));
 
         public static readonly Artifact Encyclopedia = new EncyclopediaArtifact();
 
@@ -362,13 +362,13 @@ namespace Aotenjo
         public static readonly Artifact OpalDagger = Artifact.CreateOnTileEffectArtifact("opal_dagger", Rarity.RARE,
             (player, _, tile, lst) =>
             {
-                if (tile.CompactWithMaterial(TileMaterial.Ore(), player))
+                if (tile.CompatWithMaterial(TileMaterial.Ore(), player))
                 {
                     lst.Add(ScoreEffect.MulFan(2, OpalDagger));
                 }
             })
-            .SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.Ore(), player))
-            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompactWithMaterial(TileMaterial.Ore(), player)));
+            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.Ore(), player))
+            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.Ore(), player)));
 
         public static readonly Artifact CopperDagger = new CopperDaggerArtifact();
 
@@ -386,7 +386,7 @@ namespace Aotenjo
         public static readonly Artifact AncientGoldCoin = new AncientGoldCoinArtifact();
 
         public static readonly Artifact MinerHat = new MinerHatArtifact()
-            .SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.PLAIN, player));
+            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.PLAIN, player));
 
         //刮风下雨，常伴左右
         public static readonly Artifact OilPaperUmbrella = new OilPaperUmbrellaArtifact();
@@ -474,13 +474,13 @@ namespace Aotenjo
 
         public static readonly Artifact AgateIdentification = Artifact.CreateOnSelfEffectArtifact("agate_identification", Rarity.RARE,
             (_, _, _) => {})
-            .SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.Ore(), player));
+            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.Ore(), player));
 
         public static readonly Artifact MagnetiteSample = new MagnetiteSampleAritfact();
 
         public static readonly Artifact MalachiteVase = new MalachiteVaseArtifact()
-            .SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.COPPER, player))
-            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompactWithMaterial(TileMaterial.COPPER, player)));
+            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.COPPER, player))
+            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.COPPER, player)));
 
         public static readonly Artifact Toolbox = new ToolboxArtifact();
 
@@ -517,7 +517,7 @@ namespace Aotenjo
         public static readonly Artifact ClayBall = new ClayBallArtifact();
         
         public static readonly Artifact BambooWine = new BambooWineArtifact()
-            .SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Suo));
+            .SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Suo));
         
         public static readonly Artifact LightningAmulet = new LightningAmuletArtifact();
         
@@ -539,13 +539,13 @@ namespace Aotenjo
         public static readonly Artifact Weight = Artifact.CreateOnSelfEffectArtifact("weight", Rarity.RARE,
             (_, perm, lst) =>
             {
-                int num = perm.ToTiles().Where(t => t.CompactWithCategory(Tile.Category.Wan)).Select(t => t.GetOrder()).Sum();
+                int num = perm.ToTiles().Where(t => t.CompatWithCategory(Tile.Category.Wan)).Select(t => t.GetOrder()).Sum();
                 if (num > 60)
                 {
                     lst.Add(ScoreEffect.MulFan(2, Weight));
                 }
             })
-            .SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Wan));
+            .SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Wan));
 
         public static readonly Artifact BabblingBook = new BabblingBookArtifact();
         
@@ -638,11 +638,11 @@ namespace Aotenjo
 
 
         public static readonly Artifact Heart5Wan = new Love5mArtifact()
-            .SetHighlightRequirement((tile, _) => tile.CompactWithCategory(Tile.Category.Wan));
+            .SetHighlightRequirement((tile, _) => tile.CompatWithCategory(Tile.Category.Wan));
 
         public static readonly Artifact MysteriousCrate = new MysteriousCrateArtifact()
-            .SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
-            .SetPrerequisite(p => p.GetAllTiles().Any(tile => tile.CompactWithMaterial(TileMaterial.MysteriousColorPorcelain(), p)));
+            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
+            .SetPrerequisite(p => p.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), p)));
 
         public static readonly Artifact PorcelainMirror = new PorcelainMirrorArtifact();
         
@@ -656,11 +656,11 @@ namespace Aotenjo
         
         public static readonly Artifact PorcelainFish = new PorcelainFishArtifact()
             .SetPrerequisite(player => player.GetAllTiles()
-                .Any(tile => tile.CompactWithMaterial(TileMaterial.PINK_PORCELAIN, player)));
+                .Any(tile => tile.CompatWithMaterial(TileMaterial.PINK_PORCELAIN, player)));
 
         public static readonly Artifact BodhiSeed = new BodhiSeedArtifact()
             .SetPrerequisite(player => player.GetAllTiles()
-                .Any(tile => tile.CompactWithMaterial(TileMaterial.BonePorcelain(), player)));
+                .Any(tile => tile.CompatWithMaterial(TileMaterial.BonePorcelain(), player)));
 
         public static readonly Artifact MysteriousScroll = new MysteriousScrollArtifact()
             .SetPrerequisite(player => player.GetAllTiles()
@@ -708,8 +708,8 @@ namespace Aotenjo
         public static readonly Artifact EssencePot = new EssencePotArtifact();
         
         public static readonly Artifact MiniTomb = new Artifact("mini_tomb", Rarity.COMMON)
-            .SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Ghost()))
-            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompactbility(t, TileMaterial.Taotie())));
+            .SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Ghost()))
+            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie())));
         
         public static readonly Artifact GhostFulu = new GhostFuluArtifact();
         
@@ -720,8 +720,8 @@ namespace Aotenjo
         public static readonly Artifact CorruptedCrystalBall = new CorruptedCrystalBallArtifact();
         
         public static readonly Artifact SilverDogLeash = new Artifact("silver_dog_leash", Rarity.COMMON)
-            .SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Taotie()))
-            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompactbility(t, TileMaterial.Taotie())));
+            .SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie()))
+            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie())));
         
         public static readonly Artifact RainbowCheese = new RainbowCheeseArtifact();
 
@@ -834,7 +834,7 @@ namespace Aotenjo
 
         public static readonly Artifact YinYangNunchaku = new YinYangNunchakuArtifact();
         
-        public static readonly Artifact WildcardWindVane = new WildcardWindvaneArtifact();
+        public static readonly Artifact WildcardWindVane = new WildcardWindVaneArtifact();
         
         public static readonly Artifact ClimbingKit = new ClimbingKitArtifact();
         

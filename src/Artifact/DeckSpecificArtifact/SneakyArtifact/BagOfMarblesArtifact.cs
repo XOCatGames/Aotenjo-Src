@@ -18,7 +18,7 @@ namespace Aotenjo
                 List<Tile> tilesTraversed = new List<Tile>();
                 foreach (var item in p.sneakedTiles)
                 {
-                    if (tilesTraversed.Any(t => t.CompactWith(item)) || item.GetCategory() != Tile.Category.Bing)
+                    if (tilesTraversed.Any(t => t.CompatWith(item)) || item.GetCategory() != Tile.Category.Bing)
                     {
                         continue;
                     }

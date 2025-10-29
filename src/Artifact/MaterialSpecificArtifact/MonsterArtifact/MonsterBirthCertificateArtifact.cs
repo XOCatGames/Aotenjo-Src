@@ -11,7 +11,7 @@ namespace Aotenjo
         public MonsterBirthCertificateArtifact() : base("monster_birth_certificate", Rarity.RARE)
         {
             
-            SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+            SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
         }
 
         public override string Serialize()

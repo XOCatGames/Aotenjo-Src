@@ -11,7 +11,7 @@ namespace Aotenjo
         public VioletGoatHornArtifact() : base("violet_goat_horn", Rarity.EPIC)
         {
             
-            SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Succubus()));
+            SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Succubus()));
         }
 
         public override string GetDescription(Func<string, string> localizer)
@@ -22,7 +22,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (player.DetermineMaterialCompactbility(tile, TileMaterial.Succubus()))
+            if (player.DetermineMaterialCompatibility(tile, TileMaterial.Succubus()))
             {
                 effects.Add(ScoreEffect.MulFan(MUL_INCRE, this));
             }
@@ -31,7 +31,7 @@ namespace Aotenjo
         public override void AppendOnUnusedTileEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             base.AppendOnUnusedTileEffects(player, perm, tile, effects);
-            if (player.DetermineMaterialCompactbility(tile, TileMaterial.Succubus()))
+            if (player.DetermineMaterialCompatibility(tile, TileMaterial.Succubus()))
             {
                 effects.Add(ScoreEffect.MulFan(MUL_DECRE, this));
             }

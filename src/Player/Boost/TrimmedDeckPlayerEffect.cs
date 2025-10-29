@@ -15,7 +15,7 @@ public class TrimmedDeckPlayerEffect : StarterBoostEffect
         foreach (Tile bp in DistinctBy(player.GetAllTiles().Where(t => t.IsHonor(player) || t.IsNumbered()),
                      (t => t.ToString())))
         {
-            Tile toRemove = player.GetAllTiles().Where(t => bp.CompactWith(t)).First();
+            Tile toRemove = player.GetAllTiles().Where(t => bp.CompatWith(t)).First();
             player.RemoveTileFromPool(toRemove);
             tiles.Add(toRemove);
         }

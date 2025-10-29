@@ -18,10 +18,10 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), LEVEL_PER_DISCARD, MAX_LEVEL, Level);
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile,
+        public override void AppendDiscardTileEffects(Player player, Tile tile,
             List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
+            base.AppendDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
             if (tile.ContainsGreen(player) && Level < MAX_LEVEL)
             {
                 onDiscardTileEffects.Add(new ReduceTargetEffect(this).OnTile(tile));

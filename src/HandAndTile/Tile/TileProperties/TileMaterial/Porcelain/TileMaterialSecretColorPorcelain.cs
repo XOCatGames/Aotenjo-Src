@@ -51,10 +51,10 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
-            player.DetermineMaterialCompactbilityEvent += DetermineMaterial;
+            player.DetermineMaterialCompatibilityEvent += DetermineMaterial;
         }
 
-        private void DetermineMaterial(PlayerDetermineMaterialCompactibilityEvent evt)
+        private void DetermineMaterial(PlayerDetermineMaterialCompatibilityEvent evt)
         {
             TileMaterial thisTileMaterial = evt.tile.properties.material;
             TileMaterial materialToCast = evt.mat;
@@ -68,7 +68,7 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayerEvents(player);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
-            player.DetermineMaterialCompactbilityEvent -= DetermineMaterial;
+            player.DetermineMaterialCompatibilityEvent -= DetermineMaterial;
         }
 
         public override int GetSpriteID(Player player)

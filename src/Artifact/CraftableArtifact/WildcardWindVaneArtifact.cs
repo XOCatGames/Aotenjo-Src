@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Aotenjo
 {
-    public class WildcardWindvaneArtifact : CraftableArtifact
+    public class WildcardWindVaneArtifact : CraftableArtifact
     {
-        public WildcardWindvaneArtifact() : base("wildcard_windvane", Rarity.RARE)
+        public WildcardWindVaneArtifact() : base("wildcard_windvane", Rarity.RARE)
         {
             SetHighlightRequirement((tile, player) => tile.IsPlayerWind(player));
         }
@@ -18,7 +18,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!tile.CompactWith(new(player.GetPlayerWind() + "z"))) return;
+            if (tile.GetCategory() != Tile.Category.Feng || !player.IsPlayerWind(tile.GetOrder())) return;
             if (player.Selecting(tile))
             {
                 effects.Add(new EarnMoneyEffect(WindVaneArtifact.MONEY, this));

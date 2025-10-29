@@ -84,7 +84,7 @@ namespace Aotenjo
             TileProperties bluePrint = pack.bluePrint;
             foreach (Tile t in tiles)
             {
-                List<Tile> cands = player.GetAllTiles().Where(t2 => t2 != t && t2.CompactWith(t)).ToList();
+                List<Tile> cands = player.GetAllTiles().Where(t2 => t2 != t && t2.CompatWith(t)).ToList();
                 List<Tile> prefCands = cands
                     .Where(t2 => t2.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()).ToList();
                 if (prefCands.Count != 0) cands = prefCands;

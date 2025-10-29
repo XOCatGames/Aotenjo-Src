@@ -50,12 +50,6 @@ namespace Aotenjo
         public static SkillSet NewSkillSet()
         {
             SkillSet Set = new();
-            // foreach (YakuType yaku in Enum.GetValues(typeof(YakuType)))
-            // {
-            //     Set.legacyYakuLevelMap.Add(yaku);
-            //     Set.levelMapValue.Add(0);
-            //     Set.levelUnlockProgressValue.Add(0);
-            // }
             return Set;
         }
 

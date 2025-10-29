@@ -9,7 +9,7 @@ namespace Aotenjo
         {
             
 
-            SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+            SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
         }
 
         public override void SubscribeToPlayer(Player player)
@@ -26,7 +26,7 @@ namespace Aotenjo
 
         private void OnPreSetMask(PlayerSetAttributeEvent evt)
         {
-            if (evt.player.DetermineMaterialCompactbility(evt.tile, TileMaterial.Nest()) &&
+            if (evt.player.DetermineMaterialCompatibility(evt.tile, TileMaterial.Nest()) &&
                 evt.attributeToReceive.GetRegName() == TileMask.Fractured().GetRegName())
             {
                 evt.canceled = true;

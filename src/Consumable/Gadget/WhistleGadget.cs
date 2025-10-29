@@ -15,7 +15,7 @@ namespace Aotenjo
             if (perm == null) return false;
             if (perm.GetPermType() == PermutationType.THIRTEEN_ORPHANS)
             {
-                return tile.IsYaoJiu(player) && perm.GetLastBlock().tiles.All(t => !t.CompactWith(tile));
+                return tile.IsYaoJiu(player) && perm.GetLastBlock().tiles.All(t => !t.CompatWith(tile));
             }
 
             return true;
@@ -28,7 +28,7 @@ namespace Aotenjo
             if (tiles.Count != 2) return false;
             Tile t1 = tiles[0];
             Tile t2 = tiles[1];
-            if (!t1.CompactWith(t2)) return false;
+            if (!t1.CompatWith(t2)) return false;
             if (!ShouldHighlightTile(t1, player) || !ShouldHighlightTile(t2, player)) return false;
             return true;
         }

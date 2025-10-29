@@ -10,16 +10,16 @@ public class MalachiteVaseArtifact : Artifact
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.DetermineMaterialCompactbilityEvent += SuperCopper;
+        player.DetermineMaterialCompatibilityEvent += SuperCopper;
     }
 
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.DetermineMaterialCompactbilityEvent -= SuperCopper;
+        player.DetermineMaterialCompatibilityEvent -= SuperCopper;
     }
 
-    private void SuperCopper(PlayerDetermineMaterialCompactibilityEvent eventData)
+    private void SuperCopper(PlayerDetermineMaterialCompatibilityEvent eventData)
     {
         Tile tile = eventData.tile;
         TileMaterial mat = eventData.mat;

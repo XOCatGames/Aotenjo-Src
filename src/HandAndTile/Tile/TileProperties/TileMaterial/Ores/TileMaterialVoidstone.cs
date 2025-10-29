@@ -37,7 +37,7 @@ namespace Aotenjo
 
         private static int GetCount(Permutation perm, Player player)
         {
-            return perm.ToTiles().Where(t => player.DetermineMaterialCompactbility(t, PLAIN)).Count();
+            return perm.ToTiles().Where(t => player.DetermineMaterialCompatibility(t, PLAIN)).Count();
         }
     }
 }

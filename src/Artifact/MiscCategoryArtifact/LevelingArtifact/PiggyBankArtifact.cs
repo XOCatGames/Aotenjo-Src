@@ -17,7 +17,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (!tile.CompactWithCategory(Tile.Category.Bing)) return;
+            if (!tile.CompatWithCategory(Tile.Category.Bing)) return;
             if (!player.Selecting(tile)) return;
             effects.Add(new PiggyBankEffect(this));
         }

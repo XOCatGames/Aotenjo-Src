@@ -32,7 +32,7 @@ namespace Aotenjo
             Tile scoringTile, Tile onEffectTile)
         {
             base.AppendToListOnTileUnusedEffect(player, perm, effects, scoringTile, onEffectTile);
-            if (!player.DetermineTileCompactbility(scoringTile, (int)onEffectTile.GetCategory(), -1)) return;
+            if (!player.DetermineTileCompatibility(scoringTile, (int)onEffectTile.GetCategory(), -1)) return;
             effects.Add(ScoreEffect.AddFu(FU_PER_TILE, null));
         }
     }

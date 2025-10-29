@@ -30,7 +30,7 @@ namespace Aotenjo
 
         protected virtual int GetPrice(Tile[] tileDraws)
         {
-            bool isAAA = tileDraws[0].CompactWith(tileDraws[1]);
+            bool isAAA = tileDraws[0].CompatWith(tileDraws[1]);
             int price = (isAAA ? 5 : 3);
             if (tileDraws.Any(t => t.IsHonor(player)))
             {

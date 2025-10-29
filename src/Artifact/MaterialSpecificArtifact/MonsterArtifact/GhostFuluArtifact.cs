@@ -15,7 +15,7 @@ namespace Aotenjo
 
         public override bool ShouldHighlightTile(Tile t, Player player)
         {
-            return t.CompactWith(tile);
+            return t.CompatWith(tile);
         }
 
         public override string GetDescription(Player player, Func<string, string> loc)
@@ -26,7 +26,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.CompactWith(this.tile))
+            if (tile.CompatWith(this.tile))
             {
                 effects.Add(new TransformMaterialEffect(TileMaterial.Ghost(), this, tile, "effect_ghost_fulu_name"));
             }
@@ -68,7 +68,7 @@ namespace Aotenjo
 
         private void ChangeGhostingTile(Player player)
         {
-            List<Tile> cands = player.GetUniqueFullDeck().Where(t => player.GetAllTiles().Any(t2 => t2.CompactWith(t)))
+            List<Tile> cands = player.GetUniqueFullDeck().Where(t => player.GetAllTiles().Any(t2 => t2.CompatWith(t)))
                 .ToList();
             if (cands.Count == 0)
             {

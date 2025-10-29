@@ -2,33 +2,36 @@
 using Aotenjo;
 using UnityEngine;
 
-[Serializable]
-public class ChangeSuitEffect : Effect
+namespace Aotenjo
 {
-    [SerializeField] private Tile tile;
-    private readonly Tile.Category category;
-
-    public ChangeSuitEffect(Tile tile, Tile.Category category)
+    [Serializable]
+    public class ChangeSuitEffect : Effect
     {
-        this.tile = tile;
-        this.category = category;
-    }
+        [SerializeField] private Tile tile;
+        private readonly Tile.Category category;
 
-    public override string GetEffectDisplay(Func<string, string> func)
-    {
-        return func("effect_change_suit");
-    }
+        public ChangeSuitEffect(Tile tile, Tile.Category category)
+        {
+            this.tile = tile;
+            this.category = category;
+        }
 
-    public override Artifact GetEffectSource()
-    {
-        return null;
-    }
+        public override string GetEffectDisplay(Func<string, string> func)
+        {
+            return func("effect_change_suit");
+        }
 
-    public override void Ingest(Player player)
-    {
-        if (!tile.IsNumbered()) return;
-        tile.GetCategory();
+        public override Artifact GetEffectSource()
+        {
+            return null;
+        }
 
-        tile.AddTransform(new TileTransformTrivial(category, tile.GetOrder()), player);
+        public override void Ingest(Player player)
+        {
+            if (!tile.IsNumbered()) return;
+            tile.GetCategory();
+
+            tile.AddTransform(new TileTransformTrivial(category, tile.GetOrder()), player);
+        }
     }
 }

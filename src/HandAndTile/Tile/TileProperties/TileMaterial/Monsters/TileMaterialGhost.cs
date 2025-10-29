@@ -67,7 +67,7 @@ namespace Aotenjo
             public override void Ingest(Player player)
             {
                 List<Tile> cands = player.GetSelectedTilesCopy()
-                    .Where(t => t != null && t.CompactWithMaterial(PLAIN, player)).ToList();
+                    .Where(t => t != null && t.CompatWithMaterial(PLAIN, player)).ToList();
                 if (cands.Count == 0) return;
                 Tile target = cands[player.GenerateRandomInt(cands.Count)];
 

@@ -10,7 +10,7 @@ namespace Aotenjo
 
         public CorruptedCrystalBallArtifact() : base("corrupted_crystal_ball", Rarity.EPIC)
         {
-            SetHighlightRequirement((t, p) => p.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+            SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
             
         }
 
@@ -53,7 +53,7 @@ namespace Aotenjo
         private static int GetNestCount(Player player)
         {
             return player
-                .GetAllTiles().Count(t => t != null && player.DetermineMaterialCompactbility(t, TileMaterial.Nest()));
+                .GetAllTiles().Count(t => t != null && player.DetermineMaterialCompatibility(t, TileMaterial.Nest()));
         }
 
     }

@@ -18,7 +18,7 @@ namespace Aotenjo
 
         public override bool IsUnlocked(PlayerStats stats)
         {
-            return stats.GetUnseededRunRecords().Any(rec => (rec.acsensionLevel >= 3 && rec.won) || !rec.roundStats.PlayedHonorTile()) || 
+            return stats.GetUnseededRunRecords().Any(rec => (rec.acsensionLevel >= 3 || !rec.roundStats.PlayedHonorTile()) && rec.won) || 
                    Constants.DEBUG_MODE;
         }
     }

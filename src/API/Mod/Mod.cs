@@ -15,7 +15,10 @@ namespace Aotenjo
         public string version; //模组版本
         public string author; //模组作者
         public string description; //模组描述
-
+        public string modDir;
+        public bool isFromWorkshop = false;
+        public string itemUrl = "";
+        public string workshopId = "";
         public Mod(string name, string version, string author, string description)
         {
             this.name = name;

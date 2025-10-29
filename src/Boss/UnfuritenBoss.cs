@@ -26,7 +26,7 @@ public class UnfuritenBoss : Boss
 
     private void OnDiscardTile(Player player, List<IAnimationEffect> effects, Tile tile, bool forced)
     {
-        List<Tile> tiles = player.GetAllTiles().Where(t => t.CompactWith(tile)).ToList();
+        List<Tile> tiles = player.GetAllTiles().Where(t => t.CompatWith(tile)).ToList();
         effects.Add(new SuppressTileGroupAnimationEffect(tiles, tile));
     }
 
@@ -44,9 +44,9 @@ public class UnfuritenBoss : Boss
             this.baseArtifact = baseArtifact;
         }
 
-        public override void AddDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
+        public override void AppendDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone)
         {
-            base.AddDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
+            base.AppendDiscardTileEffects(player, tile, onDiscardTileEffects, withForce, isClone);
             onDiscardTileEffects.Add(new GroupTempGrowFuEffect(this, tile, baseArtifact));
         }
 
@@ -99,7 +99,7 @@ public class UnfuritenBoss : Boss
             {
                 return player.GetHandDeckCopy()
                     .Union(player.GetAccumulatedPermutation()?.ToTiles() ?? new List<Tile>())
-                    .Where(t => t.CompactWith(tile))
+                    .Where(t => t.CompatWith(tile))
                     .ToList();
             }
 

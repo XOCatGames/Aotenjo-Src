@@ -50,7 +50,7 @@ namespace Aotenjo
         {
             if (categorySensitive)
             {
-                return tileSucc.CompactWith(tilePred);
+                return tileSucc.CompatWith(tilePred);
             }
 
             if (tileSucc.IsNumbered() && tilePred.IsNumbered())
@@ -58,7 +58,7 @@ namespace Aotenjo
                 return tileSucc.GetOrder() == tilePred.GetOrder();
             }
 
-            return tileSucc.CompactWith(tilePred);
+            return tileSucc.CompatWith(tilePred);
         }
 
         //判断block的identical
@@ -149,15 +149,15 @@ namespace Aotenjo
             public override bool ASuccB(Tile tileSucc, Tile tilePred, bool categorySensitive = true, int step = 1)
             {
                 //风牌连接
-                if (tileSucc.CompactWithCategory(Tile.Category.Feng) &&
-                    tilePred.CompactWithCategory(Tile.Category.Feng))
+                if (tileSucc.CompatWithCategory(Tile.Category.Feng) &&
+                    tilePred.CompatWithCategory(Tile.Category.Feng))
                 {
                     return tileSucc.GetOrder() == tilePred.GetOrder() % 4 + step;
                 }
 
                 //箭牌连接
-                if (tileSucc.CompactWithCategory(Tile.Category.Jian) &&
-                    tilePred.CompactWithCategory(Tile.Category.Jian))
+                if (tileSucc.CompatWithCategory(Tile.Category.Jian) &&
+                    tilePred.CompatWithCategory(Tile.Category.Jian))
                 {
                     return tileSucc.GetOrder() == ((tilePred.GetOrder() - 4) % 3 + step) + 4;
                 }

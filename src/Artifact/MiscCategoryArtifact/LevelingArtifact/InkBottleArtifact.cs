@@ -33,8 +33,8 @@ namespace Aotenjo
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
 
-            if (!player.DetermineFontCompactbility(tile, TileFont.PLAIN) &&
-                !player.DetermineFontCompactbility(tile, TileFont.COLORLESS))
+            if (!player.DetermineFontCompatibility(tile, TileFont.PLAIN) &&
+                !player.DetermineFontCompatibility(tile, TileFont.COLORLESS))
             {
                 effects.Add(new ColorlessEffect(tile, this));
             }

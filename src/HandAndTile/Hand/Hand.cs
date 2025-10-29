@@ -50,9 +50,9 @@ namespace Aotenjo
 
         public virtual List<Permutation> GetPerms(Player player, int mode, Block.Jiang jiang = null)
         {
-            if (jiang == null && tiles.Count(t => t.CompactWith(tiles[0])) >= 5)
+            if (jiang == null && tiles.Count(t => t.CompatWith(tiles[0])) >= 5)
             {
-                jiang = new Block.Jiang(tiles[0], tiles.First(t => t != tiles[0] && t.CompactWith(tiles[0])));
+                jiang = new Block.Jiang(tiles[0], tiles.First(t => t != tiles[0] && t.CompatWith(tiles[0])));
             }
 
             return GetPerms(new List<Block>(), player, mode, jiang);
@@ -62,9 +62,9 @@ namespace Aotenjo
             Block.Jiang jiang = null)
         {
             List<Permutation> resPerms = new();
-            if (jiang == null && tiles.Count(t => t.CompactWith(tiles[0])) >= 5)
+            if (jiang == null && tiles.Count(t => t.CompatWith(tiles[0])) >= 5)
             {
-                jiang = new Block.Jiang(tiles[0], tiles.First(t => t != tiles[0] && t.CompactWith(tiles[0])));
+                jiang = new Block.Jiang(tiles[0], tiles.First(t => t != tiles[0] && t.CompatWith(tiles[0])));
             }
 
             switch (mode)
@@ -118,13 +118,13 @@ namespace Aotenjo
                 for (int i = 0; i < 6; i++)
                 {
                     Tile t = tiles[0];
-                    Tile n = tiles.Find(x => x != t && x.CompactWith(t));
+                    Tile n = tiles.Find(x => x != t && x.CompatWith(t));
                     blocks[i] = new PairBlock(new[] { t, n });
                     tiles.Remove(t);
                     tiles.Remove(n);
                 }
 
-                if (tiles[0].CompactWith(tiles[1]))
+                if (tiles[0].CompatWith(tiles[1]))
                     perms.Add(new SevenPairsPermutation(blocks, new Block.Jiang(tiles[0], tiles[1])));
             }
             catch (Exception e)

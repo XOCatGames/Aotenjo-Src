@@ -7,7 +7,7 @@ namespace Aotenjo
     {
         public PirateChestArtifact() : base("pirate_chest", Rarity.EPIC, 0)
         {
-            SetHighlightRequirement((t, _) => (t.CompactWithCategory(Tile.Category.Bing)));
+            SetHighlightRequirement((t, _) => (t.CompatWithCategory(Tile.Category.Bing)));
         }
 
         public override int GetSellingPrice()

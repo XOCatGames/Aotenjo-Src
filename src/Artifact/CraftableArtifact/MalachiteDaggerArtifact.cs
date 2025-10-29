@@ -10,7 +10,7 @@ namespace Aotenjo
 
         public MalachiteDaggerArtifact() : base("malachite_dagger", Rarity.RARE)
         {
-            SetHighlightRequirement((tile, player) => tile.CompactWithMaterial(TileMaterial.COPPER, player));
+            SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.COPPER, player));
         }
 
         public override string GetDescription(Func<string, string> localizer)
@@ -21,7 +21,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.CompactWithMaterial(TileMaterial.COPPER, player))
+            if (tile.CompatWithMaterial(TileMaterial.COPPER, player))
             {
                 effects.Add(ScoreEffect.AddFu(FU, this));
             }
@@ -44,16 +44,16 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineMaterialCompactbilityEvent += SuperCopper;
+            player.DetermineMaterialCompatibilityEvent += SuperCopper;
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineMaterialCompactbilityEvent -= SuperCopper;
+            player.DetermineMaterialCompatibilityEvent -= SuperCopper;
         }
 
-        private static void SuperCopper(PlayerDetermineMaterialCompactibilityEvent eventData)
+        private static void SuperCopper(PlayerDetermineMaterialCompatibilityEvent eventData)
         {
             Tile tile = eventData.tile;
             TileMaterial mat = eventData.mat;

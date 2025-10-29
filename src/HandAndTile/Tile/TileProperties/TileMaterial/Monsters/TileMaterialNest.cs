@@ -56,7 +56,7 @@ namespace Aotenjo
                 if (tile.properties.material != tileMat) return;
                 tile.SetMask(TileMask.Fractured(), player, true);
 
-                List<Tile> cands = player.GetSelectedTilesCopy().Where(t => t.CompactWithMaterial(PLAIN, player))
+                List<Tile> cands = player.GetSelectedTilesCopy().Where(t => t.CompatWithMaterial(PLAIN, player))
                     .ToList();
                 if (cands.Count == 0) cands = player.GetSelectedTilesCopy();
                 Tile newTile = cands[player.GenerateRandomInt(cands.Count)];

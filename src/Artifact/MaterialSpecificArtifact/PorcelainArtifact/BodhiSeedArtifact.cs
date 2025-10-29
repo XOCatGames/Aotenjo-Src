@@ -21,7 +21,7 @@ namespace Aotenjo
         {
             base.AppendOnUnusedTileEffects(player, perm, tile, effects);
 
-            if (tile.CompactWithMaterial(TileMaterial.BonePorcelain(), player))
+            if (tile.CompatWithMaterial(TileMaterial.BonePorcelain(), player))
             {
                 if (perm.GetYakus(player).Any(yaku =>
                         YakuTester.InfoMap[yaku].rarity >= Rarity.EPIC &&

@@ -18,7 +18,7 @@ namespace Aotenjo
         {
             this.tiles = tiles;
             Array.Sort(this.tiles, (x, y) => CompareTile(x, y, tiles));
-            if (tiles.Length != 3 && tiles.Count(t => t.CompactWith(tiles[0])) != 4)
+            if (tiles.Length != 3 && tiles.Count(t => t.CompatWith(tiles[0])) != 4)
             {
                 throw new ArgumentException("Invalid Block structure Received");
             }
@@ -34,7 +34,7 @@ namespace Aotenjo
                 if (y_order <= 5) y_order += 10;
             }
 
-            if (tiles.Any(a => a.CompactWith(new Tile("1z"))) && tiles.Any(a => a.CompactWith(new Tile("4z"))))
+            if (tiles.Any(a => a.CompatWith(new Tile("1z"))) && tiles.Any(a => a.CompatWith(new Tile("4z"))))
             {
                 if (x_order <= 2) x_order += 4;
                 if (y_order <= 2) y_order += 4;
@@ -67,7 +67,7 @@ namespace Aotenjo
             return tiles.Any(a => predicate(a));
         }
 
-        public virtual bool CompactWithNumbers(string numbers)
+        public virtual bool CompatWithNumbers(string numbers)
         {
             string strRepresentation = ToFormat();
             return numbers.All(c => strRepresentation.Contains(c));
@@ -75,7 +75,7 @@ namespace Aotenjo
 
         public virtual bool IsABC()
         {
-            return tiles.Any(a => tiles.Any(b => a != b && !a.CompactWith(b)));
+            return tiles.Any(a => tiles.Any(b => a != b && !a.CompatWith(b)));
         }
 
         public virtual bool IsAAA()
@@ -129,16 +129,26 @@ namespace Aotenjo
             return other.IsABC() && tiles[0].GetOrder() == other.tiles[0].GetOrder() + step;
         }
 
-        public virtual bool CompactWith(Block other)
+        public virtual bool CompatWith(Block other)
         {
-            return tiles[0].CompactWith(other.tiles[0])
-                   && tiles[1].CompactWith(other.tiles[1])
-                   && tiles[2].CompactWith(other.tiles[2]);
+            return tiles[0].CompatWith(other.tiles[0])
+                   && tiles[1].CompatWith(other.tiles[1])
+                   && tiles[2].CompatWith(other.tiles[2]);
         }
-
+        
+        public virtual bool CompatWithRepresentation(string representation)
+        {
+            return CompatWith(new Block(representation));
+        }
+        
+        public virtual bool IsAAAOf(string representation)
+        {
+            return IsAAA() && All(t => t.CompatWith(representation));
+        }
+        
         public virtual bool OfCategory(Tile.Category category)
         {
-            return All(t => t.CompactWithCategory(category));
+            return All(t => t.CompatWithCategory(category));
         }
 
         public virtual bool OfSameCategory(Block other)
@@ -152,7 +162,7 @@ namespace Aotenjo
         {
             if (other.OfCategory(Tile.Category.Feng) || other.OfCategory(Tile.Category.Jian))
             {
-                return other.CompactWith(this);
+                return other.CompatWith(this);
             }
 
             return tiles[0].IsSameOrder(other.tiles[0])
@@ -194,7 +204,7 @@ namespace Aotenjo
 
             if (tiles.Length == 4)
             {
-                if (tiles[0].CompactWith(tiles[1]) && tiles[1].CompactWith(tiles[2]) && tiles[2].CompactWith(tiles[3]))
+                if (tiles[0].CompatWith(tiles[1]) && tiles[1].CompatWith(tiles[2]) && tiles[2].CompatWith(tiles[3]))
                 {
                     return new Block(tiles);
                 }
@@ -225,7 +235,7 @@ namespace Aotenjo
 
         public bool Kong(Tile tile)
         {
-            if (tiles.Length != 3 || IsAAAA() || !IsAAA() || !tiles.All(t => t.CompactWith(tile)))
+            if (tiles.Length != 3 || IsAAAA() || !IsAAA() || !tiles.All(t => t.CompatWith(tile)))
             {
                 return false;
             }
@@ -306,7 +316,7 @@ namespace Aotenjo
             {
                 foreach (Tile.Category category in Enum.GetValues(typeof(Tile.Category)))
                 {
-                    if (tile1.CompactWithCategory(category))
+                    if (tile1.CompatWithCategory(category))
                     {
                         return category;
                     }

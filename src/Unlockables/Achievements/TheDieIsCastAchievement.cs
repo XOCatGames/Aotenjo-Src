@@ -20,7 +20,7 @@
         {
             Player player = permutationEvent.player;
             if (!permutationEvent.permutation.IsFullHand()) return;
-            if (permutationEvent.permutation.TilesFulfullAll(t => player.DetermineFontCompactbility(t, TileFont.RED)))
+            if (permutationEvent.permutation.TilesFulfullAll(t => player.DetermineFontCompatibility(t, TileFont.RED)))
             {
                 SetComplete();
             }

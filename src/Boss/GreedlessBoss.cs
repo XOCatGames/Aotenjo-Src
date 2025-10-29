@@ -83,5 +83,10 @@ public class GreedlessBoss : Boss
 
             player.levelTarget = originalTarget * (1D + debtMulPerDollar * (-Math.Min(0, player.GetMoney())));
         }
+
+        public override string GetSoundEffectName()
+        {
+            return "SpendMoney";
+        }
     }
 }
