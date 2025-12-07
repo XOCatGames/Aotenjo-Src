@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Aotenjo.FallDecks;
 
 namespace Aotenjo
 {
@@ -25,7 +26,7 @@ namespace Aotenjo
 
         public List<Yaku> GetAvailableYakus()
         {
-            return YakuTester.InfoMap.Values.Where(yaku => yaku.AvailableIn(yakuRange)).ToList();
+            return YakuTester.InfoMap.Values.Where(yaku => yaku.IsInRange(yakuRange) && !yaku.blacklistedGroups.Contains(yakuRange)).ToList();
         }
 
         public int GetBasicMaterialSpriteID()
@@ -86,15 +87,16 @@ namespace Aotenjo
         public static MahjongDeck YingYangDeck = new YingYangDeck();
         public static MahjongDeck HuluDeck = new GourdDeck();
         public static MahjongDeck OracleDeck = new OracleDeck();
+        public static MahjongDeck ExtendedDeck = new ExtendedDeck();
 
         public static MahjongDeck[] decks =
         {
-            GreenDeck, BlueDeck, GalaxyDeck, BambooDeck, RainbowDeck, ScarletDeck, SneakyDeck, YingYangDeck, HuluDeck, OracleDeck
+            GreenDeck, BlueDeck, GalaxyDeck, BambooDeck, RainbowDeck, ScarletDeck, SneakyDeck, YingYangDeck, HuluDeck, OracleDeck, ExtendedDeck
         };
 
         public static MahjongDeck[] ascensionDecks =
         {
-            BlueDeck, GalaxyDeck, BambooDeck, RainbowDeck, SneakyDeck, ScarletDeck, YingYangDeck, HuluDeck, OracleDeck
+            BlueDeck, GalaxyDeck, BambooDeck, RainbowDeck, SneakyDeck, ScarletDeck, YingYangDeck, HuluDeck, OracleDeck, ExtendedDeck
         };
 
     }

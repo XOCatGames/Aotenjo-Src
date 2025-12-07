@@ -15,7 +15,7 @@ namespace Aotenjo
         {
             var yakuType = new YakuType(id);
             
-            YakuType[] includedYakuTypes = includedYakus.Select(y => Enum.TryParse<FixedYakuType>(y, true, out var res) ? res : new YakuType(y)).ToArray();
+            YakuType[] includedYakuTypes = includedYakus.Select(y => Enum.TryParse<FixedYakuType>(y, true, out var res) ? res : YakuType.FromString(y)).ToArray();
             var customYaku = new Yaku(
                 yakuType, 
                 baseFan, 
@@ -58,9 +58,9 @@ namespace Aotenjo
 
         public static void AddInheritanceRelation(string nativeYakuTypeID, YakuType[] inheritedYakuTypes)
         {
-            YakuType nativeYakuType = Enum.TryParse<FixedYakuType>(nativeYakuTypeID, true, out var res) ? res : new YakuType(nativeYakuTypeID);
+            YakuType nativeYakuType = Enum.TryParse<FixedYakuType>(nativeYakuTypeID, true, out var res) ? res : YakuType.FromString(nativeYakuTypeID);
             Yaku yaku = YakuTester.InfoMap[nativeYakuType];
-            yaku.includedYakus = yaku.includedYakus.Concat(inheritedYakuTypes).ToArray();
+            yaku.includedYakus = yaku.includedYakus.Concat(inheritedYakuTypes).Distinct().ToArray();
         }
     }
 }

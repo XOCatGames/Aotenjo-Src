@@ -228,9 +228,9 @@ namespace Aotenjo
             return sb.ToString();
         }
 
-        public virtual bool IsFullHand()
+        public virtual bool IsFullHand(Player player)
         {
-            return blocks != null && blocks.Count() == 4;
+            return blocks != null && blocks.Count() == player.GetMaxPlayingStage();
         }
 
         public Permutation Sort()
@@ -245,6 +245,8 @@ namespace Aotenjo
     {
         NORMAL,
         SEVEN_PAIRS,
-        THIRTEEN_ORPHANS
+        THIRTEEN_ORPHANS,
+        LIGULIGU,
+        EXTENDED_THIRTEEN_ORPHANS
     }
 }

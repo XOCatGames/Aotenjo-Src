@@ -28,8 +28,8 @@ namespace Aotenjo
                 return;
             }
 
-            if (list.Any(e => e is TricolorFlowerArtifact.UpgradeEffect) &&
-                list.Any(e => e is SichuanLianPuArtifact.UpgradeEffect))
+            if (list.Any(e => e.GetEffect() is TricolorFlowerArtifact.UpgradeEffect) &&
+                list.Any(e => e.GetEffect() is SichuanLianPuArtifact.UpgradeEffect))
             {
                 SetComplete();
             }

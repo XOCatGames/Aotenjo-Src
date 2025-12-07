@@ -2,13 +2,24 @@
 
 namespace Aotenjo
 {
-    public abstract class OnMultipleTileAnimationEffect : IAnimationEffect
+    public class OnMultipleTileAnimationEffect : IAnimationEffect
     {
         public readonly Effect effect;
+        public readonly List<Tile> affectedTiles;
+        public readonly Tile mainTile;
 
+        public OnMultipleTileAnimationEffect(Effect effect, List<Tile> affectedTiles, Tile mainTile)
+        {
+            this.effect = effect;
+            this.affectedTiles = affectedTiles;
+            this.mainTile = mainTile;
+        }
+        
         public OnMultipleTileAnimationEffect(Effect effect)
         {
             this.effect = effect;
+            this.affectedTiles = new List<Tile>();
+            this.mainTile = null;
         }
 
         public Effect GetEffect()
@@ -16,8 +27,14 @@ namespace Aotenjo
             return effect.GetEffect();
         }
 
-        public abstract List<Tile> GetAffectedTiles(Player player);
+        public virtual List<Tile> GetAffectedTiles(Player player)
+        {
+            return affectedTiles;
+        }
 
-        public abstract Tile GetMainTile(Player player);
+        public virtual Tile GetMainTile(Player player)
+        {
+            return mainTile;
+        }
     }
 }

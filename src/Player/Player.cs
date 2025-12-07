@@ -141,6 +141,9 @@ namespace Aotenjo
 
         [SerializeField] public List<string> upcomingBosses = new List<string>();
 
+        /// <summary>
+        /// 出牌模式：0 - 正常，1 - 七对，2 - 十三幺
+        /// </summary>
         [SerializeField] public int playMode;
 
         [SerializeReference] public MahjongDeck deck;
@@ -160,7 +163,6 @@ namespace Aotenjo
         [SerializeField] public bool inRound = true;
 
         [SerializeField] public bool stillInTutorial;
-
 
         [SerializeField] public bool tutorialFirstDrawArtifact = true;
         
@@ -1068,6 +1070,7 @@ namespace Aotenjo
                 if (drawTileRes != -1)
                     drawTileResults.Add(GetHandDeckCopy()[drawTileRes]);
             }
+            
             Permutation perm = GetCurrentSelectedPerm();
             List<Block> blocks = GetCurrentSelectedBlocks();
             DiscardLeft += 2 * blocks.Count(b => b.IsAAAA());
@@ -1076,7 +1079,7 @@ namespace Aotenjo
 
             List<YakuType> yakuTypes = perm.GetYakus(this, true).Where(y => !nativeYakus.Contains(y)).ToList();
 
-            yakuTypes.ForEach(yaku => skillSet.TryUnlockYakuIfLocked(yaku, perm.IsFullHand()));
+            yakuTypes.ForEach(yaku => skillSet.TryUnlockYakuIfLocked(yaku, perm.IsFullHand(this)));
 
             //Score is now calculated in animations, stacked in `RoundAccumulatedScore`
             Score score = RoundAccumulatedScore;
@@ -1084,7 +1087,7 @@ namespace Aotenjo
             RecordCurrentHand(perm, score);
 
             stats.RecordPlay(perm, this, perm.GetYakus(this, true).Where(a => skillSet.GetLevel(a) > 0).ToList(),
-                (Score)RoundAccumulatedScore.Clone());
+                (Score) RoundAccumulatedScore.Clone());
             stats.SyncPlayer(this);
             PostSettlePermutationEvent?.Invoke(new(this, perm));
             ResetScore();
@@ -1292,11 +1295,14 @@ namespace Aotenjo
         {
             if (CurrentSelectedTiles.Count < 5) return null;
             Hand hand = new(CurrentSelectedTiles);
+            
+            //TODO: 兼容哩咕哩咕和带面子十三幺
             if (hand.GetPerms(this, playMode).Count == 0) return null;
 
             bool firstHand = GetAccumulatedPermutation() == null;
 
-            if (!firstHand && playMode != 0) return null;
+            if (!CanSettleMoreTile(firstHand)) return null;
+            
             Permutation perm = CombineSelectedTilesToCurrentBlocks(hand, firstHand);
 
             if (CachedSelectedPermutation != null && perm.ToTiles()
@@ -1307,6 +1313,11 @@ namespace Aotenjo
 
             CachedSelectedPermutation = perm;
             return perm;
+        }
+
+        protected virtual bool CanSettleMoreTile(bool firstHand)
+        {
+            return firstHand || playMode == 0;
         }
 
         public void ClearCachedSelectedPerm()
@@ -1338,6 +1349,7 @@ namespace Aotenjo
         /// <returns>可能会回传null，代表无对应结果</returns>
         private Permutation CombineSelectedTilesToCurrentBlocks(Hand hand, bool firstHand)
         {
+            //TODO: 兼容哩咕哩咕和带面子十三幺
             return firstHand
                 ? hand.GetHighestScoredPerm(this)
                 : hand.GetHighestScoredPerm(GetAccumulatedPermutation().blocks.ToList(), this);
@@ -1346,6 +1358,7 @@ namespace Aotenjo
         /// <returns>可能会回传null，代表无对应结果</returns>
         private Permutation CombineSelectedTilesToCurrentBlocks(Hand hand, bool firstHand, Tile p1, Tile p2)
         {
+            //TODO: 兼容哩咕哩咕和带面子十三幺
             return firstHand
                 ? hand.GetHighestScoredPerm(this, p1, p2)
                 : hand.GetHighestScoredPerm(GetAccumulatedPermutation().blocks.ToList(), this, p1, p2);
@@ -1353,10 +1366,10 @@ namespace Aotenjo
 
 
         /// <summary>
-        /// 随机抽取n个工艺品，若抽取失败则返回空List
+        /// 随机抽取n个遗物，若抽取失败则返回空List
         /// </summary>
         /// <param name="n"></param>
-        /// <returns>n个可能为null的工艺品列表</returns>
+        /// <returns>n个可能为null的遗物列表</returns>
         public List<Artifact> TryDrawRandomArtifact(int n)
         {
             if (stillInTutorial && n == 3 && tutorialFirstDrawArtifact)
@@ -2202,22 +2215,29 @@ namespace Aotenjo
         public PermutationType[] GetAvailablePermTypes()
         {
             List<PermutationType> types = new();
-
-            if (skillSet.GetYakus().Contains(FixedYakuType.Base))
+            List<YakuType> availableYakus = deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
+            if (availableYakus.Contains(FixedYakuType.Base))
             {
                 types.Add(PermutationType.NORMAL);
             }
 
-            if (skillSet.GetYakus().Contains(FixedYakuType.QiDui))
+            if (availableYakus.Contains(FixedYakuType.QiDui))
             {
                 types.Add(PermutationType.SEVEN_PAIRS);
             }
 
-            if (skillSet.GetYakus().Contains(FixedYakuType.ShiSanYao))
+            if (availableYakus.Contains(FixedYakuType.ShiSanYao))
             {
                 types.Add(PermutationType.THIRTEEN_ORPHANS);
             }
-
+            if (availableYakus.Contains(FixedYakuType.LiGuLiGu))
+            {
+                types.Add(PermutationType.LIGULIGU);
+            }
+            if (availableYakus.Contains(FixedYakuType.YiShiSanYao))
+            {
+                types.Add(PermutationType.EXTENDED_THIRTEEN_ORPHANS);
+            }
             return types.ToArray();
         }
 
@@ -2798,7 +2818,7 @@ namespace Aotenjo
 
         public double GetFanForYaku(YakuType yakuType, Permutation permutation)
         {
-            double baseFan = YakuTester.GetFan(yakuType, permutation.IsFullHand() ? 4 : permutation.blocks.Count(), GetSkillSet());
+            double baseFan = YakuTester.GetFan(yakuType, permutation.IsFullHand(this) ? GetHandLimit() : permutation.blocks.Count(), GetSkillSet());
             double multiplier = GetYakuMultiplier(yakuType);
             return baseFan * multiplier;
         }
@@ -2888,7 +2908,7 @@ namespace Aotenjo
             Permutation perm = GetAccumulatedPermutation();
             if(perm == null) return false;
             perm.blocks = perm.blocks.Except(new[] { block }).ToArray();
-            if (!perm.blocks.Any() || perm.GetPermType() == PermutationType.SEVEN_PAIRS)
+            if (!perm.blocks.Any() || perm.GetPermType() == PermutationType.SEVEN_PAIRS || perm.GetPermType() == PermutationType.EXTENDED_THIRTEEN_ORPHANS || perm.GetPermType() == PermutationType.LIGULIGU)
                 SetCurrentAccumulatedBlock(null);
             bool needUnfreeze = CurrentPlayingStage == GetMaxPlayingStage();
             CurrentPlayingStage--;

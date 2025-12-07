@@ -6,7 +6,7 @@ namespace Aotenjo
     [Serializable]
     public class TileMaterial : TileAttribute
     {
-        public TileMaterial(int ID, string nameKey, Effect effect) : base(ID, nameKey + "_material", effect)
+        public TileMaterial(int id, string nameKey, Effect effect) : base(id, nameKey + "_material", effect)
         {
         }
 

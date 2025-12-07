@@ -78,6 +78,7 @@ namespace Aotenjo
             Action<Player, Artifact> resetArtifactState = null,
             Action<Player, Permutation, Tile, List<Effect>, Artifact> onTileEffect = null,
             Action<Player, Permutation, Tile, List<Effect>, Artifact> onTilePostEffect = null,
+            Action<Player, Tile, List<IAnimationEffect>, bool, bool, Artifact> onDiscardTileEffect = null,
             Action<Player, Permutation, Tile, List<Effect>, Artifact> onUnusedTileEffect = null,
             Action<Player, Permutation, Block, List<Effect>, Artifact> onBlockEffect = null,
             Action<Player, Permutation, Block, List<IAnimationEffect>, Artifact> onBlockAnimEffect = null,
@@ -102,6 +103,7 @@ namespace Aotenjo
             this.resetArtifactState = resetArtifactState;
             this.onTileEffect = onTileEffect;
             this.onTilePostEffect = onTilePostEffect;
+            this.onDiscardTileEffect = onDiscardTileEffect;
             this.onUnusedTileEffect = onUnusedTileEffect;
             this.onBlockEffect = onBlockEffect;
             this.onBlockAnimEffect = onBlockAnimEffect;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -20,10 +21,13 @@ namespace Aotenjo
         {
             base.AppendOnSelfEffects(player, permutation, effects);
 
-            int count = CountPairsWithDiff(permutation, 1, player);
-
-            if (count != 0)
-                effects.Add(ScoreEffect.AddFu(ADD_FU * count, this));
+            effects.Add(new SilentEffect(() =>
+            {
+                foreach (var (b1, b2) in GetPairsWithDiff(permutation, 1, player))
+                {
+                    player.playHandEffectStack.Push(ScoreEffect.AddFu(ADD_FU, this).OnMultipleTiles(b1.tiles.Union(b2.tiles).ToList(), b1.tiles[1]));
+                }
+            }));
         }
     }
 }

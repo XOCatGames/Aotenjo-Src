@@ -84,15 +84,200 @@ namespace Aotenjo
                 case 2:
                     resPerms.AddRange(GetThirteenOrphansPerms(player));
                     break;
+                case 3:
+                    resPerms.AddRange(GetLiguliguPerms(jiang, player));
+                    break;
+                case 4:
+                    resPerms.AddRange(GetExtendedThirteenOrphansPerms(jiang, player));
+                    break;
             }
 
             return resPerms;
         }
 
+        public virtual List<Permutation> GetExtendedThirteenOrphansPerms(Block.Jiang jiang, Player player)
+        {
+            List<Permutation> perms = new List<Permutation>();
+            List<Block> possibleBlocks = new List<Block>();
+            List<Tile> clonedTiles = new List<Tile>(tiles);
+            BlockCombinator combinator = player.GetCombinator();
+            
+            if(jiang != null)
+            {
+                clonedTiles.Remove(jiang.tile1);
+                clonedTiles.Remove(jiang.tile2);
+            }
+            
+            foreach (var cand in clonedTiles)
+            {
+                // Find XXXX
+                foreach (Tile another in clonedTiles.Where(t => combinator.IsIdenticalFormingBlock(t, cand) && t != cand))
+                {
+                    foreach (Tile yetAnother in clonedTiles.Where(a =>
+                                 combinator.IsIdenticalFormingBlock(a, cand) && a != another && a != cand))
+                    {
+                        foreach (Tile lastAnother in clonedTiles.Where(a =>
+                                     combinator.IsIdenticalFormingBlock(a, cand) && a != yetAnother && a != another && a != cand))
+                        {
+                            possibleBlocks.Add(new Block(new []{ cand, another, yetAnother, lastAnother}));
+                        }
+                    }
+                }
+
+                // Find XBC and AXB
+                foreach (Tile potSucc in clonedTiles.Where(t => combinator.ASuccBFormingBlock(t, cand)))
+                {
+                    // Find XBC
+                    foreach (Tile potWSucc in clonedTiles.Where(a =>
+                                 combinator.ASuccBFormingBlock(a, potSucc) && a != cand && cand != potSucc))
+                    {
+                        possibleBlocks.Add(new Block(new []{ cand, potSucc, potWSucc}));
+                    }
+
+                    // Find AXB
+                    foreach (Tile potPred in clonedTiles.Where(a =>
+                                 combinator.APredBFormingBlock(a, cand) && a != cand && cand != potSucc))
+                    {
+                        possibleBlocks.Add(new Block(new []{ potPred, cand, potSucc}));
+                    }
+                }
+
+                // Find ABX
+                foreach (Tile potPred in clonedTiles.Where(a => combinator.APredBFormingBlock(a, cand)))
+                {
+                    foreach (Tile potWPred in clonedTiles.Where(a =>
+                                 combinator.APredBFormingBlock(a, potPred) && a != cand && cand != potPred))
+                    {
+                        possibleBlocks.Add(new Block(new []{ potWPred, potPred, cand}));
+                    }
+                }
+
+                // Find XXX
+                foreach (Tile another in clonedTiles.Where(t => combinator.IsIdenticalFormingBlock(t, cand) && t != cand))
+                {
+                    foreach (Tile yetAnother in clonedTiles.Where(a =>
+                                 combinator.IsIdenticalFormingBlock(a, cand) && a != another && a != cand))
+                    {
+                        possibleBlocks.Add(new Block(new []{ another, cand, yetAnother}));
+                    }
+                }
+            }
+            
+            foreach (var block in possibleBlocks)
+            {
+                List<Tile> cands = new List<Tile>(tiles);
+                foreach (var t in block.tiles)
+                {
+                    cands.Remove(t);
+                }
+
+                if (jiang != null)
+                {
+                    cands.Remove(jiang.tile1);
+                    cands.Remove(jiang.tile2);
+                    if (cands.All(t => t.IsYaoJiu(player) && cands.Count(t2 => t2.CompatWith(t)) == 0))
+                    {
+                        perms.Add(new ExtendedThirteenOrphansPermutation(new[] { block, new ThirteenOrphansBlock(cands.ToArray()) },
+                            jiang));
+                    }
+                    continue;
+                }
+                if (cands.Count != 14) continue;
+                Hand subHand = new Hand(cands);
+                List<Permutation> subPerms = subHand.GetThirteenOrphansPerms(player);
+                if (subPerms.Count > 0)
+                {
+                    perms.Add(new ExtendedThirteenOrphansPermutation(new []{ block, subPerms[0].blocks[0] }, subPerms[0].jiang));
+                }
+            }
+            
+            return perms;
+        }
+
+        public virtual List<Permutation> GetLiguliguPerms(Block.Jiang jiang, Player player)
+        {
+            List<Permutation> perms = new List<Permutation>();
+            List<Tile> tilePool = new List<Tile>(this.tiles);
+            Block[] blocks = new Block[7];
+            Func<Tile, Tile, bool> isIdentical = (t1, t2) => player.GetCombinator().IsIdenticalFormingBlock(t1, t2);
+            try
+            {
+                if (jiang != null)
+                {
+                    if (!player.GetCombinator().IsIdenticalFormingBlock(jiang.tile1, jiang.tile2)) return new List<Permutation>();
+                    tilePool.Remove(jiang.tile1);
+                    tilePool.Remove(jiang.tile2);
+                    
+                    
+                    foreach (var t1 in tilePool)
+                    {
+                        int count = tilePool.Count(innt => isIdentical(innt, t1));
+                        if (count % 2 == 1 && count >= 3)
+                        {
+                            tilePool.Remove(t1);
+                            Tile t2 = tilePool.First(innt => isIdentical(innt, t1));
+                            tilePool.Remove(t2);
+                            Tile t3 = tilePool.First(innt => isIdentical(innt, t1));
+                            tilePool.Remove(t3);
+                            blocks[0] = new Block(new [] { t1, t2, t3 });
+                            break;
+                        }
+                    }
+            
+                    if(blocks[0] == null) return perms;
+                    
+                    for (int i = 1; i < 7; i++)
+                    {
+                        Tile t = tilePool[0];
+                        Tile n = tilePool.Find(x => x != t && isIdentical(x, t));
+                        blocks[i] = new PairBlock(new[] { t, n });
+                        tilePool.Remove(t);
+                        tilePool.Remove(n);
+                    }
+
+                    perms.Add(new LiguliguPermutation(blocks, jiang));
+                    return perms;
+                }
+                
+                foreach (var t1 in tilePool)
+                {
+                    int count = tilePool.Count(innt => isIdentical(innt, t1));
+                    if (count % 2 == 1 && count >= 3)
+                    {
+                        tilePool.Remove(t1);
+                        Tile t2 = tilePool.First(innt => isIdentical(innt, t1));
+                        tilePool.Remove(t2);
+                        Tile t3 = tilePool.First(innt => isIdentical(innt, t1));
+                        tilePool.Remove(t3);
+                        blocks[0] = new Block(new [] { t1, t2, t3 });
+                        break;
+                    }
+                }
+
+                for (int i = 1; i < 7; i++)
+                {
+                    Tile t = tilePool[0];
+                    Tile n = tilePool.Find(x => x != t && x.CompatWith(t));
+                    blocks[i] = new PairBlock(new[] { t, n });
+                    tilePool.Remove(t);
+                    tilePool.Remove(n);
+                }
+
+                if (tilePool[0].CompatWith(tilePool[1]))
+                    perms.Add(new LiguliguPermutation(blocks, new Block.Jiang(tilePool[0], tilePool[1])));
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            return perms;
+        }
+
         public virtual List<Permutation> GetSevenPairsPerms(Block.Jiang jiang, Player player)
         {
             List<Permutation> perms = new List<Permutation>();
-            List<Tile> tiles = new List<Tile>(this.tiles);
+            List<Tile> tilePool = new List<Tile>(this.tiles);
             Block[] blocks = new Block[6];
 
             try
@@ -100,15 +285,15 @@ namespace Aotenjo
                 if (jiang != null)
                 {
                     if (!player.GetCombinator().IsIdenticalFormingBlock(jiang.tile1, jiang.tile2)) return new List<Permutation>();
-                    tiles.Remove(jiang.tile1);
-                    tiles.Remove(jiang.tile2);
+                    tilePool.Remove(jiang.tile1);
+                    tilePool.Remove(jiang.tile2);
                     for (int i = 0; i < 6; i++)
                     {
-                        Tile t = tiles[0];
-                        Tile n = tiles.Find(x => x != t && player.GetCombinator().IsIdenticalFormingBlock(x, t));
+                        Tile t = tilePool[0];
+                        Tile n = tilePool.Find(x => x != t && player.GetCombinator().IsIdenticalFormingBlock(x, t));
                         blocks[i] = new PairBlock(new[] { t, n });
-                        tiles.Remove(t);
-                        tiles.Remove(n);
+                        tilePool.Remove(t);
+                        tilePool.Remove(n);
                     }
 
                     perms.Add(new SevenPairsPermutation(blocks, jiang));
@@ -117,15 +302,15 @@ namespace Aotenjo
 
                 for (int i = 0; i < 6; i++)
                 {
-                    Tile t = tiles[0];
-                    Tile n = tiles.Find(x => x != t && x.CompatWith(t));
+                    Tile t = tilePool[0];
+                    Tile n = tilePool.Find(x => x != t && x.CompatWith(t));
                     blocks[i] = new PairBlock(new[] { t, n });
-                    tiles.Remove(t);
-                    tiles.Remove(n);
+                    tilePool.Remove(t);
+                    tilePool.Remove(n);
                 }
 
-                if (tiles[0].CompatWith(tiles[1]))
-                    perms.Add(new SevenPairsPermutation(blocks, new Block.Jiang(tiles[0], tiles[1])));
+                if (tilePool[0].CompatWith(tilePool[1]))
+                    perms.Add(new SevenPairsPermutation(blocks, new Block.Jiang(tilePool[0], tilePool[1])));
             }
             catch (Exception e)
             {
@@ -138,12 +323,12 @@ namespace Aotenjo
         public virtual List<Permutation> GetThirteenOrphansPerms(Player player)
         {
             List<Permutation> perms = new List<Permutation>();
-            List<Tile> tiles = new List<Tile>(this.tiles);
+            List<Tile> tilePool = new List<Tile>(this.tiles);
             Block[] blocks = new Block[1];
 
             List<Tile> cands = new();
 
-            if (tiles.Any(t => !t.IsYaoJiu(player)))
+            if (tilePool.Any(t => !t.IsYaoJiu(player)))
             {
                 return new List<Permutation>();
             }
@@ -152,7 +337,7 @@ namespace Aotenjo
             {
                 Dictionary<string, int> tileNames = new Dictionary<string, int>();
 
-                foreach (Tile tile in tiles)
+                foreach (Tile tile in tilePool)
                 {
                     if (tileNames.ContainsKey(tile.ToString()))
                     {
@@ -177,13 +362,13 @@ namespace Aotenjo
                         }
 
                         foundPair = true;
-                        jiang1 = tiles.First(t => name == t.ToString());
-                        tiles.Remove(jiang1);
-                        jiang2 = tiles.First(t => name == t.ToString());
+                        jiang1 = tilePool.First(t => name == t.ToString());
+                        tilePool.Remove(jiang1);
+                        jiang2 = tilePool.First(t => name == t.ToString());
                     }
                     else if (tileNames[name] == 1)
                     {
-                        cands.Add(tiles.First(t => name == t.ToString()));
+                        cands.Add(tilePool.First(t => name == t.ToString()));
                     }
                     else
                     {

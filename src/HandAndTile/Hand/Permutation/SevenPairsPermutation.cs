@@ -26,7 +26,7 @@ namespace Aotenjo
             return PermutationType.SEVEN_PAIRS;
         }
 
-        public override bool IsFullHand()
+        public override bool IsFullHand(Player player)
         {
             return true;
         }

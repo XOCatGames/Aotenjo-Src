@@ -145,7 +145,7 @@ namespace Aotenjo
             base.OnPurchased(tiles, price);
             foreach (Tile _ in tiles)
             {
-                List<Tile> cands = new(player.GetTilePool());
+                List<Tile> cands = new(player.GetTilePool().Except(tiles));
                 if (cands.Count == 0) break;
                 Tile cand = cands[player.GenerateRandomInt(cands.Count)];
                 bool res = player.RemoveTileFromPool(cand);

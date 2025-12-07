@@ -39,7 +39,7 @@ namespace Aotenjo
             Player player = permutationEvent.player;
             Permutation permutation = permutationEvent.permutation;
             if (permutation.GetYakus(player)
-                .Where(y => player.GetSkillSet().GetLevel(y) > 0 || permutation.IsFullHand())
+                .Where(y => player.GetSkillSet().GetLevel(y) > 0 || permutation.IsFullHand(player))
                 .Any(y => IMPOSSIBLE_YAKUS.Contains(y)))
             {
                 SetComplete();

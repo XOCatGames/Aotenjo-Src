@@ -22,7 +22,7 @@ namespace Aotenjo
         {
             if (permutation.GetYakus(player, true).Contains(FixedYakuType.LyuYiSe))
             {
-                if (permutation.IsFullHand() && permutation.ToTiles().TrueForAll(t =>
+                if (permutation.IsFullHand(player) && permutation.ToTiles().TrueForAll(t =>
                         t.GetCategory() != Tile.Category.Suo && !t.CompatWith(new Tile("6z"))))
                 {
                     SetComplete();

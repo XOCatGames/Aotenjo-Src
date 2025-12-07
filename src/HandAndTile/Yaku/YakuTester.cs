@@ -32,7 +32,7 @@ namespace Aotenjo
 
         public static double GetFan(YakuType yaku, int blockCount, SkillSet skillSet, int extraFan = 0)
         {
-            return (skillSet.CalculateFan(yaku, blockCount, extraFan));
+            return skillSet.CalculateFan(yaku, blockCount, extraFan);
         }
 
         private static HashSet<YakuType> GetYakuChilds(YakuType yaku)
@@ -218,12 +218,177 @@ namespace Aotenjo
                 { FixedYakuType.LongQiDui, VerifyLongQiDui },
                 { FixedYakuType.ShuangLongQiDui, VerifyShuangLongQiDui },
                 { FixedYakuType.SanLongQiDui, VerifySanLongQiDui },
+                
+                //2025.11.20新增番种
+                
+                { FixedYakuType.YiSeWuTongShun, VerifyYiSeWuTongShun },
+                { FixedYakuType.YiSeWuBuGao, VerifyYiSeWuBuGao },
+                { FixedYakuType.ZhenWuMenQi, VerifyZhenWuMenQi },
+                { FixedYakuType.ZhenJiuLianBaoDeng, VerifyZhenJiuLianBaoDeng },
+                { FixedYakuType.WuGang, VerifyWuGang },
+                { FixedYakuType.WuKe, VerifyWuKe },
+                { FixedYakuType.ZhenYiSeShuangLongHui, VerifyZhenYiSeShuangLongHui },
+                { FixedYakuType.ZhenSanSeShuangLongHui, VerifyZhenSanSeShuangLongHui },
+                { FixedYakuType.YiSeWuJieGao, VerifyYiSeWuJieGao },
+                { FixedYakuType.YiSeWuTongKe, VerifyYiSeWuTongKe },
+                { FixedYakuType.WuTongZiKe, VerifyWuTongZiKe },
+                { FixedYakuType.LiGuLiGu, VerifyLiguLigu},
+                { FixedYakuType.YiShiSanYao, VerifyYiShiSanYao },
 
                 { FixedYakuType.Base, ((_, _) => true) }
             };
-        
+
+
+
         #region 番种验证函数
 
+        
+        private static bool VerifyYiShiSanYao(Permutation perm, Player player)
+        {
+            return perm.GetPermType() == PermutationType.EXTENDED_THIRTEEN_ORPHANS;
+        }
+
+        private static bool VerifyLiguLigu(Permutation perm, Player player)
+        {
+            return perm.GetPermType() == PermutationType.LIGULIGU;
+        }
+        
+        private static bool VerifyWuTongZiKe(Permutation perm, Player status)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return perm.blocks.Any(b => 
+                b.IsHonor(status) && 
+                b.IsAAA() && 
+                VerifyForBlockCount(perm, status, b.CompatWith, 5));
+        }
+
+        private static bool VerifyYiSeWuTongKe(Permutation perm, Player status)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return perm.blocks.Any(b => 
+                b.IsNumbered() && 
+                b.IsAAA() && 
+                VerifyForBlockCount(perm, status, b2 => b.IsMirageOf(b2, status, true), 5));
+        }
+
+        private static bool VerifyYiSeWuJieGao(Permutation perm, Player player)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return VerifyForFiveBlocks(perm, player,
+                a => a.IsAAA(),
+                (a, b) => player.DetermineShiftedPair(a, b, 1, true),
+                (_, b, c) => player.DetermineShiftedPair(b, c, 1, true),
+                (_, _, c, d) => player.DetermineShiftedPair(c, d, 1, true),
+                (_, _, _, d, e) => player.DetermineShiftedPair(d, e, 1, true));
+        }
+        
+        private static bool VerifyYiSeWuTongShun(Permutation permutation, Player player)
+        {
+            if (permutation.blocks.Length != 5) return false;
+            return permutation.blocks.Any(b => 
+                b.IsNumbered() && 
+                b.IsABC() && 
+                VerifyForBlockCount(permutation, player, b2 => player.DetermineShiftedPair(b, b2, 0, true), 5));
+        }
+        
+        private static bool VerifyYiSeWuBuGao(Permutation perm, Player status)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return VerifyForFiveBlocks(perm, status,
+                a => a.IsABC(),
+                (a, b) => status.DetermineShiftedPair(a, b, 1, true),
+                (_, b, c) => status.DetermineShiftedPair(b, c, 1, true),
+                (_, _, c, d) => status.DetermineShiftedPair(c, d, 1, true),
+                (_, _, _, d, e) => status.DetermineShiftedPair(d, e, 1, true));
+        }
+        
+        private static bool VerifyZhenWuMenQi(Permutation perm, Player status)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return VerifyForFiveBlocks(perm, status,
+                a => a.OfCategory(Tile.Category.Wan),
+                (_, b) => b.OfCategory(Tile.Category.Bing),
+                (_, _, c) => c.OfCategory(Tile.Category.Suo),
+                (_, _, _, d) => d.OfCategory(Tile.Category.Feng),
+                (_, _, _, _, e) => e.OfCategory(Tile.Category.Jian));
+        }
+        
+        private static bool VerifyZhenJiuLianBaoDeng(Permutation perm, Player status)
+        {
+            if (perm.blocks.Length != 5) return false;
+            if (perm.blocks.Any(b => b.IsAAAA())) return false;
+            if (!VerifyQingYiSe(perm, status)) return false;
+            Dictionary<int, int> dict = new();
+            for (int i = 1; i < 10; i++)
+            {
+                dict.Add(i, 0);
+            }
+
+            perm.ToTiles().ForEach(t => dict[t.GetOrder()]++);
+            if (dict[1] >= 3 && dict[2] >= 1 && dict[3] >= 1 && dict[4] >= 1 && dict[5] >= 4 && dict[6] >= 1
+                && dict[7] >= 1 && dict[8] >= 1 && dict[9] >= 3)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool VerifyWuGang(Permutation perm, Player player)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return VerifyForBlockCount(perm, player, b => b.IsAAAA(), 5);
+        }
+        
+        private static bool VerifyWuKe(Permutation perm, Player player)
+        {
+            if (perm.blocks.Length != 5) return false;
+            return VerifyForBlockCount(perm, player, b => b.IsAAA(), 5);
+        }
+
+        private static bool VerifyZhenYiSeShuangLongHui(Permutation perm, Player player)
+        {
+            if (perm.blocks.Length != 5) return false;
+            Tile.Category[] numCats = { Tile.Category.Wan, Tile.Category.Suo, Tile.Category.Bing };
+            foreach (var cat in numCats)
+            {
+                if(VerifyForFiveBlocks(perm, player,
+                       a => a.OfCategory(cat) && a.CompatWithNumbers("123"),
+                          (a, b) => b.OfCategory(cat) && b.CompatWithNumbers("789"),
+                       (a, b, c) => c.OfCategory(cat) && c.CompatWithNumbers("123"),
+                          (a, b, c, d) => d.OfCategory(cat) && d.CompatWithNumbers("789"),
+                       (a, b, c, d, e) => e.OfCategory(cat) && e.CompatWithNumbers("456")))
+                {
+                    return perm.JiangFulfillAll(t => t.CompatWithCategory(cat) && t.IsNumbered(5));
+                }
+            }
+            return false;
+        }
+
+        private static bool VerifyZhenSanSeShuangLongHui(Permutation perm, Player player)
+        {
+            if (perm.blocks.Length != 5) return false;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        if (i == j || j == k || i == k) continue;
+                        if (HasLaoShaoFu(CateDict[i], perm)
+                            && HasLaoShaoFu(CateDict[j], perm)
+                            && perm.JiangFulfillAll(t =>
+                                t.CompatWithCategory(CateDict[k]) && t.GetOrder() == 5)
+                            && perm.blocks.Any(b => b.OfCategory(CateDict[k]) && b.CompatWithNumbers("456")))
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        
+        
         private static bool VerifyLongQiDui(Permutation permutation, Player player)
         {
             if (permutation.GetPermType() != PermutationType.SEVEN_PAIRS) return false;
@@ -376,7 +541,7 @@ namespace Aotenjo
 
         private static bool VerifyWuFanHu(Permutation permutation, Player player)
         {
-            return permutation.IsFullHand() &&
+            return permutation.IsFullHand(player) &&
                    !permutation.GetYakus(player, y => !Equals(y, (YakuType)FixedYakuType.WuFanHu) && !Equals(y, (YakuType)FixedYakuType.Base)).Any();
         }
 
@@ -1299,9 +1464,9 @@ namespace Aotenjo
             {
                 if (!HasLaoShaoFu(CateDict[i], perm)) continue;
                 if (perm.blocks
-                        .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 1) == 2
+                        .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 1) >= 2
                     && perm.blocks
-                        .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 7) == 2
+                        .Count(b => b.IsABC() && b.OfCategory(CateDict[i]) && b.tiles[0].GetOrder() == 7) >= 2
                     && perm.JiangFulfillAll(t => t.CompatWithCategory(CateDict[i]) && t.GetOrder() == 5))
                 {
                     return true;
@@ -1535,6 +1700,33 @@ namespace Aotenjo
         public static bool VerifyBlock(Permutation perm, Player status, Func<Block, bool> pred)
         {
             return VerifyForBlockCount(perm, status, pred, 1);
+        }
+
+        public static bool VerifyForFiveBlocks(Permutation perm, Player status, Func<Block, bool> pred1,
+            Func<Block, Block, bool> pred2, Func<Block, Block, Block, bool> pred3,
+            Func<Block, Block, Block, Block, bool> pred4, Func<Block, Block, Block, Block, Block, bool> pred5)
+        {
+            return perm.blocks.Any(a => pred1(a)
+                                        && perm.blocks.Any(b => b != a && pred2(a, b)
+                                                                       && perm.blocks.Any(c => c != a && c != b &&
+                                                                           pred3(a, b, c)
+                                                                           && perm.blocks.Any(d => d != a && d != b && d != c &&
+                                                                               pred4(a, b, c, d)
+                                                                               && perm.blocks.Any(e => 
+                                                                                   {
+                                                                                       if (e != a && e != b && e != c && e != d && pred5(a, b, c, d, e))
+                                                                                       {
+                                                                                           RelatedTiles =
+                                                                                               a.tiles.Union(b.tiles)
+                                                                                                   .Union(c.tiles)
+                                                                                                   .Union(d.tiles)
+                                                                                                   .Union(e.tiles)
+                                                                                                   .ToList();
+                                                                                           return true;
+                                                                                       }
+                                                                                       return false;
+                                                                                   }
+                                                                                   )))));
         }
 
         public static bool VerifyForFourBlocks(Permutation perm, Player status, Func<Block, bool> pred1,

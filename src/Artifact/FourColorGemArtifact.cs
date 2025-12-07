@@ -66,17 +66,13 @@ namespace Aotenjo
             int id_added_predicted = 0;
             List<YakuType> yakuTypes =
                 permutation.GetYakus(player).Where(y => player.GetSkillSet().GetLevel(y) > 0).ToList();
-            List<YakuPack> yakuPacks = GameManager.Instance.yakuPacks;
             HashSet<int> idList = new HashSet<int>();
 
             foreach (YakuType type in yakuTypes)
             {
-                foreach (YakuPack pack in yakuPacks)
+                foreach (var yakuCategory in type.ToYaku().yakuCategories)
                 {
-                    if (pack.ContainsYaku(YakuTester.InfoMap[type]))
-                    {
-                        idList.Add(pack.id);
-                    }
+                    idList.Add(yakuCategory);
                 }
             }
 

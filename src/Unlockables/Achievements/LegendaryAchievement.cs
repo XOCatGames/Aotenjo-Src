@@ -21,7 +21,7 @@ namespace Aotenjo
         private void Player_PostSettlePermutationEvent(PlayerPermutationEvent permutationEvent)
         {
             Permutation permutation = permutationEvent.permutation;
-            if (!permutation.IsFullHand()) return;
+            if (!permutation.IsFullHand(permutationEvent.player)) return;
 
             if (permutation.GetYakus(permutationEvent.player)
                 .Any(y => YakuTester.InfoMap[y].rarity == Rarity.LEGENDARY))

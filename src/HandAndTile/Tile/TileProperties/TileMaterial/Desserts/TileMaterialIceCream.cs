@@ -33,7 +33,7 @@ namespace Aotenjo
             effects.Add(ScoreEffect.MulFan(MULTIPLIER, null));
 
             if (player.Selecting(tile))
-                effects.Add(new FreezeSameCategoryEffect(tile));
+                effects.Add(new FreezeEffect(tile));
         }
 
         protected override int GetMaterialTransformThreshold() => 1;
@@ -49,10 +49,10 @@ namespace Aotenjo
         }
 
         [Serializable]
-        private class FreezeSameCategoryEffect : Effect
+        private class FreezeEffect : Effect
         {
             private readonly Tile src;
-            public FreezeSameCategoryEffect(Tile s) { src = s; }
+            public FreezeEffect(Tile s) { src = s; }
 
             public override string GetEffectDisplay(Func<string, string> f)
                 => f("effect_freeze");
@@ -63,8 +63,7 @@ namespace Aotenjo
             {
                 var candidates = player.GetHandDeckCopy()
                                     .Except(player.GetSelectedTilesCopy())
-                                    .Where(t => t.GetCategory() == src.GetCategory() &&
-                                                t.properties.mask is not TileMaskFrozen)
+                                    .Where(t => t.properties.mask is not TileMaskFrozen)
                                     .ToList();
 
                 if (candidates.Count == 0) return;

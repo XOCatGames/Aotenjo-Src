@@ -44,6 +44,8 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     [LabelText("番种图显示顺序")] public int order;
 
+    [LabelText("番种范围黑名单")] public string[] blacklistedGroups;
+
     public Yaku(YakuType yakuType, int fullFan, double growthFactor, double levelingFactor, YakuType[] includedYakus,
         string[] groups, Rarity rarity, string example, int[] yakuCategories)
     {
@@ -56,6 +58,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         this.rarity = rarity;
         this.example = example;
         this.yakuCategories = yakuCategories.ToList();
+        blacklistedGroups = new string[] { };
     }
 
     public Yaku(YakuType yakuType, int fullFan, double growthFactor, double levelingFactor, YakuType[] includedYakus,
@@ -68,12 +71,6 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
     public string GetNameLocalizeKey()
     {
         return "yaku_" + type + "_name";
-    }
-
-    public void BatchProcess()
-    {
-        // if(groups.Contains("standard") && !groups.Contains("shortened"))
-        //     groups = groups.Append("shortened").ToArray();
     }
 
     public string GetNameRomajiKey()
@@ -93,6 +90,35 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         //往示例牌型面板添加番种的对应示例牌型
         List<Tile> tiles = new Hand(example).tiles;
         int b = 0;
+
+        if (this.type == FixedYakuType.LiGuLiGu || this.type == FixedYakuType.YiShiSanYao)
+        {
+            int[] intervals;
+            intervals = type == FixedYakuType.LiGuLiGu ? new[] { 3, 2, 2, 2, 2, 2, 2, 2 } : new[] { 3, 12, 2 };
+            int j = 0;
+            int k = 0;
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                sb.Append($"<sprite name=\"{tiles[i]}\">");
+                j++;
+                if (j == intervals[k])
+                {
+                    sb.Append(" ");
+                    b++;
+                    j = 0;
+                    k++;
+                }
+                
+                if (b == 2 && tiles.Count - i > 3)
+                {
+                    sb.Append("\n");
+                    b = 0;
+                }
+            }
+            sb.Append("</size>");
+            return sb.ToString();
+        }
+        
         for (int i = 0; i < tiles.Count; i++)
         {
             sb.Append($"<sprite name=\"{tiles[i]}\">");
@@ -178,10 +204,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     public List<int> GetYakuCategories()
     {
-        List<YakuPack> packs = new List<YakuPack>();
-        if (GameManager.Instance != null) packs = GameManager.Instance.yakuPacks;
-        if (MainMenu._instance != null) packs = MainMenu._instance.yakuPacks;
-        return packs.Where(pack => pack.ContainsYaku(this)).Select(p => p.id).ToList();
+        return new List<int>(yakuCategories);
     }
 
     public List<SkillType> GetYakuRequiredSkills()

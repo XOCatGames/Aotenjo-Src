@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -14,7 +15,10 @@ namespace Aotenjo
         {
             List<Effect> effects = new List<Effect>();
             artifact.AddOnBlockEffects(player, permutation, block, effects);
-            return effects.ConvertAll(e => e.OnBlock(block));
+            List<IAnimationEffect> animationEffects = new  List<IAnimationEffect>();
+            animationEffects.AddRange(effects.ConvertAll(e => e.OnBlock(block)));
+            artifact.AppendPostBlockAnimationEffects(player, permutation, block, animationEffects);
+            return animationEffects;
         }
 
         protected override ArtifactAppendEffectBase GetEffectOfNextArtifact()

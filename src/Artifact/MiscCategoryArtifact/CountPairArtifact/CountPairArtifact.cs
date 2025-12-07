@@ -1,4 +1,6 @@
-﻿namespace Aotenjo
+﻿using System.Collections.Generic;
+
+namespace Aotenjo
 {
     public abstract class CountPairArtifact : Artifact
     {
@@ -6,10 +8,10 @@
         {
         }
 
-        protected int CountPairsWithDiff(Permutation permutation, int diff, Player player)
+        protected List<(Block, Block)> GetPairsWithDiff(Permutation permutation, int i, Player player)
         {
-            bool pred(Block b1, Block b2) => player.DetermineShiftedPair(b1, b2, diff, false);
-            return Utils.CountPairs(permutation, pred);
+            return Utils.FindPairs(permutation,
+                (b1, b2) => player.DetermineShiftedPair(b1, b2, i, false));
         }
     }
 }

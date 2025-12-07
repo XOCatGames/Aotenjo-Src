@@ -23,7 +23,7 @@ namespace Aotenjo
             return PermutationType.THIRTEEN_ORPHANS;
         }
 
-        public override bool IsFullHand()
+        public override bool IsFullHand(Player player)
         {
             return true;
         }

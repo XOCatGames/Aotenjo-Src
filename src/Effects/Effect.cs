@@ -29,6 +29,9 @@ namespace Aotenjo
         public OnBlockAnimationEffect OnBlock(Block block, bool isClone = false)
             => new(block, this);
 
+        public OnMultipleTileAnimationEffect OnMultipleTiles(List<Tile> tiles, Tile mainTile)
+            => new(this, tiles, mainTile);
+
         public MaybeEffect MaybeTriggerWithChance(int chance, string locKey)
             => new(locKey, chance, this);
         

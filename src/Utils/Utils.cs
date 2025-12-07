@@ -43,27 +43,32 @@ namespace Aotenjo
 
         public static int CountPairs(Permutation permutation, Func<Block, Block, bool> pred)
         {
-            int count = 0;
-
-            List<Pair<Block, Block>> lst = new List<Pair<Block, Block>>();
+            return FindPairs(permutation, pred).Count;
+        }
+        
+        public static List<(Block, Block)> FindPairs(Permutation permutation, Func<Block, Block, bool> pred)
+        {
+            List<(Block, Block)> lst = new List<(Block, Block)>();
 
             foreach (Block block1 in permutation.blocks)
             {
                 foreach (Block block2 in permutation.blocks)
                 {
                     if (block1 == block2 || lst.Any(p =>
-                            p.elem1 == block1 && p.elem2 == block2 || p.elem1 == block2 && p.elem2 == block1))
+                            p.Item1 == block1 && p.Item2 == block2 || p.Item1 == block2 && p.Item2 == block1))
                     {
                     }
                     else if (pred(block1, block2) || pred(block2, block1))
                     {
-                        count++;
-                        lst.Add(new(block1, block2));
+                        lst.Add((block1, block2));
                     }
                 }
             }
+            
+            lst.Sort((b1, b2) => -(b1.Item1.tiles.Union(b1.Item2.tiles).Min()
+                .CompareTo(b2.Item1.tiles.Union(b2.Item2.tiles).Min())));
 
-            return count;
+            return lst;
         }
         
         public static string ToSnakeCase(this string input)
@@ -186,17 +191,7 @@ namespace Aotenjo
         {
             YakuType typeID = yaku.GetYakuType();
             return typeID == FixedYakuType.Gang || typeID == FixedYakuType.ShuangGang || typeID == FixedYakuType.SanGang
-                   || typeID == FixedYakuType.SiGang || typeID == FixedYakuType.TianDiChuangZao;
-        }
-
-        public static Vector2 WorldToCanvasPosition(Canvas canvas, RectTransform canvasRect, Camera camera,
-            Vector3 position)
-        {
-            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(camera, position);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint,
-                canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : camera, out Vector2 result);
-
-            return canvas.transform.TransformPoint(result);
+                   || typeID == FixedYakuType.SiGang || typeID == FixedYakuType.TianDiChuangZao || typeID == FixedYakuType.WuGang;
         }
     }
 }

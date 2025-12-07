@@ -27,7 +27,6 @@ public class FlawlessBoss : Boss
             {
                 List<YakuType> yakuTypes =
                     perm.GetYakus(player).Where(y => player.GetSkillSet().GetLevel(y) >= 0).ToList();
-                List<YakuPack> yakuPacks = GameManager.Instance.yakuPacks;
                 HashSet<int> idList = new HashSet<int>();
 
                 foreach (YakuType type in yakuTypes)
@@ -35,11 +34,11 @@ public class FlawlessBoss : Boss
                     idList.AddRange(YakuTester.InfoMap[type].GetYakuCategories());
                 }
 
-                foreach (YakuPack pack in yakuPacks)
+                for(int i = 0; i < 4; i++)
                 {
-                    if (!idList.Contains(pack.id))
+                    if (!idList.Contains(i))
                     {
-                        effects.Add(new TextEffect($"effect_boss_flawless_{pack.id}", baseArtifact));
+                        effects.Add(new TextEffect($"effect_boss_flawless_{i}", baseArtifact));
                         effects.Add(ScoreEffect.MulFan(2, baseArtifact));
                     }
                 }
@@ -49,7 +48,6 @@ public class FlawlessBoss : Boss
     {
         List<YakuType> yakuTypes =
             permutation.GetYakus(player).Where(y => player.GetSkillSet().GetLevel(y) >= 0).ToList();
-        List<YakuPack> yakuPacks = GameManager.Instance.yakuPacks;
         HashSet<int> idList = new HashSet<int>();
 
         foreach (YakuType type in yakuTypes)
@@ -57,11 +55,11 @@ public class FlawlessBoss : Boss
             idList.AddRange(YakuTester.InfoMap[type].GetYakuCategories());
         }
 
-        foreach (YakuPack pack in yakuPacks)
+        for (int i = 0; i < 4; i++)
         {
-            if (!idList.Contains(pack.id))
+            if (!idList.Contains(i))
             {
-                list.Add(new OnBossAnimationEffect(new TextEffect($"effect_boss_flawless_{pack.id}")));
+                list.Add(new OnBossAnimationEffect(new TextEffect($"effect_boss_flawless_{i}")));
                 var debuffEffect = GetDebuffEffect(player);
                 if(debuffEffect != null)
                     list.Add(debuffEffect);

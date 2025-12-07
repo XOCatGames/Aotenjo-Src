@@ -21,9 +21,7 @@ namespace Aotenjo
 
         private void PostRunEnd(Player player, bool won, PlayerStats stats)
         {
-            List<YakuPack> yakuPacks = GameManager.Instance.yakuPacks;
-            if (YakuTester.YAKUS_PREDICATE_MAP.Keys
-                .Where(y => yakuPacks.Any(p => p.ContainsYaku(YakuTester.InfoMap[y]))).All(y => stats.PlayedYaku(y)))
+            if (YakuTester.YAKUS_PREDICATE_MAP.Keys.All(stats.PlayedYaku)) 
                 SetComplete();
         }
     }

@@ -27,6 +27,7 @@ namespace Aotenjo
         private Action<Player, Artifact> resetArtifactState;
         private Action<Player, Permutation, Tile, List<Effect>, Artifact> onTileEffect;
         private Action<Player, Permutation, Tile, List<Effect>, Artifact> onTilePostEffect;
+        private Action<Player, Tile, List<IAnimationEffect>, bool, bool, Artifact> onDiscardTileEffect;
         private Action<Player, Permutation, Tile, List<Effect>, Artifact> onUnusedTileEffect;
         private Action<Player, Permutation, Block, List<Effect>, Artifact> onBlockEffect;
         private Action<Player, Permutation, Block, List<IAnimationEffect>, Artifact> onBlockAnimEffect;
@@ -66,6 +67,7 @@ namespace Aotenjo
 
         public LuaArtifactBuilder OnTileEffect(Action<Player, Permutation, Tile, List<Effect>, Artifact> f) { onTileEffect = f; return this; }
         public LuaArtifactBuilder OnTilePostEffect(Action<Player, Permutation, Tile, List<Effect>, Artifact> f) { onTilePostEffect = f; return this; }
+        public LuaArtifactBuilder OnDiscardTileEffect(Action<Player, Tile, List<IAnimationEffect>, bool, bool, Artifact> f) { onDiscardTileEffect = f; return this; }
         public LuaArtifactBuilder OnUnusedTileEffect(Action<Player, Permutation, Tile, List<Effect>, Artifact> f) { onUnusedTileEffect = f; return this; }
         public LuaArtifactBuilder OnBlockEffect(Action<Player, Permutation, Block, List<Effect>, Artifact> f) { onBlockEffect = f; return this; }
         public LuaArtifactBuilder OnBlockAnimEffect(Action<Player, Permutation, Block, List<IAnimationEffect>, Artifact> f) { onBlockAnimEffect = f; return this; }
@@ -102,6 +104,7 @@ namespace Aotenjo
                 resetArtifactState,
                 onTileEffect,
                 onTilePostEffect,
+                onDiscardTileEffect,
                 onUnusedTileEffect,
                 onBlockEffect,
                 onBlockAnimEffect,
@@ -142,6 +145,7 @@ namespace Aotenjo
                 resetArtifactState,
                 onTileEffect,
                 onTilePostEffect,
+                onDiscardTileEffect,
                 onUnusedTileEffect,
                 onBlockEffect,
                 onBlockAnimEffect,

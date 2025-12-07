@@ -19,7 +19,7 @@
         private void PreAppendSettleScoringEffects(PlayerPermutationEvent permutationEvent)
         {
             Player player = permutationEvent.player;
-            if (!permutationEvent.permutation.IsFullHand()) return;
+            if (!permutationEvent.permutation.IsFullHand(permutationEvent.player)) return;
             if (permutationEvent.permutation.TilesFulfullAll(t => player.DetermineFontCompatibility(t, TileFont.RED)))
             {
                 SetComplete();

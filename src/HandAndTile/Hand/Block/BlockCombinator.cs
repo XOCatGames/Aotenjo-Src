@@ -27,6 +27,11 @@ namespace Aotenjo
 
         public virtual bool ASuccB(Block blockSucc, Block blockPred, bool categorySensitive = true, int step = 1)
         {
+            if((blockSucc is PairBlock && blockPred is not PairBlock) || (blockSucc is not PairBlock && blockPred is PairBlock))
+            {
+                return false;
+            }
+            
             if (categorySensitive && blockSucc.GetCategory() != blockPred.GetCategory())
             {
                 return false;

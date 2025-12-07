@@ -407,6 +407,45 @@ namespace Aotenjo
         SanLongQiDui,
         
         [LabelText("自定义番种")]
-        CustomYaku
+        CustomYaku,
+        
+        [LabelText("一色五同顺")]
+        YiSeWuTongShun,
+        
+        [LabelText("一色五同刻")]
+        YiSeWuTongKe,
+        
+        [LabelText("一色五节高")]
+        YiSeWuJieGao,
+        
+        [LabelText("一色五步高")]
+        YiSeWuBuGao,
+        
+        [LabelText("五杠")]
+        WuGang,
+        
+        [LabelText("五刻")]
+        WuKe,
+        
+        [LabelText("五福临门")]
+        ZhenWuMenQi,
+        
+        [LabelText("九莲华灯")]
+        ZhenJiuLianBaoDeng,
+        
+        [LabelText("真·一色双龙会")]
+        ZhenYiSeShuangLongHui,
+        
+        [LabelText("真·三色双龙会")]
+        ZhenSanSeShuangLongHui,
+        
+        [LabelText("五同字刻")]
+        WuTongZiKe,
+        
+        [LabelText("哩咕哩咕")]
+        LiGuLiGu,
+        
+        [LabelText("异·十三幺")]
+        YiShiSanYao
     }
 }

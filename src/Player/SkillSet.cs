@@ -68,6 +68,23 @@ namespace Aotenjo
             Set.SetLevel(FixedYakuType.HunYiSe, 1);
             return Set;
         }
+        public static SkillSet ExtendedSkillSet()
+        {
+            SkillSet Set = NewSkillSet();
+            Set.SetLevel(FixedYakuType.Base, 1);
+            Set.SetLevel(FixedYakuType.PingHu, 1);
+            Set.SetLevel(FixedYakuType.DuanYao, 1);
+            Set.SetLevel(FixedYakuType.ShuangKe, 1);
+            Set.SetLevel(FixedYakuType.JianKe, 1);
+            Set.SetLevel(FixedYakuType.MenFengKe, 1);
+            Set.SetLevel(FixedYakuType.QuanFengKe, 1);
+            Set.SetLevel(FixedYakuType.LiGuLiGu, 1);
+            Set.SetLevel(FixedYakuType.YiShiSanYao, 1);
+            Set.SetLevel(FixedYakuType.HunYiSe, 1);
+            Set.SetLevel(FixedYakuType.LiGuLiGu, 1);
+            Set.SetLevel(FixedYakuType.YiShiSanYao, 1);
+            return Set;
+        }
 
         public static SkillSet ScarletSkillSet()
         {
@@ -205,8 +222,9 @@ namespace Aotenjo
 
         public double CalculateFan(YakuType yaku, int blockCount, int extraLevel = 0)
         {
-            blockCount = Math.Min(4, blockCount);
-            if (GetLevel(yaku) == 0 && extraLevel == 0 && blockCount != 4)
+            var maxStage = player.GetMaxPlayingStage();
+            blockCount = Math.Min(maxStage, blockCount);
+            if (GetLevel(yaku) == 0 && extraLevel == 0 && blockCount != maxStage)
             {
                 return CalculateInheritedFan(yaku, blockCount);
             }
@@ -219,7 +237,7 @@ namespace Aotenjo
             }
 
 
-            double fanMultiplier = Math.Pow(1 / YakuTester.InfoMap[yaku].growthFactor, 4 - blockCount);
+            double fanMultiplier = Math.Pow(1 / YakuTester.InfoMap[yaku].growthFactor, maxStage - blockCount);
             fanMultiplier *= player.GetYakuMultiplier(yaku);
             return (fan + CalculateIncrementFanFromLevel(yaku, blockCount, extraLevel)) *
                    fanMultiplier + CalculateInheritedFan(yaku, blockCount);

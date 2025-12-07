@@ -77,7 +77,7 @@ namespace Aotenjo
         {
             Sprite sprite = SpriteManager.Instance.GetSingleSprite(GetSpriteNamespaceID(player));
             if (sprite == null)
-                sprite = SpriteManager.Instance.GetSprites(GetSpriteSheetName()).ElementAtOrDefault(GetSpriteID());
+                sprite = SpriteManager.Instance.GetSprites(GetSpriteSheetName()).ElementAtOrDefault(GetSpriteID(player));
             return sprite;
         }
 

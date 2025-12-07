@@ -21,10 +21,13 @@ namespace Aotenjo
         {
             base.AppendOnSelfEffects(player, permutation, effects);
 
-            int count = CountPairsWithDiff(permutation, 0, player);
-
-            if (count != 0)
-                effects.AddRange(Enumerable.Repeat(ScoreEffect.AddFu(FU, this), count));
+            effects.Add(new SilentEffect(() =>
+            {
+                foreach (var (b1, b2) in GetPairsWithDiff(permutation, 0, player))
+                {
+                    player.playHandEffectStack.Push(ScoreEffect.AddFu(FU, this).OnMultipleTiles(b1.tiles.Union(b2.tiles).ToList(), b1.tiles[1]));
+                }
+            }));
         }
     }
 }
