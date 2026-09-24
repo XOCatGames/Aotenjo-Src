@@ -1,6 +1,6 @@
 # 完整示例 / Complete examples
 
-每个文件夹都能独立安装，包含实际需要的 PNG、清单、脚本和中英文本；纯换图与配色示例按功能省略不需要的文件。只要求基本 Lua 语法，不需要 Unity。
+这里放好了七个完整示例，大家可以先挑一个感兴趣的装进游戏，再对照教程改成自己的模组。每个文件夹都能单独使用，需要的图片、清单、脚本和中英文文本已经配好；纯换图和配色示例只保留各自需要的文件。了解 Lua 基本语法就可以开始，不需要安装 Unity。
 
 Each folder installs independently with its required PNGs, metadata, scripts, and Chinese/English text. Visual-only examples omit unnecessary files. You do not need Unity.
 
@@ -16,10 +16,10 @@ Each folder installs independently with its required PNGs, metadata, scripts, an
 | Texture pack | 无 Lua 换图 / Texture replacement without Lua | [ex5_texture_pack](mods/ex5_texture_pack) | [ZIP](../downloads/ex5_texture_pack.zip) |
 | Face colors | 纯色和彩虹 / Solid and rainbow styles | [ex6_face_colors](mods/ex6_face_colors) | [ZIP](../downloads/ex6_face_colors.zip) |
 
-将 ZIP **解压**到 `Aotenjo_Data/StreamingAssets/mods/`，保留各模组文件夹；不要让 `modinfo.json` 多套一层。先单独运行，再一起运行。修改后完整退出重启。相同模组不要同时装本地和 Workshop 两份。
+下载后，把 ZIP **解压**到 `Aotenjo_Data/StreamingAssets/mods/`，保留每个模组自己的文件夹。比如 Hello 放好后，应该能直接找到 `mods/00_hello/modinfo.json`。先单独运行一个示例，确认正常后再试着一起安装；每次修改都要完整退出并重启游戏。同一个模组安装一份就够了，避免本地和 Workshop 重复加载。
 
 **Extract** into `Aotenjo_Data/StreamingAssets/mods/`, retaining each mod folder. Avoid an extra directory layer above modinfo.json. Test separately before testing together. Restart after every edit. Do not install local and Workshop copies of the same mod simultaneously.
 
 [中文快速上手](../docs/zh/quickstart.md) · [English quick start](../docs/en/quickstart.md) · [验收范围 / Validation scope](../docs/VALIDATION.md) · [图片来源 / Artwork](ARTWORK.md)
 
-These rewritten examples use new `tutorial_*` IDs. Replace the old example folders completely when upgrading; they are teaching projects, not a migration of old demonstration saves. 重写示例使用新的 tutorial 前缀；升级时整体替换旧示例，不承诺迁移旧教学存档。
+These rewritten examples use new `tutorial_*` IDs. Replace the old example folders completely when upgrading; they are teaching projects, not a migration of old demonstration saves. 如果以前装过旧版示例，更新时请用新文件夹整体替换。新版使用 `tutorial_*` 前缀，旧教学存档不保证能继续使用，建议开新局测试。

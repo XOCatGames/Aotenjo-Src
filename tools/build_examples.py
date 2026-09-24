@@ -228,23 +228,25 @@ for relative in ['ex1_artifact/script/artifact.lua', 'ex1_artifact/script/util.l
     (MODS / relative).unlink(missing_ok=True)
 
 readmes = {
- '00_hello': ('quickstart', '启动后在 AML 日志搜索 `[tutorial_hello] Hello / 你好`。', 'Launch and find `[tutorial_hello] Hello / 你好` in the AML log.', 'script/init.lua'),
- 'ex1_artifact': ('artifacts', '测试新局中输入 `give tutorial_artifact:coin_twos`，用 `setHand 222m123p` 打出二应每张得2金币。`give tutorial_artifact:practice_jade` 后两次计分应分别乘1.0、1.1番。', 'In a test run, use `give tutorial_artifact:coin_twos` and `setHand 222m123p`; newly played twos earn 2 coins each. Use `give tutorial_artifact:practice_jade`; the first two scoring triggers multiply Fan by 1.0 and 1.1.', 'script/tutorial_artifact/artifacts.lua'),
- 'ex2_pattern': ('yakus', '标准范围套组中新局输入 `upgradeYaku custom_yaku:tutorial_yaku:all_twos 1`，全为二的组合成立，加入非二不成立；火包索引为2。', 'In a standard-range deck run, use `upgradeYaku custom_yaku:tutorial_yaku:all_twos 1`; all-twos combinations qualify, mixed ones fail. Fire pack index is 2.', 'script/init.lua'),
- 'ex3_tile_material': ('materials', '新局选教学宝石组，或 `setHand 222m333p` 后 `setMat 0-2 tutorial_gems:ruby`。红宝石计分加20符，经过关末效果时加2金币；蓝宝石计分乘2番。', 'Select Tutorial Gemstones for a new run, or use `setHand 222m333p`, then `setMat 0-2 tutorial_gems:ruby`. Ruby adds 20 Fu and earns 2 coins when its round-end effect runs; Sapphire doubles Fan.', 'script/init.lua'),
- 'ex4_recipe': ('recipes', '依次 `give tutorial_recipe:copper_token` 与 `give tutorial_recipe:silver_token`，应消耗输入并获得双代币，计分加5番。无需安装其他示例。', 'Give `tutorial_recipe:copper_token`, then `tutorial_recipe:silver_token`; the inputs are consumed and Double Token grants +5 Fan when scoring. No other example is required.', 'script/init.lua'),
- 'ex5_texture_pack': ('textures', '图鉴中的折纸熊应显示为硬币，机制不变。日志出现 Loaded 1 texture pack replacement(s)。此包不需要 Lua。', 'Origami Bear should display the coin icon with unchanged mechanics. Find Loaded 1 texture pack replacement(s) in the log. This pack requires no Lua.', 'texture-pack.json'),
- 'ex6_face_colors': ('textures', '普通字体改为青绿，蓝字体改为彩虹；测试指令 `setFont 0 blue`。这是字体外观修改，不添加新字体机制。', 'Plain faces become teal; blue faces become rainbow. Test with `setFont 0 blue`. This changes existing font appearance, without registering new font mechanics.', 'script/init.lua')
+ '00_hello': ('quickstart', '打开最新的 AML 日志，搜索 `[tutorial_hello] Hello / 你好`。看到这行文字，就说明我们的 Hello 脚本已经运行了！', 'Launch and find `[tutorial_hello] Hello / 你好` in the AML log.', 'script/init.lua'),
+ 'ex1_artifact': ('artifacts', '开一个测试新局，输入 `give tutorial_artifact:coin_twos` 拿到二号硬币，再用 `setHand 222m123p` 准备手牌。打出二时，每张应该获得2金币。接着输入 `give tutorial_artifact:practice_jade`，连续计分两次，看看练习玉的倍率是否从1.0变成1.1。', 'In a test run, use `give tutorial_artifact:coin_twos` and `setHand 222m123p`; newly played twos earn 2 coins each. Use `give tutorial_artifact:practice_jade`; the first two scoring triggers multiply Fan by 1.0 and 1.1.', 'script/tutorial_artifact/artifacts.lua'),
+ 'ex2_pattern': ('yakus', '选择标准范围的套组开一个新局，输入 `upgradeYaku custom_yaku:tutorial_yaku:all_twos 1`，给全二增加1级。先打出全部由二组成的组合，再试试混入其他牌，应该只有前者成立。示例还把全二加入了火包，对应索引为2。', 'In a standard-range deck run, use `upgradeYaku custom_yaku:tutorial_yaku:all_twos 1`; all-twos combinations qualify, mixed ones fail. Fire pack index is 2.', 'script/init.lua'),
+ 'ex3_tile_material': ('materials', '开新局时选择教学宝石组，就可以体验两种新材质。想直接测试，也可以先输入 `setHand 222m333p`，再输入 `setMat 0-2 tutorial_gems:ruby`，把前三张牌改成红宝石。红宝石计分时加20符，参与关末效果时加2金币；蓝宝石计分时乘2番。', 'Select Tutorial Gemstones for a new run, or use `setHand 222m333p`, then `setMat 0-2 tutorial_gems:ruby`. Ruby adds 20 Fu and earns 2 coins when its round-end effect runs; Sapphire doubles Fan.', 'script/init.lua'),
+ 'ex4_recipe': ('recipes', '依次输入 `give tutorial_recipe:copper_token` 和 `give tutorial_recipe:silver_token`，拿到铜代币与银代币。它们应该被消耗，合成出计分时加5番的双代币。三件遗物都在这个模组里，不用另外安装其他示例。', 'Give `tutorial_recipe:copper_token`, then `tutorial_recipe:silver_token`; the inputs are consumed and Double Token grants +5 Fan when scoring. No other example is required.', 'script/init.lua'),
+ 'ex5_texture_pack': ('textures', '打开图鉴看看折纸熊，它应该换成了硬币图标，原来的效果仍然保留。日志中还会出现 Loaded 1 texture pack replacement(s)。这个材质包不需要 Lua，之后可以直接换上自己画的图片。', 'Origami Bear should display the coin icon with unchanged mechanics. Find Loaded 1 texture pack replacement(s) in the log. This pack requires no Lua.', 'texture-pack.json'),
+ 'ex6_face_colors': ('textures', '进入新局，看看普通牌面是否变成了青绿色。再输入 `setFont 0 blue`，就可以测试蓝字体的彩虹配色。这个示例只调整已有字体的外观，原来的玩法效果会保留。', 'Plain faces become teal; blue faces become rainbow. Test with `setFont 0 blue`. This changes existing font appearance, without registering new font mechanics.', 'script/init.lua')
 }
 for folder, (chapter, zh, en, entry) in readmes.items():
     write(folder, 'README.md', f'''
 # {folder}
 
-## 安装与验证
+## 安装后试试看
 
-退出游戏，把本文件夹直接放到 `Aotenjo_Data/StreamingAssets/mods/`，使下一层就是 `modinfo.json`，完整重启。{zh}
+先退出游戏，把本文件夹放进 `Aotenjo_Data/StreamingAssets/mods/`。放好后，应该能直接找到 `mods/{folder}/modinfo.json`，然后重新启动游戏。
 
-主入口：`{entry}`。修改后完整重启。控制台开启方法、期望结果与存档测试请阅读在线手册；示例默认不启用调试控制台。
+{zh}
+
+想看看它是怎么写的，可以打开 `{entry}`，对照下面的教程修改。每次改完都要完整重启游戏。示例默认没有打开调试控制台，需要使用测试指令时，先按测试页的说明开启；效果检查和存档测试也放在那一页。
 
 [中文教程](https://github.com/XOCatGames/Aotenjo-Src/blob/main/docs/zh/{chapter}.md) · [测试与排错](https://github.com/XOCatGames/Aotenjo-Src/blob/main/docs/zh/testing.md)
 
@@ -258,11 +260,11 @@ Main entry: `{entry}`. Fully restart after edits. The online handbook explains t
 
 ## 修改为自己的模组 / Make it yours
 
-修改 modID、Lua内容ID、模块前缀、双语键和图片文件名，保持相互对应。使用稳定ID，不要把版本号写进ID。更改机制后同步更新说明。
+准备改成自己的模组时，先换上自己的 modID，再一起修改 Lua 内容 ID、模块前缀、语言键和图片文件名，让它们互相对应。ID 尽量保持稳定，版本号填在清单的 version 中即可。改了效果之后，也记得更新中英文说明。
 
 Change modID, Lua content IDs, module prefixes, bilingual keys, and sprite filenames together. Keep IDs stable and version-free. Update descriptions whenever mechanics change.
 
-图片复用本仓库既有公开示例；并非新许可授权。Artwork is reused from this repository's original public examples; no new license is implied.
+图片沿用本仓库原有公开示例，原有许可范围保持不变。Artwork is reused from this repository's original public examples; no new license is implied.
 ''')
 
 print('Built 7 self-contained tutorial mods.')

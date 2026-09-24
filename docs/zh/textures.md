@@ -2,9 +2,11 @@
 
 [目录](README.md) · [English](../en/textures.md) · [可直接安装的材质包](../../example/mods/ex5_texture_pack) · [配色示例](../../example/mods/ex6_face_colors)
 
-## 不写 Lua 的换图包
+想给喜欢的遗物换个图标，或者给麻将牌换一套配色，也可以通过模组来做。这一篇先做一个只替换图片的材质包，再试试不用图片的牌面配色。
 
-完整示例把折纸熊替换成仓库自带的硬币图标，故意选择肉眼明显的变化。它已经附带真实 PNG，不需要自己补图片。
+## 1. 给折纸熊换一张图片
+
+我们先把折纸熊的图标换成二号硬币，方便进游戏后马上看出区别。打开 `ex5_texture_pack`，图片已经放在里面，文件结构如下：
 
 ```text
 ex5_texture_pack/
@@ -14,7 +16,7 @@ ex5_texture_pack/
 └─ texture_pack/origami_bear.png
 ```
 
-`texture-pack.json` 全文：
+这个模组不需要 Lua 脚本，只要在 `texture-pack.json` 里告诉游戏“把哪张图换成哪张图”。打开文件，可以看到：
 
 ```json
 {
@@ -30,9 +32,15 @@ ex5_texture_pack/
 }
 ```
 
-复制文件夹到 `StreamingAssets/mods` 并完整重启。日志应有 `Loaded 1 texture pack replacement(s)`。在图鉴找到折纸熊，或测试新局 `give origami_bear`，核对它显示硬币；名称、说明和机制仍是折纸熊。移走文件夹并重启，应恢复原图。成功解析清单不等于目标已在屏幕上命中，必须目视核对。
+其中 `target` 指定要替换的折纸熊图标，`file` 指向我们放在模组里的图片。`Point` 过滤适合像素图，`pixelsPerUnit` 则按示例先填100。
 
-## 清单字段与目标
+把整个文件夹复制到 `StreamingAssets/mods`，完整重启游戏。在日志里找到 `Loaded 1 texture pack replacement(s)` 后，打开图鉴看看折纸熊；也可以在测试新局输入 `give origami_bear`，直接拿到它。它应该显示为硬币图标，但名称、说明和效果仍然是折纸熊。
+
+再把模组文件夹移出去，重启游戏，图标应该恢复原样。日志中的加载成功只说明清单读进来了，是否换到了想要的图片，还要进游戏看一眼。
+
+## 2. 换成自己的图片
+
+示例能正常显示之后，就可以把 `texture_pack/origami_bear.png` 换成自己画的图片了。如果还想替换其他物品，在 `replacements` 里继续添加项目即可。各个字段的用法如下：
 
 | 字段 | 类型、默认值 | 规则 |
 | --- | --- | --- |
@@ -45,22 +53,34 @@ ex5_texture_pack/
 
 | 目标方式 | 示例 | 尺寸规则 |
 | --- | --- | --- |
-| 藏品注册名 | `artifact:aotenjo:origami_bear` | 独立图片，可任意尺寸；建议保持比例与像素密度 |
+| 遗物注册名 | `artifact:aotenjo:origami_bear` | 独立图片，可任意尺寸；建议保持比例与像素密度 |
 | 内置材质注册名 | `tile_material:aotenjo:plain_material` | 独立 Sprite，不要误写成自定义材质的无后缀形式 |
 | 另一个模组的注册名 | `artifact:tutorial_artifact:coin_twos` | 被覆盖模组必须存在 |
 | Resources 路径 | 从[贴图目录](../../reference/textures.csv)复制不带扩展名的 `resource_path` | 整张贴图宽高必须一致 |
 | Texture2D 名称 | 贴图目录中的 `texture_name` | 整图宽高一致；重名可能影响多个对象 |
 | Sprite 名称 | 实际 Sprite 名；有歧义用 `资源路径/Sprite名` | 独立 Sprite；若同名目标已命中整图，不再按 Sprite 替换 |
 
-不要凭汉化显示名猜 target。藏品的 `GetSpriteNamespaceID` 和材质图片规则是依据；特殊物品可覆盖该方法。整图替换保留原有对象和切片坐标，因此 **图集不能改变尺寸或移动格子位置**。未指定的区域也要保留，否则其他切片会损坏。独立 Sprite 不继承原九宫格边框；可拉伸 UI 优先整图替换。贴图目录给出源 PNG 尺寸，若平台导入时缩小了贴图，以日志报告的运行时尺寸为准。
+选择 `target` 时，要查图片的实际名称。遗物可以从 `GetSpriteNamespaceID` 查起，牌材质则按相应的图片规则填写；有些特殊遗物会自己设置图片名称，直接用中文显示名通常找不到目标。
 
-目标字典忽略大小写，但文件路径在部分平台区分大小写。Workshop 先加载，本地后加载，各自按目录路径排序；相同 target 后加载者覆盖前者，日志会报告冲突。混合模组可同时包含 `texture`、`lang`、`script` 和清单。游戏没有热重载。
+如果替换的是一整张图集，游戏仍会按原来的位置切出每个小图，所以 **图集的尺寸和格子位置都要保持原样**。没有修改的区域也要保留，否则其他物品可能一起显示错误。独立 Sprite 替换不会保留原来的九宫格边框，需要拉伸的 UI 图片建议优先使用整图替换。
 
-## 不需要图片的牌面配色
+贴图目录列出的是源 PNG 的尺寸。有的平台导入图片时会缩小它，遇到尺寸不匹配的提示，要以日志中的运行时尺寸为准。
 
-配色示例把 `plain` 字体改成青绿，把 `blue` 改成彩虹。进入新局即可看见普通牌面改变；`setFont 0 blue` 可测试彩虹。修改的是已有字体外观，不改变它的番数效果。`plain` 与 `plain_font` 等价，注册时自动补后缀，同 ID 再注册会覆盖。
+## 3. 和其他模组一起使用
 
-所有下列入口都是 `CS.Aotenjo.TileFaceMaterialRegistry` 的静态方法；参数为 string/bool/number，注册与取消方法返回 bool。
+同一个模组里可以同时放 `texture`、`lang`、`script` 和 `texture-pack.json`，因此新增玩法和替换图片也可以一起做。每次修改后，都需要完整重启游戏，当前没有热重载。
+
+游戏先加载 Workshop 模组，再加载本地模组，两边各自按目录路径排序。如果几个模组替换同一个 `target`，后加载的会覆盖前面的，日志中也会提示冲突。目标名称的匹配忽略大小写，不过部分平台上的文件路径区分大小写，文件名和清单最好保持完全一致。
+
+## 4. 给牌面换一种颜色
+
+如果只是想调整牌面的颜色，可以试试 `ex6_face_colors`，不用额外准备图片。这个示例把 `plain` 字体改成青绿色，把 `blue` 字体改成彩虹色。
+
+安装并重启后，开一局游戏就能查看普通牌面的变化。再输入 `setFont 0 blue`，看看第一张手牌上的彩虹效果。配色只影响已有字体的外观，它原来的番数效果仍然保留。
+
+注册时，`plain` 和 `plain_font` 都可以，游戏会自动补上后缀。如果再次注册同一个 ID，新的配色会覆盖之前的设置。
+
+需要更多颜色或深度效果时，可以使用下面这些方法。它们都从 `CS.Aotenjo.TileFaceMaterialRegistry` 调用，参数使用字符串、布尔值和数字；注册或取消设置后，会返回 bool 表示是否成功。
 
 | 方法及参数 | 用途 |
 | --- | --- |
@@ -77,4 +97,6 @@ ex5_texture_pack/
 | `SetSwapRedGreenAppearance(fontId, enabled, saturation, brightnessBoost)` | 再控制绿转红的提亮程度 |
 | `Unregister(fontId)` | 撤销样式，回到源 Sprite 外观 |
 
-建议 strength、threshold、饱和度和亮度用0到1，pixels 用1到4，hueRange 用-1到1，负数反向。渐变按每个 Sprite 的 UV 范围计算。仅注册 `my_font` 样式不会让 `TileFont.GetFont("my_font")` 成功；当前没有新字体注册 Builder。与三维眼镜等运行时配色效果组合后应再次目视验证。
+刚开始调整时，可以让 strength、threshold、饱和度和亮度取0到1，pixels 取1到4，hueRange 取-1到1；hueRange 为负数时，渐变方向会反过来。渐变按照每个 Sprite 的 UV 范围计算，可以一边改参数，一边重启查看效果。
+
+这里设置的是已有字体的外观。仅仅注册一个叫 `my_font` 的样式，还不能通过 `TileFont.GetFont("my_font")` 获得新字体，因为目前没有创建新字体的 Builder。最后也可以带上三维眼镜等会改变配色的物品，看看几种效果叠加后的样子是否符合预期。

@@ -11,14 +11,14 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB = 'https://github.com/XOCatGames/Aotenjo-Src'
 CHAPTERS = [
     ('1.-Getting-Started-快速上手', 'quickstart', '快速上手 / Getting started'),
-    ('2.-Custom-Artifact-自定义遗物', 'artifacts', '自定义藏品 / Custom artifacts'),
+    ('2.-Custom-Artifact-自定义遗物', 'artifacts', '自定义遗物 / Custom artifacts'),
     ('3.-Custom-Patterns-自定义番种', 'yakus', '自定义番种 / Custom yakus'),
     ('4.-Custom-Tile-Materials-自定义牌体', 'materials', '牌材质与材质组 / Tile materials and sets'),
     ('5.-Lua-Bridge-Lua与游戏对象', 'lua-bridge', 'Lua 与游戏对象 / Lua bridge'),
     ('6.-Recipes-自定义合成', 'recipes', '合成配方 / Crafting recipes'),
     ('7.-Texture-Packs-材质包', 'textures', '材质包与配色 / Texture packs and colors'),
     ('8.-Assets-and-Localization-图片与本地化', 'assets', '图片与本地化 / Assets and localization'),
-    ('9.-Cookbook-玩法食谱', 'cookbook', '玩法食谱 / Gameplay cookbook'),
+    ('9.-Cookbook-玩法食谱', 'cookbook', '更多玩法示例 / Gameplay cookbook'),
     ('10.-Testing-and-Publishing-测试与发布', 'testing', '测试与发布 / Testing and publishing'),
 ]
 
@@ -66,14 +66,14 @@ def main():
     wiki = args.wiki_root.resolve()
     if not (wiki / '.git').exists():
         raise ValueError('--wiki-root must be the existing Wiki Git checkout')
-    banner = (f'> 本页同步自[中英双语模组手册]({WEB}/blob/main/README.md)，源码基准和验证边界见 '
+    banner = (f'> 本页与[中英双语模组教程]({WEB}/blob/main/README.md)同步更新。想了解参考的源码和已经做过的检查，可以查看 '
               f'[Source]({WEB}/blob/main/docs/SOURCE.md) / [Validation]({WEB}/blob/main/docs/VALIDATION.md)。\n'
               '> Mirrored from the current bilingual handbook; source baseline and test scope are linked above.\n\n')
     pages = {name: banner + pair(chapter) for name, chapter, _ in CHAPTERS}
     pages['EX.0-Upload-to-Steam-Workshop-上传至创意工坊'] = banner + (
-        section('docs/zh/testing.md', '分享安装包与 Workshop') + '\n\n'
+        section('docs/zh/testing.md', '5. 打包并上传创意工坊') + '\n\n'
         + section('docs/en/testing.md', 'ZIP packages and Workshop')
-        + f'\n\n先完成[七个示例验收表]({WEB}/blob/main/docs/zh/testing.md)。 '
+        + f'\n\n发布前，记得先按[示例测试步骤]({WEB}/blob/main/docs/zh/testing.md)在游戏里试一遍。 '
           f'Complete the [acceptance matrix]({WEB}/blob/main/docs/en/testing.md) before publishing.')
     pages['EX.1-LuaArtifactBuilder'] = banner + (
         f'[中文用法与回调说明]({WEB}/blob/main/docs/zh/artifacts.md) · '
@@ -81,20 +81,20 @@ def main():
         + section('reference/api-signatures.md', 'LuaArtifactBuilder'))
     for legacy, api in [('EX.2-Player', 'Player'), ('EX.5-Tile', 'Tile')]:
         pages[legacy] = banner + (
-            f'[中文对象速查与食谱]({WEB}/blob/main/docs/zh/cookbook.md) · '
+            f'[中文方法说明与玩法示例]({WEB}/blob/main/docs/zh/cookbook.md) · '
             f'[English object guide and recipes]({WEB}/blob/main/docs/en/cookbook.md)\n\n'
-            'C# 公开声明不等于每个平台都已生成 Lua/AOT 绑定；优先使用教程演示的接口。\n\n'
+            '下面整理了 C# 中的公开方法，方便查询参数。部分方法在不同平台上的 Lua/AOT 绑定可能不同，建议先从教程演示过的接口开始。\n\n'
             'Public C# declarations do not guarantee Lua/AOT bindings on every platform; start with the demonstrated APIs.\n\n'
             + section('reference/api-signatures.md', api))
     pages['EX.3-Pattern-IDs-番种ID表速查'] = banner + read('reference/catalogs.md')
     pages['EX.4-Commands-指令'] = banner + (
-        section('docs/zh/testing.md', '开启测试控制台') + '\n\n'
+        section('docs/zh/testing.md', '2. 开启测试控制台') + '\n\n'
         + section('docs/en/testing.md', 'Enable a test console'))
 
     navigation = '\n'.join(f'- [{label}]({wiki_url(name)})' for name, _, label in CHAPTERS)
     pages['Home'] = f'''# Aotenjo 模组手册 / Modding handbook
 
-只需要 Lua 基本语法，从第一个可运行模组到自定义藏品、番种、牌材质、合成、材质包与配色。
+欢迎，各位挖井人！这份教程会从新建模组文件夹开始，带大家添加自己的遗物、番种、牌材质和合成配方，也可以给喜欢的物品换张图片、给牌面换一套颜色。了解 Lua 基本语法，就可以跟着下面的示例动手做。
 
 Start with basic Lua syntax and build custom artifacts, yakus, tile materials, crafting recipes, texture packs, and face colors.
 
@@ -113,7 +113,7 @@ Start with basic Lua syntax and build custom artifacts, yakus, tile materials, c
 - [源码基准 / Source baseline]({WEB}/blob/main/docs/SOURCE.md)
 - [测试结果与实机验收边界 / Validation scope]({WEB}/blob/main/docs/VALIDATION.md)
 
-本手册按当前源码重写。源码快照不是 Steam 发行版本号；先在目标游戏版本测试 Hello，再逐个增加示例。尚无完整 Lua Builder 的 Boss、小道具、地点等功能不列为已支持。旧 Wiki 地址保留，内容已与新手册同步。
+教程参考当前源码编写，你在 Steam 安装的游戏可能还没有其中的新功能。可以先运行 Hello，再逐个尝试其他示例。目前 Boss、小道具、地点等内容还没有完整的 Lua Builder，需要相应接口后才能按教程的方式制作。旧 Wiki 链接也可以继续使用，里面已经更新成这版教程。
 
 Rewritten against the current source snapshot, which is not a Steam release version. Test Hello on your installed build, then add examples one at a time. Bosses, gadgets, and locations without complete Lua builders are not advertised as supported. Legacy Wiki URLs remain available with updated content.
 '''
