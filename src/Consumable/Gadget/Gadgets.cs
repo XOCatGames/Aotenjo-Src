@@ -42,6 +42,8 @@ namespace Aotenjo
 
         public static Gadget Weight => new WeightGadget();
 
+        public static Gadget Plasticine => new PlasticineGadget();
+
         public static Gadget[] GadgetList(Player player, bool inShop, bool unlockAll = false) => new[]
         {
             Rice,
@@ -66,7 +68,8 @@ namespace Aotenjo
             CarrotStamp,
             Whistle,
             FishingRod,
-            Weight
+            Weight,
+            Plasticine
         }.Where(g => unlockAll || g.CanObtainBy(player, inShop)).ToArray();
 
         public static Gadget[] GadgetCompleteList() => new[]
@@ -93,7 +96,8 @@ namespace Aotenjo
             CarrotStamp,
             Whistle,
             FishingRod,
-            Weight
+            Weight,
+            Plasticine
         };
     }
 }

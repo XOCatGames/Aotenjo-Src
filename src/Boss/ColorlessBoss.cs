@@ -11,17 +11,17 @@ public class ColorlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += Decolorize;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Decolorize);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= Decolorize;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Decolorize);
     }
 
     private void Decolorize(Permutation permutation, Player player, List<OnTileAnimationEffect> list)
     {
-        foreach (Tile t in player.GetSelectedTilesCopy())
+        foreach (Tile t in player.GetPlayingTiles())
         {
             if (!t.ContainsRed(player)) continue;
 
@@ -40,7 +40,7 @@ public class ColorlessBoss : Boss
             Rarity.COMMON,
             (player, perm, tile, effects) =>
             {
-                if (player.Selecting(tile) && tile.ContainsRed(player))
+                if (player.IsPlayingTile(tile) && tile.ContainsRed(player))
                 {
                     effects.Add(new IncreaseTargetEffect(0.94D, "unred", baseArtifact));
                     MessageManager.Instance.OnSetProgressBarLength(0.94f);

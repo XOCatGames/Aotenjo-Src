@@ -9,9 +9,5 @@ namespace Aotenjo
             
         }
 
-        public override bool IsAvailableInShops(Player player)
-        {
-            return player.GetAllTiles().Any(t => player.DetermineMaterialCompatibility(t, TileMaterial.Taotie()));
-        }
     }
 }

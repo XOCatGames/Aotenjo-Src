@@ -14,7 +14,7 @@ public class MysteriousCrateArtifact : Artifact
         base.AppendOnUnusedTileEffects(player, perm, tile, effects);
         if (tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
         {
-            effects.Add(ScoreEffect.AddFu(ADDON_FU, null));
+            effects.Add(ScoreEffect.AddFu(ADDON_FU, this));
         }
     }
 }

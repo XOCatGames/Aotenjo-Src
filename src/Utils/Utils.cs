@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -192,6 +193,12 @@ namespace Aotenjo
             YakuType typeID = yaku.GetYakuType();
             return typeID == FixedYakuType.Gang || typeID == FixedYakuType.ShuangGang || typeID == FixedYakuType.SanGang
                    || typeID == FixedYakuType.SiGang || typeID == FixedYakuType.TianDiChuangZao || typeID == FixedYakuType.WuGang;
+        }
+
+        public static string GetConfigValue(string key)
+        {
+            string json = Resources.Load<TextAsset>("Config/config").text;
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(json).GetValueOrDefault(key, "ERROR");
         }
     }
 }

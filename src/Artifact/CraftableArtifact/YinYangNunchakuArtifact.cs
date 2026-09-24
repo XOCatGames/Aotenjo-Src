@@ -9,12 +9,14 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.DetermineYaojiuTileEvent += OnDetermineYaojiu;
+            base.SubscribeToPlayer(player);
+            EventBus.Subscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, OnDetermineYaojiu);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
-            player.DetermineYaojiuTileEvent -= OnDetermineYaojiu;
+            base.UnsubscribeToPlayer(player);
+            EventBus.Unsubscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, OnDetermineYaojiu);
         }
 
         private void OnDetermineYaojiu(PlayerTileEvent evt)

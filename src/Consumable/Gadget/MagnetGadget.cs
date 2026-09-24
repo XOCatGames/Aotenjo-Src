@@ -4,13 +4,15 @@ using Aotenjo;
 [Serializable]
 public class MagnetGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new MagnetGadget();
+
     public MagnetGadget() : base("magnet", 4, 3, 4)
     {
     }
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        if (ShouldHighlightTile(tile))
+        if (ShouldHighlightTile(tile, player))
         {
             tile.AddTransform(new TileTransformMagnet(), player);
             MessageManager.Instance.OnSoundEvent("Magnet");
@@ -36,7 +38,7 @@ public class MagnetGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return tile.GetCategory() == Tile.Category.Feng;
     }

@@ -140,20 +140,14 @@ namespace Aotenjo
         public static readonly Artifact GoldIngot = Artifact.CreateOnSelfEffectArtifact("gold_ingot", Rarity.EPIC,
             (_, perm, lst) =>
             {
-                if (perm.ToTiles().All(t => !t.IsNumbered())) return;
                 if (perm.ToTiles().Select(t => t.GetCategory()).Distinct().Count() == 1) lst.Add(ScoreEffect.MulFan(2.5, GoldIngot));
             }).SetHighlightRequirement((tile, player) => {
                 Permutation perm = player.GetAccumulatedPermutation();
-                if (perm == null) return true;
-                return tile.IsNumbered() && perm.blocks.All(b => b.OfCategory(tile.GetCategory()));
-            });
+                return perm == null || perm.blocks.All(b => b.OfCategory(tile.GetCategory()));
+        });
 
         //怎么也推不倒
-        public static readonly Artifact RolyPolyToy = Artifact.CreateOnTileEffectArtifact("roly_poly_toy", Rarity.COMMON,
-            (_, _, tile, lst) =>
-            {
-                if (tile.IsRotationalSymmetric()) lst.Add(ScoreEffect.AddFu(10, RolyPolyToy));
-            }).SetHighlightRequirement((a, _) => a.IsRotationalSymmetric());
+        public static readonly Artifact RolyPolyToy = new RolyPolyToyArtifact();
 
         //老头和小孩专用
         public static readonly Artifact WoodenCrutch = Artifact.CreateOnBlockEffectArtifact("wooden_crutch", Rarity.COMMON,
@@ -325,7 +319,7 @@ namespace Aotenjo
             {
                 if (tile.properties.font.GetRegName() == TileFont.RED.GetRegName()) lst.Add(ScoreEffect.MulFan(1.2f, RedWood));
             }).SetHighlightRequirement((tile, _) => tile.properties.font.GetRegName() == TileFont.RED.GetRegName())
-            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.properties.font.GetRegName() == TileFont.RED.GetRegName()));
+            .SetFontGift(() => TileFont.RED, 5);
 
         public static readonly Artifact DemonStatue = new DemonStatueArtifact();
         public static readonly Artifact AmethystAmulet = new AmethystAmuletArtifact();
@@ -359,20 +353,12 @@ namespace Aotenjo
         public static readonly Artifact GoldenDagger = new GoldenDaggerArtifact();
 
         //TODO: 需要改一下，改成变形之前
-        public static readonly Artifact OpalDagger = Artifact.CreateOnTileEffectArtifact("opal_dagger", Rarity.RARE,
-            (player, _, tile, lst) =>
-            {
-                if (tile.CompatWithMaterial(TileMaterial.Ore(), player))
-                {
-                    lst.Add(ScoreEffect.MulFan(2, OpalDagger));
-                }
-            })
-            .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.Ore(), player))
-            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.Ore(), player)));
+        public static readonly Artifact OpalDagger = new OpalDaggerArtifact();
 
         public static readonly Artifact CopperDagger = new CopperDaggerArtifact();
 
-        public static readonly Artifact AgateDagger = new AgateDaggerArtifact();
+        public static readonly Artifact AgateDagger = new AgateDaggerArtifact()
+            .SetMaterialGift(TileMaterial.Agate, 5);
 
         public static readonly Artifact HatOfFortune = Artifact.CreateOnTileEffectArtifact("hat_of_fortune", Rarity.RARE,
             (_, _, tile, lst) =>
@@ -422,7 +408,7 @@ namespace Aotenjo
         public static readonly Artifact CopperStatue = Artifact.CreateOnTileEffectArtifact("copper_statue", Rarity.COMMON,
             (player, _, tile, lst) =>
             {
-                if (!player.Selecting(tile)) return;
+                if (!player.IsPlayingTile(tile)) return;
                 if(tile.GetOrder() >= 7 && tile.GetCategory() == Tile.Category.Wan && tile.properties.material.GetRegName() != TileMaterial.COPPER.GetRegName())
                 {
                     lst.Add(new TransformMaterialEffect(TileMaterial.COPPER, CopperStatue, tile, "effect_transform_copperize_name"));
@@ -467,7 +453,7 @@ namespace Aotenjo
             (player, perm, block, lst) =>
             {
                 if (block.Any(a => !player.Selecting(a))) return;
-                if (!block.IsAAA() || block.IsAAAA()) return;
+                if (!block.IsAAA() || player.GetCombinator().IsKong(block)) return;
                 int amount = perm.JiangFulfillAll(t => t.IsSameCategory(block.tiles[0]))? 2 : 1;
                 lst.Add(new EarnMoneyEffect(amount, JokerArtifact));
             });
@@ -480,7 +466,7 @@ namespace Aotenjo
 
         public static readonly Artifact MalachiteVase = new MalachiteVaseArtifact()
             .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.COPPER, player))
-            .SetPrerequisite(player => player.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.COPPER, player)));
+            .SetMaterialGift(() => TileMaterial.COPPER, 5);
 
         public static readonly Artifact Toolbox = new ToolboxArtifact();
 
@@ -501,9 +487,10 @@ namespace Aotenjo
         public static readonly Artifact AncientScripture = Artifact.CreateOnBlockEffectArtifact("ancient_scripture", Rarity.RARE,
             (player, _, block, lst) =>
             {
-                if (!block.IsAAA()) return;
+                bool isKong = player.GetCombinator().IsKong(block);
+                if (!block.IsAAA() && !isKong) return;
                 double amount = 20;
-                if (block.IsAAAA()) amount *= 2;
+                if (isKong) amount *= 2;
                 if (block.All(t => t.IsYaoJiu(player))) amount *= 2;
                 lst.Add(ScoreEffect.AddFu(amount, AncientScripture));
             });
@@ -526,7 +513,7 @@ namespace Aotenjo
         public static readonly Artifact Shuugi = Artifact.CreateOnTileEffectArtifact("shuugi", Rarity.RARE,
             (player, _, tile, lst) =>
             {
-                if (!player.Selecting(tile)) return;
+                if (!player.IsPlayingTile(tile)) return;
                 if (tile.properties.font.GetRegName().Equals(TileFont.RED.GetRegName()))
                 {
                     lst.Add(new EarnMoneyEffect(2, Shuugi));
@@ -577,7 +564,7 @@ namespace Aotenjo
         
         public static readonly Artifact CinnabarPen = Artifact.CreateOnTileEffectArtifact("cinnabar_pen", Rarity.EPIC, (player, _, tile, effects) =>
         {
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             if (tile.ContainsRed(player) && tile.properties.font.GetRegName() != TileFont.RED.GetRegName())
             {
                 effects.Add(new TransformColorEffect(TileFont.RED, CinnabarPen, tile, "effect_dyed_name"));
@@ -590,7 +577,8 @@ namespace Aotenjo
         
         public static readonly Artifact InkBottle = new InkBottleArtifact();
         
-        public static readonly Artifact BloodyFilmRoll = new BloodyFilmRollArtifact();
+        public static readonly Artifact BloodyFilmRoll = new BloodyFilmRollArtifact()
+            .SetFontGift(() => TileFont.COLORLESS, 5);
         
         public static readonly Artifact Misericorde = new MisericordeArtifact();
         
@@ -626,7 +614,9 @@ namespace Aotenjo
 
         public static readonly Artifact CopperLock = new CopperLockArtifact();
 
-        public static readonly Artifact GoldenLock = new GoldenLockArtifact();
+        public static readonly SilverLockArtifact SilverLock = new SilverLockArtifact();
+
+        public static readonly GoldenLockArtifact GoldenLock = new GoldenLockArtifact();
 
         public static readonly Artifact Magnifier = new MagnifierArtifact();
 
@@ -642,7 +632,7 @@ namespace Aotenjo
 
         public static readonly Artifact MysteriousCrate = new MysteriousCrateArtifact()
             .SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), player))
-            .SetPrerequisite(p => p.GetAllTiles().Any(tile => tile.CompatWithMaterial(TileMaterial.MysteriousColorPorcelain(), p)));
+            .SetMaterialGift(TileMaterial.MysteriousColorPorcelain, 5);
 
         public static readonly Artifact PorcelainMirror = new PorcelainMirrorArtifact();
         
@@ -655,16 +645,13 @@ namespace Aotenjo
         public static readonly Artifact PorcelainSpear = new PorcelainSpearArtifact();
         
         public static readonly Artifact PorcelainFish = new PorcelainFishArtifact()
-            .SetPrerequisite(player => player.GetAllTiles()
-                .Any(tile => tile.CompatWithMaterial(TileMaterial.PINK_PORCELAIN, player)));
+            .SetMaterialGift(() => TileMaterial.PINK_PORCELAIN, 5);
 
         public static readonly Artifact BodhiSeed = new BodhiSeedArtifact()
-            .SetPrerequisite(player => player.GetAllTiles()
-                .Any(tile => tile.CompatWithMaterial(TileMaterial.BonePorcelain(), player)));
+            .SetMaterialGift(TileMaterial.BonePorcelain, 5);
 
         public static readonly Artifact MysteriousScroll = new MysteriousScrollArtifact()
-            .SetPrerequisite(player => player.GetAllTiles()
-                .Any(tile => tile.IsYaoJiu(player)));
+            .SetMaterialGift(TileMaterial.MysteriousColorPorcelain, 5);
         
 
         #endregion
@@ -705,11 +692,12 @@ namespace Aotenjo
         
         public static readonly Artifact MaliciousSpray = new MaliciousSprayArtifact();
         
-        public static readonly Artifact EssencePot = new EssencePotArtifact();
+        public static readonly Artifact EssencePot = new EssencePotArtifact()
+            .SetMaterialGift(TileMaterial.Taotie, 5);
         
         public static readonly Artifact MiniTomb = new Artifact("mini_tomb", Rarity.COMMON)
             .SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Ghost()))
-            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie())));
+            .SetMaterialGift(TileMaterial.Ghost, 5);
         
         public static readonly Artifact GhostFulu = new GhostFuluArtifact();
         
@@ -717,13 +705,15 @@ namespace Aotenjo
         
         public static readonly Artifact MysteriousFleshBall = new MysteriousFleshBallArtifact();
         
-        public static readonly Artifact CorruptedCrystalBall = new CorruptedCrystalBallArtifact();
+        public static readonly Artifact CorruptedCrystalBall = new CorruptedCrystalBallArtifact()
+            .SetMaterialGift(TileMaterial.Nest, 5);
         
         public static readonly Artifact SilverDogLeash = new Artifact("silver_dog_leash", Rarity.COMMON)
             .SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie()))
-            .SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.Taotie())));
+            .SetMaterialGift(TileMaterial.Taotie, 5);
         
-        public static readonly Artifact RainbowCheese = new RainbowCheeseArtifact();
+        public static readonly Artifact RainbowCheese = new RainbowCheeseArtifact()
+            .SetMaterialGift(TileMaterial.GoldMouse, 5);
 
         #endregion
 
@@ -935,13 +925,13 @@ namespace Aotenjo
         
         #endregion
 
-        #region 葫芦麻将
+        #region 葫芦遗物
 
         public static readonly Artifact PurpleGourd = new PurpleGourdArtifact();
 
         #endregion
         
-        #region 圣旨麻将
+        #region 圣旨遗物
 
         public static readonly Artifact BambooBook = new BambooBookArtifact();
         public static readonly Artifact WitherAmulet = new WitherAmuletArtifact();
@@ -954,6 +944,37 @@ namespace Aotenjo
         public static readonly Artifact UnknownAmulet = new UnknownAmuletArtifact();
         
         #endregion
+
+        #region 机械遗物
+
+        public static readonly Artifact TwistingDevice = new TwistingDeviceArtifact();
+        public static readonly Artifact Gearbox = new GearboxArtifact();
+        public static readonly Artifact TinfoilHat = new TinfoilHatArtifact();
+        public static readonly Artifact ConveyorBelt = new ConveyorBeltArtifact();
+        public static readonly Artifact ClassifiedBlueprint = new ClassifiedBlueprintArtifact();
+        public static readonly Artifact PhotovoltaicPanel = new PhotovoltaicPanelArtifact();
+        public static readonly Artifact NetworkSwitch = new NetworkSwitchArtifact();
+        public static readonly Artifact MolecularReconstructor = new MolecularReconstructorArtifact();
+        public static readonly Artifact FiberOptic = new FiberOpticArtifact();
+        public static readonly Artifact Blackbody = new BlackbodyArtifact();
+        public static readonly Artifact TriangularLampPost = new TriangularLampPostArtifact();
+        public static readonly Artifact GreenScreen = new GreenScreenArtifact();
+        public static readonly Artifact ScrapBin = new ScrapBinArtifact();
+        public static readonly Artifact StepperMotor = new StepperMotorArtifact();
+        public static readonly Artifact PieMagnet = new PieMagnetArtifact();
+        public static readonly Artifact OverclockModule = new OverclockModuleArtifact();
+        public static readonly Artifact WorkshopManual = new WorkshopManualArtifact();
+        public static readonly Artifact Lever = new LeverArtifact();
+        public static readonly Artifact ThreeProngTerminalStrip = new ThreeProngTerminalStripArtifact();
+        public static readonly Artifact MechanicalD9 = new MechanicalD9Artifact();
+        public static readonly Artifact LongBearing = new LongBearingArtifact();
+        public static readonly Artifact Ecosphere = new EcosphereArtifact();
+        public static readonly Artifact MechanicalPouch = new MechanicalPouchArtifact();
+
+        #endregion
+
+        public static readonly Artifact PairMagnet = new PairMagnetArtifact();
+        public static readonly Artifact Parasite = new ParasiteArtifact();
 
         /// <summary>
         /// 遗物列表
@@ -987,7 +1008,11 @@ namespace Aotenjo
             RustCrook, RustCopperRing, ScarletKaleidoscope, ScarletHourglass, RustChest, RustAxe, DottledPig, SoulFlag, SoulScythe, YinYangMirror, YinYangButterfly,
             SoulBottle, GoldenBell, YinYangJadeFlute, BlueCandle, Rosemary, BrownSugar, GildedLionBowl, IceBlade, MeteoriteKnife, WaterPatternPouch, CakeKnife,
             LuckyCookie, Altar, FirePatternPouch, TaotiePact, PurpleGourd, Dart, Magnifier, BambooBook, WitherAmulet, ForbiddenAmulet, StoneSword, BattleDrum, 
-            BicolorSilk, Hufu, CoinAmulet, UnknownAmulet
+            BicolorSilk, Hufu, CoinAmulet, UnknownAmulet, PairMagnet, CopperLock, SilverLock, GoldenLock,
+            TwistingDevice, Gearbox, TinfoilHat, ConveyorBelt, ClassifiedBlueprint, PhotovoltaicPanel,
+            NetworkSwitch, MolecularReconstructor, FiberOptic, Blackbody, TriangularLampPost, GreenScreen,
+            ScrapBin, StepperMotor, PieMagnet, OverclockModule, WorkshopManual, Lever,
+            ThreeProngTerminalStrip, MechanicalD9, LongBearing, Ecosphere, MechanicalPouch, Parasite
         };
 
         public static readonly Dictionary<Artifact, int> ARTIFACT_SPRITE_ID_MAP = new()
@@ -1267,7 +1292,7 @@ namespace Aotenjo
             { TaotiePact, 326 },
             
             { CopperLock, 336 },
-            
+            { SilverLock, 337 },
             { GoldenLock, 338 },
             { Magnifier, 339 },
             { PurpleGourd, 340 },
@@ -1280,7 +1305,33 @@ namespace Aotenjo
             { BicolorSilk, 353 },
             { Hufu, 354 },
             { CoinAmulet, 355 },
-            { UnknownAmulet, 356 }
+            { UnknownAmulet, 356 },
+            { PairMagnet, 357 },
+
+            { TwistingDevice, 358 },
+            { Gearbox, 380 },
+            { TinfoilHat, 359 },
+            { ConveyorBelt, 360 },
+            { ClassifiedBlueprint, 361 },
+            { PhotovoltaicPanel, 362 },
+            { NetworkSwitch, 363 },
+            { MolecularReconstructor, 379 },
+            { FiberOptic, 378 },
+            { Blackbody, 364 },
+            { TriangularLampPost, 365 },
+            { GreenScreen, 366 },
+            { ScrapBin, 367 },
+            { StepperMotor, 368 },
+            { PieMagnet, 369 },
+            { OverclockModule, 370 },
+            { WorkshopManual, 371 },
+            { Lever, 372 },
+            { ThreeProngTerminalStrip, 373 },
+            { MechanicalD9, 374 },
+            { LongBearing, 375 },
+            { Ecosphere, 376 },
+            { MechanicalPouch, 377 },
+            { Parasite, 381 }
         };
 
         public static Dictionary<string, Artifact> NameToArtifactMap;

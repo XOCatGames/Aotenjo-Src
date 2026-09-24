@@ -12,11 +12,11 @@ public class LoggingFlowerTile : OneTimeUseFlowerTile
         base.AppendScoringEffect(effects, player, perm);
         if (used) return;
         used = true;
-        foreach (Tile t in player.GetSelectedTilesCopy())
+        foreach (Tile t in player.GetPlayingTiles())
         {
-            if (t.ContainsGreen(player))
+            if (t is not FlowerTile && t.ContainsGreen(player))
             {
-                effects.Add(new OnTileAnimationEffect(t, new FractureEffect(null, t)));
+                effects.Add(new FractureEffect(null, t).OnTile(t));
             }
         }
     }

@@ -6,6 +6,8 @@ using Aotenjo;
 [Serializable]
 public class ChiselGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new ChiselGadget();
+
     public ChiselGadget() : base("chisel", 2, 1, 7)
     {
     }
@@ -50,12 +52,12 @@ public class ChiselGadget : ReusableGadget
         }
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return false;
     }
 
-    public override int GetMaxOnUseNum()
+    public override int GetMaxOnUseNum(Player player)
     {
         return 4;
     }
@@ -74,9 +76,10 @@ public class ChiselGadget : ReusableGadget
         return formedBlock != null;
     }
 
-    public override bool UseOnTiles(Player player, List<Tile> tiles)
+    public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
     {
-        if (!CanUseOnTiles(tiles, player)) return false;
+        if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
+        if (!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
 
         foreach (var memberTile in tiles)
         {
@@ -86,6 +89,6 @@ public class ChiselGadget : ReusableGadget
         }
 
         MessageManager.Instance.OnSoundEvent("Chisel");
-        return true;
+        return GadgetUseResult.Succeeded(tiles);
     }
 }

@@ -15,13 +15,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnDessertTileConsumedEvent += OnDessertTileConsumed;
+            EventBus.Subscribe<PlayerEvents.OnDessertTileConsumedEvent>(player, OnDessertTileConsumed);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnDessertTileConsumedEvent -= OnDessertTileConsumed;
+            EventBus.Unsubscribe<PlayerEvents.OnDessertTileConsumedEvent>(player, OnDessertTileConsumed);
         }
 
         private void OnDessertTileConsumed(Player player, Tile tile, TileMaterialDessert dessert)

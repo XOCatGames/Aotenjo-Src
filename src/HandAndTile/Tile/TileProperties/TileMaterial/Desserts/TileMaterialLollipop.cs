@@ -32,7 +32,7 @@ namespace Aotenjo
         }
 
         public override TileMaterial Copy() =>
-            new TileMaterialLollipop(materialID, usesLeft, totalUsesConsumed, decoratedMaterial?.Copy());
+            new TileMaterialLollipop(materialID, usesLeft, totalUsesConsumed, decoratedMaterial?.Copy()) { maxUses = maxUses };
 
         public override void AppendToListRoundEndEffect(Player player, Permutation perm, List<IAnimationEffect> effects, Tile tile)
         {
@@ -59,7 +59,7 @@ namespace Aotenjo
         protected override void AddDessertEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             // 如果还没有装饰材质，第一次选中时随机生成一个
-            if (decoratedMaterial == null && player.Selecting(tile) && tile.properties.material == this)
+            if (decoratedMaterial == null && player.IsPlayingTile(tile) && tile.properties.material == this)
             {
                 var drawRandomDessert = DrawRandomDessert(player);
                 effects.Add(new SimpleEffect("effect_lollipop_transform", null, p =>

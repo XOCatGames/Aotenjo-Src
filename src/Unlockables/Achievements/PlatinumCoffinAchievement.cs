@@ -6,13 +6,11 @@
         {
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void OnLostGame(RunStatusEvent.End eventData)
         {
-            player.OnEndRunEvent += OnLostGame;
-        }
-
-        private void OnLostGame(Player player, bool won)
-        {
+            Player player = eventData.player;
+            bool won = eventData.won;
             if (!won || player.Level > 16)
             {
                 if (player.GetMoney() >= 100)
@@ -20,11 +18,6 @@
                     SetComplete();
                 }
             }
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.OnEndRunEvent -= OnLostGame;
         }
     }
 }

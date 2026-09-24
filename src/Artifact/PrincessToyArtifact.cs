@@ -67,7 +67,7 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                player.AddTileToPool(new Tile(tile));
+                player.AddTileToPool(tile.Copy());
             }
         }
     }

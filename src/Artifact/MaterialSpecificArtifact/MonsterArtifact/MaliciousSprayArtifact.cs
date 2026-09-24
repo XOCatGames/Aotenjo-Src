@@ -15,13 +15,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreSetMaskEvent += OnPreSetMask;
+            EventBus.Subscribe<PlayerEvents.PreSetMaskEvent>(player, OnPreSetMask);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreSetMaskEvent -= OnPreSetMask;
+            EventBus.Unsubscribe<PlayerEvents.PreSetMaskEvent>(player, OnPreSetMask);
         }
 
         private void OnPreSetMask(PlayerSetAttributeEvent evt)

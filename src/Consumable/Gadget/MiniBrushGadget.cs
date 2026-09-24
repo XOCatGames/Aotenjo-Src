@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class MiniBrushGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new MiniBrushGadget();
+
     public MiniBrushGadget() : base("mini_brush", 7, 1, 7)
     {
     }
@@ -16,7 +18,7 @@ public class MiniBrushGadget : ReusableGadget
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (uses <= 0) return false;
-        if (ShouldHighlightTile(tile))
+        if (ShouldHighlightTile(tile, player))
         {
             MessageManager.Instance.OnUseMiniBrushEvent(this, tile);
             return true;
@@ -25,7 +27,7 @@ public class MiniBrushGadget : ReusableGadget
         return false;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return tile.IsNumbered();
     }

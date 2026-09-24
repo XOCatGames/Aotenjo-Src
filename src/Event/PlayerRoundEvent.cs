@@ -6,6 +6,27 @@ namespace Aotenjo
         {
         }
         
+        public class Skip : PlayerRoundEvent
+        {
+            public Skip(Player player) : base(player)
+            {
+            }
+            
+            public class Pre : Skip
+            {
+                public Pre(Player player) : base(player)
+                {
+                }
+            }
+
+            public class Post : Skip
+            {
+                public Post(Player player) : base(player)
+                {
+                }
+            }
+        }
+        
         public class Start : PlayerRoundEvent
         {
             public Start(Player player) : base(player)

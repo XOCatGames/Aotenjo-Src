@@ -9,12 +9,12 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostObtainArtifactEvent += PostObtainArtifact;
+            EventBus.Subscribe<PlayerEvents.PostObtainArtifactEvent>(player, PostObtainArtifact);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostObtainArtifactEvent -= PostObtainArtifact;
+            EventBus.Unsubscribe<PlayerEvents.PostObtainArtifactEvent>(player, PostObtainArtifact);
         }
 
         private void PostObtainArtifact(PlayerArtifactEvent evt)

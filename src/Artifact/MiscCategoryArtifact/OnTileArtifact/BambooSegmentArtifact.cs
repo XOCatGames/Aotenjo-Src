@@ -19,7 +19,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             if (tile.ContainsGreen(player))
             {
                 effects.Add(new GrowFuEffect(this, tile, ADD_ON_FU, "grow_bamboo_segment"));

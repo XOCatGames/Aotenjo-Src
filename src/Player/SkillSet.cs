@@ -21,8 +21,9 @@ namespace Aotenjo
 
         [SerializeField]
         private SerializableMap<Skill.SkillType, int> skillLevelMap = new SerializableMap<Skill.SkillType, int>();
-
-        private Player player;
+        
+        [System.NonSerialized]
+        public Player player;
 
         private SkillSet()
         {
@@ -134,7 +135,7 @@ namespace Aotenjo
             YakuPackConsumeResult result = new YakuPackConsumeResult(pack, 1);
             for (int i = 0; i < p.GetYakuPackResultCount(); i++)
             {
-                DrawYakuResult drawResult = pack.Draw(r => p.GenerateRandomInt(r, "yakupack"), availableYakus,
+                DrawYakuResult drawResult = pack.Draw(player.GetRng("yakupack"), availableYakus,
                     p.Level / 4);
                 YakuType yaku = drawResult.yaku;
                 result.yakus.Add(yaku);

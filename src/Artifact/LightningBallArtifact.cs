@@ -6,7 +6,7 @@ namespace Aotenjo
 {
     public class LightningBallArtifact : Artifact
     {
-        private bool status;
+        private new bool status;
 
         public LightningBallArtifact() : base("lightning_ball", Rarity.COMMON)
         {

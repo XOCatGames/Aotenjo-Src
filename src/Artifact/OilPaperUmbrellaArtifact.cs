@@ -27,7 +27,7 @@ namespace Aotenjo
 
             if (block.Any(t => !player.Selecting(t))) return;
 
-            if (block.IsAAAA())
+            if (player.GetCombinator().IsKong(block))
             {
                 effects.Add(new EarnMoneyEffect(moneyBonus, this));
             }
@@ -36,13 +36,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreKongTileEvent += OnKong;
+            EventBus.Subscribe<PlayerEvents.PreKongTileEvent>(player, OnKong);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreKongTileEvent -= OnKong;
+            EventBus.Unsubscribe<PlayerEvents.PreKongTileEvent>(player, OnKong);
         }
 
         private void OnKong(PlayerKongTileEvent eventData)

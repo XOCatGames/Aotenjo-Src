@@ -37,7 +37,7 @@ namespace Aotenjo
                     LotteryPool<Tile> pool = new();
                     pool.AddRange(cands);
                     Tile tile = pool.Draw(player.GenerateRandomInt);
-                    Tile newTile = new(tile);
+                    Tile newTile = tile.Copy();
                     newTile.properties = TileProperties.Plain();
                     player.AddNewTileToPool(newTile);
                 }

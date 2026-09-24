@@ -49,7 +49,7 @@ namespace Aotenjo
         {
             base.AppendBonusEffects(player, perm, tile, effects);
             effects.Add(ScoreEffect.MulFan(1f + MULT_PER_LEVEL * level, null));
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             effects.Add(new FractureEffect(null, tile));
         }
 

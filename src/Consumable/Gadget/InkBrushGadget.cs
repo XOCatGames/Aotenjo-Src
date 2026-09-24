@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class InkBrushGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new InkBrushGadget();
+
     public InkBrushGadget() : base("ink_brush", 5, 1, 5)
     {
     }
@@ -11,7 +13,7 @@ public class InkBrushGadget : ReusableGadget
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (uses <= 0) return false;
-        if (ShouldHighlightTile(tile))
+        if (ShouldHighlightTile(tile, player))
         {
             int order = player.GenerateRandomInt(3) + 5;
             tile.AddTransform(new TileTransformInkBrush(order), player);
@@ -27,7 +29,7 @@ public class InkBrushGadget : ReusableGadget
         return base.CanObtainBy(player, inShop);
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return (tile.GetCategory() == Tile.Category.Feng || tile.GetCategory() == Tile.Category.Wan);
     }

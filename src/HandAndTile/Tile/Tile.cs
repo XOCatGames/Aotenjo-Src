@@ -17,11 +17,29 @@ namespace Aotenjo
 
         public Tile(Tile tile)
         {
-            category = tile.category;
-            order = tile.order;
-            properties = new TileProperties(tile.properties);
-            addonFu = tile.addonFu;
-            transforms = tile.transforms == null ? new List<TileTransform>() : tile.transforms.Select(t => t.Copy()).ToList();
+            tile.CopyBaseStateTo(this);
+        }
+
+        /// <summary>Creates a detached tile of the same type with independent mutable state.</summary>
+        public virtual Tile Copy()
+        {
+            Tile copy = new(category, order);
+            CopyStateTo(copy);
+            return copy;
+        }
+
+        protected virtual void CopyStateTo(Tile copy)
+        {
+            CopyBaseStateTo(copy);
+        }
+
+        private void CopyBaseStateTo(Tile copy)
+        {
+            copy.category = category;
+            copy.order = order;
+            copy.properties = new TileProperties(properties);
+            copy.addonFu = addonFu;
+            copy.transforms = transforms == null ? new List<TileTransform>() : transforms.Select(t => t.Copy()).ToList();
         }
 
         public Tile(Category category, int order)
@@ -78,12 +96,16 @@ namespace Aotenjo
             return player.DetermineHonor(this);
         }
 
-        protected Tile ChangeProperties(TileProperties newProperties, Player player)
+        protected Tile ChangeProperties(TileProperties newProperties, Player player,
+            bool appliesFont = false, bool appliesMask = false)
         {
             player.PreChangedProperties(this, newProperties);
+            bool appliedDebuff = (appliesFont && newProperties.font.IsDebuff()) ||
+                                 (appliesMask && newProperties.mask.IsDebuff());
             properties.UnsubcribeFromPlayer(player);
             properties = newProperties;
             newProperties.SubscribeToPlayer(player);
+            EventBus.Publish(new PlayerEvents.PostSetTilePropertiesEvent(player, this, appliedDebuff));
             
             return this;
         }
@@ -98,7 +120,7 @@ namespace Aotenjo
         public Tile SetFont(TileFont newFont, Player player, bool isCopy = false)
         {
             player.OnChangeFont(this, newFont, isCopy);
-            ChangeProperties(properties.CopyWithFont(newFont), player);
+            ChangeProperties(properties.CopyWithFont(newFont), player, appliesFont: true);
             return this;
         }
 
@@ -111,11 +133,11 @@ namespace Aotenjo
                 return this;
             }
             
-            ChangeProperties(properties.CopyWithMask(newMask), player);
+            ChangeProperties(properties.CopyWithMask(newMask), player, appliesMask: true);
             
-            if (newMask.GetRegName() != preMask.GetRegName())
+            if (properties.mask.GetRegName() != preMask.GetRegName())
             {
-                MessageManager.Instance.OnChangeTileMask(this, newMask.GetRegName());
+                MessageManager.Instance.OnChangeTileMask(this, properties.mask.GetRegName());
             }
             return this;
         }
@@ -129,7 +151,7 @@ namespace Aotenjo
         public Tile SetProperties(TileProperties toBecome, Player player, bool isCopy = false)
         {
             player.OnchangeProperties(this, toBecome, isCopy);
-            ChangeProperties(toBecome, player);
+            ChangeProperties(toBecome, player, appliesFont: true, appliesMask: true);
             return this;
         }
 
@@ -309,7 +331,10 @@ namespace Aotenjo
             {
                 return new(GetBaseCategory(), GetBaseOrder());
             }
-
+            if (transforms[^1].WipeBaseDisplay())
+            {
+                return new(Category.Jian, 8);
+            }
             if (transforms[^1].ChangeBaseDisplay())
             {
                 return new(GetCategory(), GetOrder());
@@ -325,6 +350,8 @@ namespace Aotenjo
         {
             if (transforms != null && transforms.Count > 0 &&
                 (transforms[^1].GetNameKey() == new TileTransformMagnet().GetNameKey())) return true;
+            // Rainbow contains RGB, but is not a blue-dyed font for font-specific effects.
+            if (properties.font.GetRegName() == TileFont.Neon().GetRegName()) return true;
             return player.DetermineFontCompatibility(this, TileFont.BLUE);
         }
 

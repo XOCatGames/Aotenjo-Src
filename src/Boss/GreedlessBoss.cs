@@ -18,19 +18,19 @@ public class GreedlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += Snatch;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Snatch);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= Snatch;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Snatch);
     }
 
     private void Snatch(Permutation permutation, Player player, List<OnTileAnimationEffect> list)
     {
         if (permutation == null) return;
 
-        foreach (Tile tile in player.GetSelectedTilesCopy()){
+        foreach (Tile tile in player.GetPlayingTiles()){
             list.Add(new SnatchEffect(tile, GetAmount(player), DebtMultiplier).OnTile(tile));
         }
     }
@@ -41,7 +41,7 @@ public class GreedlessBoss : Boss
             Rarity.COMMON,
             (player, perm, tile, effects) =>
             {
-                if (!player.Selecting(tile)) return;
+                if (!player.IsPlayingTile(tile)) return;
                 effects.Add(new EarnMoneyEffect(GetAmount(player)));
                 effects.Add(new IncreaseTargetEffect(1 + DebtMultiplier, "Greedless_reversed"));
             });

@@ -8,19 +8,20 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.OnEndRunEvent += OnWonGame;
+            EventBus.Subscribe<RunStatusEvent.End>(OnWonGame);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.OnEndRunEvent -= OnWonGame;
+            EventBus.Unsubscribe<RunStatusEvent.End>(OnWonGame);
         }
 
-        private void OnWonGame(Player player, bool won)
+        private void OnWonGame(RunStatusEvent.End eventData)
         {
-            if (won && player.deck.regName == MahjongDeck.BambooDeck.regName &&
-                player.stats.GetCustomStats("indicator_revealed") == 0 &&
-                player.stats.GetFontPlayedCount(TileFont.RED) == 0)
+            var playerStats = eventData.player.stats;
+            if (eventData.won && eventData.player.deck.regName == MahjongDeck.BambooDeck.regName &&
+                playerStats.GetCustomStats("indicator_revealed") == 0 &&
+                playerStats.GetFontPlayedCount(TileFont.RED) == 0)
             {
                 SetComplete();
             }

@@ -26,7 +26,7 @@ namespace Aotenjo
         {
             base.SubscribeToPlayer(player);
             EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
-            player.PreAppendSettleScoringEffectsEvent += PreAppendSettleScoringEffects;
+            EventBus.Subscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendSettleScoringEffects);
         }
 
 
@@ -34,7 +34,7 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayer(player);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
-            player.PreAppendSettleScoringEffectsEvent -= PreAppendSettleScoringEffects;
+            EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendSettleScoringEffects);
         }
 
         private void PreAppendSettleScoringEffects(PlayerPermutationEvent permutationEvent)

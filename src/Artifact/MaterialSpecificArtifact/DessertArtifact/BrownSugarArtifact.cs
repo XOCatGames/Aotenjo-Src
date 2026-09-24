@@ -22,7 +22,7 @@ namespace Aotenjo
             base.AppendOnTileEffects(player, perm, tile, effects);
 
             if (!tile.ContainsRed(player)) return;
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
 
             if (player.GenerateRandomDeterminationResult(CHANCE))
                 effects.Add(new TransformMaterialEffect(TileMaterial.SugarCube(), this, tile, "effect_brown_sugar"));

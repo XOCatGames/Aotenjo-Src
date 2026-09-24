@@ -148,6 +148,10 @@ namespace Aotenjo
 
             TileMaterial propertiesMaterial = properties.material;
             string materialName = localizer(propertiesMaterial.GetLocalizeKey());
+            if (propertiesMaterial is TileMaterialMechPart)
+            {
+                materialName = $"<style=\"yellow\">{localizer("material_set_mech_parts_name")}</style>";
+            }
             string materialDesc = properties.material.GetDescription(localizer, player);
 
             string materialContent = propertiesMaterial.GetRegName() == TileMaterial.PLAIN.GetRegName() ? "" : $"\n\n{materialName}\n{materialDesc}";

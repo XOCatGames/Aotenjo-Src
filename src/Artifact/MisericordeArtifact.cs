@@ -9,9 +9,9 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreSetMaskEvent += PreSetMask;
-            player.PreSetPropertiesEvent += PreSetProperties;
-            player.PostAddTileEvent += AddNewTile;
+            EventBus.Subscribe<PlayerEvents.PreSetMaskEvent>(player, PreSetMask);
+            EventBus.Subscribe<PlayerEvents.PreSetPropertiesEvent>(player, PreSetProperties);
+            EventBus.Subscribe<PlayerEvents.PostAddTileEvent>(player, AddNewTile);
         }
 
         private void PreSetProperties(PlayerSetPropertiesEvent evt)
@@ -49,9 +49,9 @@
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreSetMaskEvent -= PreSetMask;
-            player.PreSetPropertiesEvent -= PreSetProperties;
-            player.PostAddTileEvent -= AddNewTile;
+            EventBus.Unsubscribe<PlayerEvents.PreSetMaskEvent>(player, PreSetMask);
+            EventBus.Unsubscribe<PlayerEvents.PreSetPropertiesEvent>(player, PreSetProperties);
+            EventBus.Unsubscribe<PlayerEvents.PostAddTileEvent>(player, AddNewTile);
         }
 
 

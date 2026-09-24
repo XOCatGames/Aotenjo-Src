@@ -3,6 +3,8 @@ using Aotenjo;
 
 public class SnakesEyeGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new SnakesEyeGadget();
+
     public SnakesEyeGadget() : base("snakes_eye", 17, 2, 5)
     {
     }
@@ -38,7 +40,7 @@ public class SnakesEyeGadget : Gadget
         return 5;
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return true;
     }

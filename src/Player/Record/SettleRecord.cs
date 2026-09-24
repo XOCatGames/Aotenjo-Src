@@ -8,6 +8,8 @@ using UnityEngine.Serialization;
 [Serializable]
 public class SettleRecord
 {
+    //ID: HASH(level, roundrecord, time)
+    //foreign: roundrecord_ID
     [SerializeField] public int level;
 
     [SerializeField] public int stage;
@@ -22,10 +24,13 @@ public class SettleRecord
     
     [SerializeField] public List<YakuType> activatedYakus;
 
+    [SerializeField] public string bossName;
+
     public List<YakuType> ActivatedYakuTypes
     {
         get
         {
+            activatedYakus ??= new List<YakuType>();
             if (activatedYakuTypes != null && activatedYakuTypes.Any() && !activatedYakus.Any())
             {
                 activatedYakus = activatedYakuTypes.Select(t => new YakuType(t)).ToList();
@@ -45,6 +50,7 @@ public class SettleRecord
     {
         get
         {
+            yakuFan ??= new SerializableMap<YakuType, double>();
             if (yakuFanMap != null && !yakuFanMap.IsEmpty() && yakuFan.IsEmpty())
             {
                 yakuFan = new SerializableMap<YakuType, double>();
@@ -70,12 +76,13 @@ public class SettleRecord
         activatedYakus = new List<YakuType>();
         score = new Score(0, 0);
         YakuFanMap = new SerializableMap<YakuType, double>();
+        bossName = "none";
     }
 
     public SettleRecord(int level, int stage,
         PermutationType type, List<Tile> allTiles,
         List<Tile> selectedTiles, List<YakuType> activatedYakuTypes,
-        Score score)
+        Score score, string boss)
     {
         this.level = level;
         this.stage = stage;
@@ -85,5 +92,6 @@ public class SettleRecord
         this.activatedYakus = activatedYakuTypes;
         this.score = score;
         YakuFanMap = new SerializableMap<YakuType, double>();
+        bossName = boss;
     }
 }

@@ -13,12 +13,12 @@ public class UnwashedBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnBlockAnimationEffectEvent += BlockEventListener;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnBlockAnimationEffectEvent>(player, BlockEventListener);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnBlockAnimationEffectEvent -= BlockEventListener;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnBlockAnimationEffectEvent>(player, BlockEventListener);
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)

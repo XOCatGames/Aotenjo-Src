@@ -6,6 +6,8 @@ using Aotenjo;
 [Serializable]
 public class TaiChiScrollGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new TaiChiScrollGadget();
+
     public TaiChiScrollGadget() : base("tai_chi_scroll", 8, 1, 9)
     {
     }
@@ -41,7 +43,7 @@ public class TaiChiScrollGadget : ReusableGadget
         {
             if (tile is FlowerTile)
             {
-                break;
+                continue;
             }
 
             if (facades.Count == 0) break;
@@ -53,7 +55,7 @@ public class TaiChiScrollGadget : ReusableGadget
         return changed;
     }
 
-    public override int GetMaxOnUseNum()
+    public override int GetMaxOnUseNum(Player player)
     {
         return 1;
     }

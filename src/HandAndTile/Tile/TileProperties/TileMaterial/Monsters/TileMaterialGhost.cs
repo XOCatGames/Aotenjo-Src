@@ -37,7 +37,7 @@ namespace Aotenjo
         {
             base.AppendBonusEffects(player, perm, tile, effects);
             effects.Add(ScoreEffect.AddFu(GetFu(player), null));
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 effects.Add(new TransferEffect(this, tile));
             }
@@ -66,7 +66,7 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                List<Tile> cands = player.GetSelectedTilesCopy()
+                List<Tile> cands = player.GetPlayingTiles()
                     .Where(t => t != null && t.CompatWithMaterial(PLAIN, player)).ToList();
                 if (cands.Count == 0) return;
                 Tile target = cands[player.GenerateRandomInt(cands.Count)];

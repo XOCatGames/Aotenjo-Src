@@ -19,11 +19,19 @@ public class DrawingFlowerTile : OneTimeUseFlowerTile
     {
     }
 
-    public override FlowerTile Copy()
+    public override FlowerTile CopyFlowerEffect()
     {
-        FlowerTile flowerTile = base.Copy();
-        ((DrawingFlowerTile)flowerTile).block = block;
+        FlowerTile flowerTile = base.CopyFlowerEffect();
+        ((DrawingFlowerTile)flowerTile).block = block == _defaultBlock
+            ? _defaultBlock
+            : new Block(block.tiles.Select(tile => tile.Copy()).ToArray());
         return flowerTile;
+    }
+
+    protected override void CopyStateTo(Tile copy)
+    {
+        base.CopyStateTo(copy);
+        ((DrawingFlowerTile)copy).activated = activated;
     }
 
     public override string GetFlowerDescription(Func<string, string> loc)

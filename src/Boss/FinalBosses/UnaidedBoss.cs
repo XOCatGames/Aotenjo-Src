@@ -13,12 +13,12 @@ public class UnaidedBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffect;
+        EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffect;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
     }
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {

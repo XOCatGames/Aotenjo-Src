@@ -10,17 +10,17 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostRunEndEvent += PostRunEnd;
+            EventBus.Subscribe<RunStatusEvent.End.Post>(PostRunEnd);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostRunEndEvent -= PostRunEnd;
+            EventBus.Unsubscribe<RunStatusEvent.End.Post>(PostRunEnd);
         }
 
-        private void PostRunEnd(Player player, bool won, PlayerStats stats)
+        private void PostRunEnd(RunStatusEvent.End.Post eventData)
         {
-            if (MahjongDeck.decks.Where(d => stats.GetWonNumberByDeck(d.regName) > 0).Count() >= 4)
+            if (MahjongDeck.decks.Count(d => eventData.stats.GetWonNumberByDeck(d.regName) > 0) >= 4)
                 SetComplete();
         }
     }

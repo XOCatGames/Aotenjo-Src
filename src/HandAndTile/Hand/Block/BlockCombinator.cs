@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using static Aotenjo.Block;
 
 namespace Aotenjo
@@ -133,6 +134,28 @@ namespace Aotenjo
             return IsIdentical(t, cand);
         }
 
+        public virtual bool CanBeKongMate(Tile tile, Tile candidate)
+        {
+            return IsIdenticalFormingBlock(tile, candidate);
+        }
+
+        public virtual bool CanFormKong(params Tile[] tiles)
+        {
+            return tiles is { Length: 4 } &&
+                   tiles.Skip(1).All(tile => IsIdenticalFormingBlock(tile, tiles[0]));
+        }
+
+        public virtual bool CanExtendKong(Block block, Tile tile)
+        {
+            return block?.tiles is { Length: 3 } && tile != null &&
+                   CanFormKong(block.tiles.Append(tile).ToArray());
+        }
+
+        public virtual bool IsKong(Block block)
+        {
+            return block?.tiles is { Length: 4 } && CanFormKong(block.tiles);
+        }
+
         /// <summary>
         /// 默认的BlockCombinator实现
         /// </summary>
@@ -151,6 +174,18 @@ namespace Aotenjo
         /// </summary>
         private class ApolloBlockCombinator : BlockCombinator
         {
+            public override bool CanBeKongMate(Tile tile, Tile candidate)
+            {
+                return base.CanBeKongMate(tile, candidate) ||
+                       (tile.CompatWithCategory(Tile.Category.Feng) &&
+                        candidate.CompatWithCategory(Tile.Category.Feng));
+            }
+
+            public override bool CanFormKong(params Tile[] tiles)
+            {
+                return base.CanFormKong(tiles) || Block.IsFourWinds(tiles);
+            }
+
             public override bool ASuccB(Tile tileSucc, Tile tilePred, bool categorySensitive = true, int step = 1)
             {
                 //风牌连接

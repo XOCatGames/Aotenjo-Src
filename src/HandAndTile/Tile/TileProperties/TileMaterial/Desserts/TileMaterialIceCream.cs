@@ -13,6 +13,7 @@ namespace Aotenjo
 
         public TileMaterialIceCream(int id): base(id, "dessert_ice_cream", 4)
         {
+            materialID = id;
         }
         
         public TileMaterialIceCream(int id, int remainingUses) : base(id, "dessert_ice_cream", 4)
@@ -32,7 +33,7 @@ namespace Aotenjo
         {
             effects.Add(ScoreEffect.MulFan(MULTIPLIER, null));
 
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
                 effects.Add(new FreezeEffect(tile));
         }
 
@@ -40,7 +41,11 @@ namespace Aotenjo
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialIceCream(216);
+            return new TileMaterialIceCream(materialID, usesLeft)
+            {
+                maxUses = maxUses,
+                totalUsesConsumed = totalUsesConsumed
+            };
         }
 
         protected override string GetDescription(Func<string, string> loc)

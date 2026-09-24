@@ -37,7 +37,7 @@ namespace Aotenjo
             {
                 foreach (var item in p.sneakedTiles.Where(t => t.IsNumbered()))
                 {
-                    effects.Add(new OnTileAnimationEffect(item, new ChangeSuitEffect(item, this)));
+                    effects.Add(new ChangeSuitEffect(item, this).OnTile(item));
                 }
             }
         }

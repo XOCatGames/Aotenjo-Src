@@ -37,7 +37,7 @@ namespace Aotenjo
 
         protected override void AddDessertEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 int currentCoins = INITIAL_COINS - DEC_PER_USE * (MAX_USES - usesLeft);
                 effects.Add(new EarnMoneyEffect(currentCoins, null));
@@ -46,7 +46,7 @@ namespace Aotenjo
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialButter(spriteID, usesLeft, totalUsesConsumed);
+            return new TileMaterialButter(spriteID, usesLeft, totalUsesConsumed) { maxUses = maxUses };
         }
 
         protected override string GetDescription(Func<string, string> localizer)

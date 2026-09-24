@@ -14,6 +14,12 @@ namespace Aotenjo
         {
         }
 
+        public override TileMaterial Copy()
+        {
+            // Queued discards belong to the original tile, not to newly created copies.
+            return new TileMaterialPaleWood(spriteID);
+        }
+
         public bool IsActive()
         {
             return queue.Count > 0;
@@ -39,8 +45,8 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            player.OnPrePostAddOnTileAnimationEffectEvent += Player_OnPrePostAddOnTileAnimationEffectEvent;
-            player.DetermineSelectingTileEvent += Player_DetermineSelectingTileEvent;
+            EventBus.Subscribe<PlayerEvents.OnPrePostAddOnTileAnimationEffectEvent>(player, Player_OnPrePostAddOnTileAnimationEffectEvent);
+            EventBus.Subscribe<PlayerEvents.DetermineSelectingTileEvent>(player, Player_DetermineSelectingTileEvent);
         }
 
         private void Player_DetermineSelectingTileEvent(DeterminePlayerSelectingTileEvent evt)
@@ -57,8 +63,8 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayerEvents(player);
             EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            player.OnPrePostAddOnTileAnimationEffectEvent -= Player_OnPrePostAddOnTileAnimationEffectEvent;
-            player.DetermineSelectingTileEvent -= Player_DetermineSelectingTileEvent;
+            EventBus.Unsubscribe<PlayerEvents.OnPrePostAddOnTileAnimationEffectEvent>(player, Player_OnPrePostAddOnTileAnimationEffectEvent);
+            EventBus.Unsubscribe<PlayerEvents.DetermineSelectingTileEvent>(player, Player_DetermineSelectingTileEvent);
         }
 
         private void Player_OnPrePostAddOnTileAnimationEffectEvent(Permutation perm, Player player,
@@ -111,8 +117,8 @@ namespace Aotenjo
                 }).ToList();
             }
         }
-
         private void PostRoundEnd(PlayerEvent playerEvent)
+
         {
             queue.Clear();
         }

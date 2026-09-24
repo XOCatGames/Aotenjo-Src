@@ -18,7 +18,7 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostDiscardTileEvent += OnPostDiscardTileEvent;
+            EventBus.Subscribe<PlayerEvents.PostDiscardTileEvent>(player, OnPostDiscardTileEvent);
         }
 
         private void OnPostDiscardTileEvent(PlayerDiscardTileEvent.Post discardTileEvent)
@@ -31,7 +31,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostDiscardTileEvent -= OnPostDiscardTileEvent;
+            EventBus.Unsubscribe<PlayerEvents.PostDiscardTileEvent>(player, OnPostDiscardTileEvent);
         }
     }
 }

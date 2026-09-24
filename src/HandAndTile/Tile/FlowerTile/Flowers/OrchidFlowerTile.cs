@@ -21,8 +21,8 @@ public class OrchidFlowerTile : OneTimeUseFlowerTile
     {
         base.AppendScoringEffect(effects, player, perm);
         if (used) return;
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_orchid_name")));
-        effects.Add(new OnTileAnimationEffect(this, ScoreEffect.MulFan(MUL, null)));
+        effects.Add(new TextEffect("effect_orchid_name").OnTile(this));
+        effects.Add(ScoreEffect.MulFan(MUL, null).OnTile(this));
         used = true;
     }
 }

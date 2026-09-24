@@ -69,7 +69,7 @@ namespace Aotenjo
         {
             Permutation permutation = player.GetAccumulatedPermutation();
             return player.GetHandDeckCopy()
-                .Union(permutation == null ? new List<Tile>() : permutation.ToTiles())
+                .Union(player.GetScoringTiles(permutation))
                 .Where(t => t.properties.material is TileMaterialHellWood)
                 .Append(main)
                 .Distinct()

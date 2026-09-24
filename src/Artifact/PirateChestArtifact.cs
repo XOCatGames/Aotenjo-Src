@@ -28,7 +28,7 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += ConsumeSkipEvent;
+            EventBus.Subscribe<PlayerRoundEvent.Skip.Post>(ConsumeSkipEvent);
         }
 
         private void ConsumeSkipEvent(PlayerEvent data)
@@ -52,7 +52,7 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= ConsumeSkipEvent;
+            EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(ConsumeSkipEvent);
             if (!player.GetArtifacts().Contains(this))
             {
                 List<PirateChestReward> rewards = GenerateRewards(player.GenerateRandomInt, player);

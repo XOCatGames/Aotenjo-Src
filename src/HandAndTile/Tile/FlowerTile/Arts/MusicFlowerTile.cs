@@ -4,7 +4,7 @@ using Aotenjo;
 using UnityEngine;
 
 /// <summary>
-/// 花牌 - 四艺：琴 复制上一枚打出花牌的所有效果
+/// 花牌 - 四艺：琴 复制上一枚打出花牌的固有能力
 /// </summary>
 [Serializable]
 public class MusicFlowerTile : FlowerTile
@@ -17,6 +17,19 @@ public class MusicFlowerTile : FlowerTile
     public MusicFlowerTile() : base(Category.SiYi, 1)
     {
         mimicTile = null;
+    }
+
+    public override FlowerTile CopyFlowerEffect()
+    {
+        MusicFlowerTile copy = (MusicFlowerTile)base.CopyFlowerEffect();
+        copy.mimicTile = mimicTile?.CopyFlowerEffect();
+        return copy;
+    }
+
+    protected override void CopyStateTo(Tile copy)
+    {
+        base.CopyStateTo(copy);
+        ((MusicFlowerTile)copy).mimicTile = (FlowerTile)mimicTile?.Copy();
     }
 
     /// <summary>
@@ -43,7 +56,10 @@ public class MusicFlowerTile : FlowerTile
     {
         base.SubscribeToPlayerEvents(player);
         RainbowDeck.RainbowPlayer rainBowPlayer = (RainbowDeck.RainbowPlayer)player;
+        rainBowPlayer.PostPlayFlowerTileEvent -= OnPostPlayFlowerTileEvent;
         rainBowPlayer.PostPlayFlowerTileEvent += OnPostPlayFlowerTileEvent;
+        mimicTile?.UnsubscribeFromPlayer(player);
+        mimicTile?.SubscribeToPlayerEvents(player);
     }
 
     /// <summary>
@@ -67,13 +83,17 @@ public class MusicFlowerTile : FlowerTile
         {
             if (musicFlowerTile.mimicTile != null && musicFlowerTile.mimicTile.GetBaseOrder() != 0)
             {
-                mimicTile = musicFlowerTile.mimicTile.Copy();
+                mimicTile = musicFlowerTile.mimicTile.CopyFlowerEffect();
+            }
+            else
+            {
+                mimicTile = null;
             }
         }
         //否则直接复制这枚打出的花牌
         else
         {
-            mimicTile = flowerTile.Copy();
+            mimicTile = flowerTile.CopyFlowerEffect();
         }
 
         //使复制对象订阅玩家事件
@@ -110,5 +130,12 @@ public class MusicFlowerTile : FlowerTile
     {
         base.AppendScoringEffect(effects, player, perm);
         mimicTile?.AppendScoringEffect(effects, player, perm);
+    }
+
+    public override void AppendPostScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm,
+        Tile scoringTile)
+    {
+        base.AppendPostScoringEffect(effects, player, perm, scoringTile);
+        mimicTile?.AppendPostScoringEffect(effects, player, perm, scoringTile);
     }
 }

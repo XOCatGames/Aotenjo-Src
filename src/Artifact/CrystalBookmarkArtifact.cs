@@ -33,12 +33,14 @@ namespace Aotenjo
             YakuType original = data.yakuType;
 
             List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
-            availableYakus.Remove(original);
-            DrawYakuResult drawResult = data.pack.Draw(player.GenerateRandomInt, availableYakus, player.Level / 4,
-                (int)YakuTester.InfoMap[original].rarity + 1);
-
-
-            data.target = drawResult.yaku;
+            availableYakus.RemoveAll(yaku => yaku == original || yaku == FixedYakuType.Base);
+            int rarity = (int)YakuTester.InfoMap[original].rarity;
+            // Prefer an upgrade; if none is available, reroll within the original rarity.
+            bool drawn = data.pack.TryDraw(player.GenerateRandomInt, availableYakus, player.Level / 4,
+                out DrawYakuResult drawResult, rarity + 1)
+                || data.pack.TryDraw(player.GenerateRandomInt, availableYakus, player.Level / 4,
+                    out drawResult, rarity);
+            data.target = drawn ? drawResult.yaku : original;
         }
     }
 }

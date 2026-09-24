@@ -4,6 +4,8 @@ using Aotenjo;
 
 public class EraserGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new EraserGadget();
+
     public EraserGadget() : base("eraser", 18, 1, 30)
     {
     }
@@ -29,7 +31,7 @@ public class EraserGadget : ReusableGadget
         return false;
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return true;
     }

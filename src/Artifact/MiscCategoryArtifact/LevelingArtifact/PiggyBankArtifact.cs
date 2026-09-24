@@ -18,7 +18,7 @@ namespace Aotenjo
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
             if (!tile.CompatWithCategory(Tile.Category.Bing)) return;
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             effects.Add(new PiggyBankEffect(this));
         }
 

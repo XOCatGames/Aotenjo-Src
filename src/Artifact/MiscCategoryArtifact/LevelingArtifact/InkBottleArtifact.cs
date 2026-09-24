@@ -43,13 +43,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreSetFontEvent += OnSetFont;
+            EventBus.Subscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreSetFontEvent -= OnSetFont;
+            EventBus.Unsubscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
         }
 
         private void OnSetFont(PlayerSetAttributeEvent evt)

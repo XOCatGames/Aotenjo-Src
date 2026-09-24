@@ -6,15 +6,25 @@ namespace Aotenjo
     public class GoldenDaggerArtifact : Artifact
     {
         private const int FAN = 5;
+        private const int GIFT_COUNT = 5;
 
         public GoldenDaggerArtifact() : base("golden_dagger", Rarity.RARE)
         {
             SetHighlightRequirement((tile, player) => tile.CompatWithMaterial(TileMaterial.GOLDEN, player));
         }
 
+        public override void OnObtain(Player player)
+        {
+            base.OnObtain(player);
+            foreach (var plainTiles in player.DrawPlainTilesFromPool(GIFT_COUNT))
+            {
+                plainTiles.SetMaterial(TileMaterial.GOLDEN, player);
+            }
+        }
+
         public override string GetDescription(Func<string, string> localizer)
         {
-            return string.Format(base.GetDescription(localizer), FAN);
+            return string.Format(base.GetDescription(localizer), FAN, GIFT_COUNT);
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)

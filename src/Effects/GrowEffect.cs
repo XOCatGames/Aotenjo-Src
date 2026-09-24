@@ -25,7 +25,12 @@ namespace Aotenjo
 
         public override void Ingest(Player player)
         {
+            if (tile.properties.mask.GetRegName() == TileMask.Grow().GetRegName()) return;
             tile.SetMask(TileMask.Grow(), player);
+            if (tile.properties.mask.GetRegName() == TileMask.Grow().GetRegName())
+            {
+                EventBus.Publish(new MechanicalTileGrownEvent(player, tile, artifact));
+            }
         }
 
         public override string GetSoundEffectName()

@@ -10,16 +10,16 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostDiscardTileEvent += PostDiscardTile;
-            player.PostDrawTileEvent += PostDrawTile;
+            base.SubscribeToPlayer(player);
+            EventBus.Subscribe<PlayerEvents.PostDiscardTileEvent>(player, PostDiscardTile);
             EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
             discarding = "";
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostDiscardTileEvent -= PostDiscardTile;
-            player.PostDrawTileEvent -= PostDrawTile;
+            base.UnsubscribeFromPlayer(player);
+            EventBus.Unsubscribe<PlayerEvents.PostDiscardTileEvent>(player, PostDiscardTile);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
         }
 
@@ -28,6 +28,7 @@
             discarding = discardTileEvent.tile.ToString();
         }
 
+        [SubscribeToEvent]
         private void PostDrawTile(PlayerDrawTileEvent.Post drawTileEvent)
         {
             if (drawTileEvent.tile.ToString() == discarding)

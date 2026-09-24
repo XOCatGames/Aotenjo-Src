@@ -32,13 +32,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.ChoosePathEvent += OnChoosePath;
+            EventBus.Subscribe<PlayerEvents.ChoosePathEvent>(player, OnChoosePath);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.ChoosePathEvent -= OnChoosePath;
+            EventBus.Unsubscribe<PlayerEvents.ChoosePathEvent>(player, OnChoosePath);
         }
 
         private void OnChoosePath(PlayerChoosePathEvent evt)

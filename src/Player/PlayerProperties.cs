@@ -1,9 +1,10 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Aotenjo
 {
     [Serializable]
-    public class PlayerProperties
+    public class PlayerProperties : ISerializationCallbackReceiver
     {
         /// <summary>
         /// 默认玩家属性
@@ -19,8 +20,7 @@ namespace Aotenjo
         /// 每次出牌前弃牌上限
         /// </summary>
         public int DiscardLimit;
-
-
+        
         /// <summary>
         /// 每次出牌后补充弃牌
         /// </summary>
@@ -35,6 +35,11 @@ namespace Aotenjo
         /// 持有小道具上限
         /// </summary>
         public int GadgetLimit;
+        
+        /// <summary>
+        /// 可用的番种包
+        /// </summary>
+        public int[] YakuPacks = new[] { 0, 1, 2, 3 };
 
         public PlayerProperties(int handLimit, int discardLimit, int artifactLimit, int gadgetLimit, int discardRefill)
         {
@@ -43,6 +48,17 @@ namespace Aotenjo
             ArtifactLimit = artifactLimit;
             GadgetLimit = gadgetLimit;
             DiscardRefill = discardRefill;
+            YakuPacks = new[] { 0, 1, 2, 3 };
         }
+        
+        public void OnAfterDeserialize()
+        {
+            if (YakuPacks == null || YakuPacks.Length == 0)
+            {
+                YakuPacks = new[] { 0, 1, 2, 3 };
+            }
+        }
+
+        public void OnBeforeSerialize() { }
     }
 }

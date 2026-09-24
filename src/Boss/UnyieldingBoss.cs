@@ -12,12 +12,12 @@ public class UnyieldingBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.PostDiscardTileEvent += IncreaseLevelTarget;
+        EventBus.Subscribe<PlayerEvents.PostDiscardTileEvent>(player, IncreaseLevelTarget);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PostDiscardTileEvent -= IncreaseLevelTarget;
+        EventBus.Unsubscribe<PlayerEvents.PostDiscardTileEvent>(player, IncreaseLevelTarget);
     }
 
     private void IncreaseLevelTarget(PlayerEvent eventData)
@@ -58,12 +58,12 @@ public class UnyieldingHarderBoss : UnyieldingBoss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnAddSingleDiscardTileAnimationEffectEvent += OnSingleDiscardAnim;
+        EventBus.Subscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, OnSingleDiscardAnim);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnAddSingleDiscardTileAnimationEffectEvent -= OnSingleDiscardAnim;
+        EventBus.Unsubscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, OnSingleDiscardAnim);
     }
 
     private void OnSingleDiscardAnim(Player player, List<IAnimationEffect> list, Tile tile, bool forceDiscard)

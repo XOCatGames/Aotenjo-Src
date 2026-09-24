@@ -10,12 +10,12 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.OnPostAddScoringAnimationEffectEvent += OnSettlePermutation;
+            EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnSettlePermutation);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.OnPostAddScoringAnimationEffectEvent -= OnSettlePermutation;
+            EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnSettlePermutation);
         }
 
         private void OnSettlePermutation(Permutation permutation, Player player, List<IAnimationEffect> list)

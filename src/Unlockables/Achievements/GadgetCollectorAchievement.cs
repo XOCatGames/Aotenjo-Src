@@ -8,19 +8,10 @@ namespace Aotenjo
         {
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void PostRunEnd(RunStatusEvent.End.Post eventData)
         {
-            player.PostRunEndEvent += PostRunEnd;
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.PostRunEndEvent -= PostRunEnd;
-        }
-
-        private void PostRunEnd(Player player, bool won, PlayerStats stats)
-        {
-            if (Gadgets.GadgetCompleteList().All(g => stats.GetGadgetObtainedCount(g) > 0))
+            if (Gadgets.GadgetCompleteList().All(g => eventData.stats.GetGadgetObtainedCount(g) > 0))
                 SetComplete();
         }
     }

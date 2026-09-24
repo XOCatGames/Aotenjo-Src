@@ -15,12 +15,12 @@ public class UnobstinateBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += Persist;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Persist);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= Persist;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Persist);
     }
 
     private void Persist(Permutation permutation, Player player, List<OnTileAnimationEffect> list)

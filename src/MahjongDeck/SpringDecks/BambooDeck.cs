@@ -21,8 +21,7 @@ namespace Aotenjo
 
         public override bool IsUnlocked(PlayerStats stats)
         {
-            return stats.GetWonNumberByDeck("green_deck") > 0 || stats.GetWonNumberByDeck("blue_deck") > 0 ||
-                   stats.GetWonNumberByDeck("galaxy") > 0 || Constants.DEBUG_MODE;
+            return stats.GetRunRecords().Any(r => r.won) || Constants.DEBUG_MODE;
         }
     }
 
@@ -44,11 +43,6 @@ namespace Aotenjo
         {
             DoraIndicators = new List<IndicatorTile>();
             DoraIndicatorMax = DefaultIndicatorMax;
-        }
-
-        public override bool HasExtraInfo()
-        {
-            return true;
         }
 
         public override string GetExtraInformationFromTile(Tile tile, Func<string, string> loc)
@@ -106,7 +100,7 @@ namespace Aotenjo
         {
             //再抽手牌
             base.InitHandDeck();
-            if (Level % 4 != 1) return;
+            if (!CurrentLevel.IsChapterStart) return;
             //先抽指示牌
             List<Tile> draws = DrawTilesFromPool(1);
             DoraIndicators.AddRange(draws.Select(t => new IndicatorTile(t)));
@@ -118,7 +112,7 @@ namespace Aotenjo
         public override void ResetTilePool()
         {
             base.ResetTilePool();
-            if (usedBoost && Level % 4 != 0) return;
+            if (usedBoost && !CurrentLevel.IsBossLevel) return;
             TilePool.AddRange(DoraIndicators.Select(i => i.tile));
             DoraIndicators.Clear();
         }

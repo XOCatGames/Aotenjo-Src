@@ -11,12 +11,12 @@ public class UnfuritenBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnAddSingleDiscardTileAnimationEffectEvent += OnDiscardTile;
+        EventBus.Subscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, OnDiscardTile);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnAddSingleDiscardTileAnimationEffectEvent -= OnDiscardTile;
+        EventBus.Unsubscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, OnDiscardTile);
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)

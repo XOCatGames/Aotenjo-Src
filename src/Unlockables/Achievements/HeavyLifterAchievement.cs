@@ -6,18 +6,11 @@
         {
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void OnWonGame(RunStatusEvent.End eventData)
         {
-            player.OnEndRunEvent += OnWonGame;
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.OnEndRunEvent -= OnWonGame;
-        }
-
-        private void OnWonGame(Player player, bool won)
-        {
+            bool won = eventData.won;
+            Player player = eventData.player;
             if (won && player.Level >= 16)
             {
                 if (player.GetAllTiles().Count > 200)

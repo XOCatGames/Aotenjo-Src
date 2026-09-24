@@ -29,10 +29,15 @@ public class TileTransformInkBrush : TileTransform
 
     public override int GetDisplayID(Tile t)
     {
-        return 45;
+        return 45 + order - 3;
     }
 
     public override bool ChangeBaseDisplay()
+    {
+        return true;
+    }
+
+    public override bool WipeBaseDisplay()
     {
         return true;
     }

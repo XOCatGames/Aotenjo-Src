@@ -18,13 +18,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostRemoveTileEvent += DetermineBamboo;
+            EventBus.Subscribe<PlayerEvents.PostRemoveTileEvent>(player, DetermineBamboo);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostRemoveTileEvent -= DetermineBamboo;
+            EventBus.Unsubscribe<PlayerEvents.PostRemoveTileEvent>(player, DetermineBamboo);
         }
 
         public void DetermineBamboo(PlayerTileEvent evt)

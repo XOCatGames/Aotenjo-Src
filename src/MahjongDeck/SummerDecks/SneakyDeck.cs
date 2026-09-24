@@ -33,6 +33,8 @@ namespace Aotenjo
     [Serializable]
     public class SneakyPlayer : Player
     {
+        public delegate void PlayerTileEventListener(PlayerTileEvent tileEvent);
+
         public event PlayerTileEventListener DetermineSneakabilityEvent;
         public event PlayerTileEventListener PreSneakTileEvent;
         public event PlayerTileEventListener PostSneakTileEvent;

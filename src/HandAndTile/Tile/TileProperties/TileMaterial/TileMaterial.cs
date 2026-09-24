@@ -40,11 +40,6 @@ namespace Aotenjo
             return this;
         }
 
-        public virtual Rarity GetRarity()
-        {
-            return Rarity.COMMON;
-        }
-
         public static readonly TileMaterial PLAIN = new(0, "plain", null);
 
         // Ore
@@ -98,6 +93,15 @@ namespace Aotenjo
         public static TileMaterial SugarCube() => new TileMaterialSugarCube(213);
         public static TileMaterial IceCream() => new TileMaterialIceCream(216);
         public static TileMaterial Lollipop() => new TileMaterialLollipop(210);
+
+        // Mech parts
+        public static TileMaterial MechGear() => new TileMaterialMechPart(83, MechPartType.Gear);
+        public static TileMaterial MechDriveRod() => new TileMaterialMechPart(84, MechPartType.DriveRod);
+        public static TileMaterial MechNetworkCard() => new TileMaterialMechPart(85, MechPartType.NetworkCard);
+        public static TileMaterial MechLed() => new TileMaterialMechPart(86, MechPartType.Led);
+        public static TileMaterial MechShield() => new TileMaterialMechPart(87, MechPartType.Shield);
+        public static TileMaterial MechIntegratedChip() => new TileMaterialMechPart(88, MechPartType.IntegratedChip);
+        public static TileMaterial MechReactor() => new TileMaterialMechPart(89, MechPartType.Reactor);
         
         public static TileMaterial[] Materials() => MaterialProviders.Select(p => p()).ToArray();
         
@@ -107,7 +111,8 @@ namespace Aotenjo
             BlueAndWhitePorcelain, BonePorcelain, () => GREEN_PORCELAIN, () => FAMILLE_VERTE_PORCELAIN, () => WHITE_PORCELAIN,
             () => PINK_PORCELAIN, MysteriousColorPorcelain, Ghost, GoldMouse, Taotie, Succubus, Nest, Mo,
             NanmuWood, PaleWood, EmeraldWood, MistWood, HellWood, JacarandaWood, PaoRosaWood,
-            Butter, ChocolateDessert, Jelly, MilleFeuille, SugarCube, IceCream, Lollipop
+            Butter, ChocolateDessert, Jelly, MilleFeuille, SugarCube, IceCream, Lollipop,
+            MechGear, MechDriveRod, MechNetworkCard, MechLed, MechShield, MechIntegratedChip, MechReactor
         };
 
         public static TileMaterial GetMaterial(string material)
@@ -118,5 +123,11 @@ namespace Aotenjo
             throw new InvalidOperationException($"Material {toSearch} not found");
         }
 
+        public override string GetSubheader(Func<string, string> loc)
+        {
+            string rarityName = GetRarity() == Rarity.COMMON? "common" : "epic";
+            string rarityText = loc($"rarity_{rarityName}_name") + " " + loc("tile_material_name");
+            return rarityText;
+        }
     }
 }

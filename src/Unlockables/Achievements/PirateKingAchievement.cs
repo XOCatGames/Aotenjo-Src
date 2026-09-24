@@ -8,12 +8,12 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PreRemoveArtifact += SellArtifact;
+            EventBus.Subscribe<PlayerEvents.PreRemoveArtifactEvent>(player, SellArtifact);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PreRemoveArtifact -= SellArtifact;
+            EventBus.Unsubscribe<PlayerEvents.PreRemoveArtifactEvent>(player, SellArtifact);
         }
 
         private void SellArtifact(PlayerArtifactEvent evt)

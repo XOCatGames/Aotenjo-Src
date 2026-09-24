@@ -43,13 +43,6 @@ public class GuqinArtifact : InstrumentArtifact
     }
 
 
-    public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
-    {
-        base.AppendOnTileEffects(player, permutation, tile, effects);
-        if (!player.Selecting(tile) || !IsActivating() || !player.GetCurrentSelectedBlocks().First().IsABC()) return;
-        effects.Add(new TextEffect("effect_listening_guqin"));
-    }
-
     protected override bool CanPlay(Player player, Permutation perm, List<Effect> lst, Block block)
     {
         return block.IsABC();

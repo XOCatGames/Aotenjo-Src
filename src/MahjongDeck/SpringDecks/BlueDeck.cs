@@ -34,11 +34,12 @@ namespace Aotenjo
             public YakuType OnRerollYaku(YakuPack pack, Player player, YakuType exceptedYaku)
             {
                 List<YakuType> availableYakus = player.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
-                availableYakus.Remove(exceptedYaku);
-                DrawYakuResult drawResult = pack.Draw(player.GenerateRandomInt, availableYakus, player.Level / 4);
+                availableYakus.RemoveAll(yaku => yaku == exceptedYaku || yaku == FixedYakuType.Base);
+                YakuType target = pack.TryDraw(player.GenerateRandomInt, availableYakus, player.Level / 4,
+                    out DrawYakuResult drawResult) ? drawResult.yaku : exceptedYaku;
 
                 PlayerYakuEvent.Reroll eventData =
-                    new PlayerYakuEvent.Reroll(this, pack, exceptedYaku, drawResult.yaku);
+                    new PlayerYakuEvent.Reroll(this, pack, exceptedYaku, target);
                 RerollYakuEvent?.Invoke(eventData);
 
                 return eventData.target;

@@ -31,7 +31,7 @@ namespace Aotenjo
             public override void OnRoundStart()
             {
                 base.OnRoundStart();
-                if (Level % 4 == 0)
+                if (CurrentLevel.IsBossLevel)
                 {
                     levelTarget *= 2;
                 }

@@ -4,9 +4,9 @@ namespace Aotenjo
 {
     public class MaybeEffect : Effect
     {
-        private string effectName;
-        private int chance;
-        private Effect innerEffect;
+        private readonly string effectName;
+        private readonly int chance;
+        private readonly Effect innerEffect;
 
         private bool success;
 

@@ -52,7 +52,7 @@ namespace Aotenjo
                 effects.Add(ScoreEffect.MulFan(1d + INCREMENT * level, null));
             }
 
-            if (level < cap && player.Selecting(tile))
+            if (level < cap && player.IsPlayingTile(tile))
                 effects.Add(new UpgradeEffect(this));
         }
 

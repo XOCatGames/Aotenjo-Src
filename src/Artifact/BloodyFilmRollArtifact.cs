@@ -9,7 +9,6 @@ namespace Aotenjo
         
         public BloodyFilmRollArtifact() : base("bloody_film_roll", Rarity.EPIC)
         {
-            SetPrerequisite(p => p.GetAllTiles().Any(t => p.DetermineFontCompatibility(t, TileFont.COLORLESS)));
             SetHighlightRequirement((t, p) => p.DetermineFontCompatibility(t, TileFont.COLORLESS));
         }
         
@@ -22,7 +21,8 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (!player.DetermineFontCompatibility(tile, TileFont.COLORLESS) || !player.Selecting(tile)) return;
+            if (tile.properties.mask is TileMaskSuppressed ||
+                !player.DetermineFontCompatibility(tile, TileFont.COLORLESS) || !player.IsPlayingTile(tile)) return;
             
             //防止递归
             if (!affectedTiles.Add(tile)) return;

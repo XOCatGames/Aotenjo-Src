@@ -6,6 +6,8 @@ using Aotenjo;
 [Serializable]
 public class SewingKitGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new SewingKitGadget();
+
     public SewingKitGadget() : base("sewing_kit", 16, 2, 9)
     {
     }
@@ -45,7 +47,7 @@ public class SewingKitGadget : Gadget
         return true;
     }
 
-    public override int GetMaxOnUseNum()
+    public override int GetMaxOnUseNum(Player player)
     {
         return 2;
     }
@@ -56,15 +58,16 @@ public class SewingKitGadget : Gadget
         return tiles[0].GetCategory() != tiles[1].GetCategory();
     }
 
-    public override bool UseOnTiles(Player player, List<Tile> tiles)
+    public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
     {
-        if (!CanUseOnTiles(tiles, player)) return false;
+        if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
+        if (!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
 
         Tile tile1 = tiles[0];
         Tile tile2 = tiles[1];
 
         Tile tile3 = player.RandomlyMergeTwoTile(tile1, tile2);
         player.AddNewTileToPool(tile3);
-        return true;
+        return GadgetUseResult.Succeeded(tiles);
     }
 }

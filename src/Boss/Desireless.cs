@@ -11,12 +11,12 @@ public class DesirelessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += Vanish;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Vanish);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= Vanish;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Vanish);
     }
 
     private void Vanish(Permutation permutation, Player player, List<OnTileAnimationEffect> list)

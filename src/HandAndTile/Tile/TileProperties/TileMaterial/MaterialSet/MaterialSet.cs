@@ -112,6 +112,8 @@ namespace Aotenjo
                     return Wood;
                 case "desserts":
                     return Dessert;
+                case "mech_parts":
+                    return Mech;
                 default:
                     return MaterialSets.FirstOrDefault(m => m.GetRegName() == materialSet);
             }
@@ -144,6 +146,8 @@ namespace Aotenjo
         {
             "dessert_butter", "dessert_chocolate", "dessert_ice_cream", "dessert_jelly", "dessert_lollipop", "dessert_mille_feuille", "dessert_sugar_cube"
         });
+
+        public static MaterialSet Mech = new MechMaterialSet();
         
         // public static MaterialSet MechPart = new MaterialSet(6, "mech_parts", new List<string>
         // {
@@ -158,7 +162,7 @@ namespace Aotenjo
         
         public static MaterialSet[] MaterialSets = new []
         {
-            Basic, Ore, Porcelain, Monsters, Wood, Dessert
+            Basic, Ore, Porcelain, Monsters, Wood, Dessert, Mech
         };
 
         public virtual UnlockRequirement GetUnlockRequirement()

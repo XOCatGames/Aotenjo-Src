@@ -10,7 +10,7 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineYaojiuTileEvent += Player_DetermineYaojiuTileEvent;
+            EventBus.Subscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, Player_DetermineYaojiuTileEvent);
         }
 
         private void Player_DetermineYaojiuTileEvent(PlayerTileEvent tileEvent)
@@ -22,7 +22,7 @@
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineYaojiuTileEvent -= Player_DetermineYaojiuTileEvent;
+            EventBus.Unsubscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, Player_DetermineYaojiuTileEvent);
         }
     }
 }

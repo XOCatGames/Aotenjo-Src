@@ -33,13 +33,13 @@ public class YasakaniMagatamaArtifact : LevelingArtifact, IMultiplierProvider
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.PostRemoveTileEvent += DetermineDoraAndLevelUp;
+        EventBus.Subscribe<PlayerEvents.PostRemoveTileEvent>(player, DetermineDoraAndLevelUp);
     }
 
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.PostRemoveTileEvent -= DetermineDoraAndLevelUp;
+        EventBus.Unsubscribe<PlayerEvents.PostRemoveTileEvent>(player, DetermineDoraAndLevelUp);
     }
 
     public void DetermineDoraAndLevelUp(PlayerTileEvent evt)

@@ -49,13 +49,13 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PreDiscardTileEvent += PreDiscardEventListener;
+            EventBus.Subscribe<PlayerEvents.PreDiscardTileEvent>(player, PreDiscardEventListener);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PreDiscardTileEvent -= PreDiscardEventListener;
+            EventBus.Unsubscribe<PlayerEvents.PreDiscardTileEvent>(player, PreDiscardEventListener);
         }
 
         public void PreDiscardEventListener(PlayerDiscardTileEvent.Pre eventData)

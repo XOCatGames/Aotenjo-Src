@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Aotenjo
@@ -79,5 +80,20 @@ namespace Aotenjo
 
         public static implicit operator YakuType(FixedYakuType fixedType)
             => new YakuType(fixedType);
+    }
+    
+    public class YakuTypeConverter : JsonConverter<YakuType>
+    {
+        public override void WriteJson(JsonWriter writer, YakuType value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value.ToString());
+        }
+
+        public override YakuType ReadJson(JsonReader reader, Type objectType, YakuType existingValue, 
+            bool hasExistingValue, JsonSerializer serializer)
+        {
+            var key = (string)reader.Value;
+            return YakuType.FromString(key);
+        }
     }
 }

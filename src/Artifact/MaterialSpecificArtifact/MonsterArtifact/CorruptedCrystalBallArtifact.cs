@@ -19,11 +19,6 @@ namespace Aotenjo
             return ToMulFanFormat(GetMul(player));
         }
 
-        public override bool IsAvailableInShops(Player player)
-        {
-            return GetNestCount(player) > 0;
-        }
-
         public override string GetDescription(Player player, Func<string, string> localizer)
         {
             return string.Format(base.GetDescription(player, localizer), Utils.NumberToFormat(MUL_PER_NEST),

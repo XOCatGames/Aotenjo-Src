@@ -95,7 +95,7 @@ namespace Aotenjo
             //例：artifact_yin_yang_jade_flute_description_yin_ready
             string fullKey = $"artifact_{GetNameID()}_description_{modeKey}{readyKey}";
 
-            return string.Format(loc(fullKey), chordNum, GetMul(p));
+            return string.Format(loc(fullKey), chordNum, Utils.NumberToFormat(GetMul(p)));
         }
 
         protected override string GetSoundEffectName() => "Flute";

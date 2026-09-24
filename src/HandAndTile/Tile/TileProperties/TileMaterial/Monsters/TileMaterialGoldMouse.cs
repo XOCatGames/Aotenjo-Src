@@ -26,7 +26,7 @@ namespace Aotenjo
         public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             base.AppendBonusEffects(player, perm, tile, effects);
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 effects.Add(new EarnMoneyEffect(-COST, null));
             }

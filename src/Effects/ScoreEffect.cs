@@ -14,6 +14,8 @@ namespace Aotenjo
 
         private ValueSupplier supplier;
 
+        [SerializeField] private bool hideWhenZero;
+
         [SerializeField] private Artifact effectSource;
 
         private ScoreEffect(EffectType type, double value, Artifact effectSource)
@@ -33,6 +35,17 @@ namespace Aotenjo
 
         protected ScoreEffect()
         {
+        }
+
+        public ScoreEffect HideWhenZero()
+        {
+            hideWhenZero = true;
+            return this;
+        }
+
+        public override bool WillTrigger()
+        {
+            return !hideWhenZero || (supplier != null ? supplier() : value) != 0;
         }
 
         public override bool NoDefaultSound()

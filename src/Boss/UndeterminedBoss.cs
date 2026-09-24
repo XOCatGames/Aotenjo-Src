@@ -12,12 +12,12 @@ public class UndeterminedBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += ChangeSuit;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, ChangeSuit);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= ChangeSuit;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, ChangeSuit);
     }
 
     private void ChangeSuit(Permutation permutation, Player player, List<OnTileAnimationEffect> list)
@@ -55,13 +55,13 @@ public class UndeterminedBoss : Boss
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnPostAddOnTileAnimationEffectEvent += PlayerOnOnPostAddOnTileAnimationEffectEvent;
+            EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, PlayerOnOnPostAddOnTileAnimationEffectEvent);
         }
         
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnPostAddOnTileAnimationEffectEvent -= PlayerOnOnPostAddOnTileAnimationEffectEvent;
+            EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, PlayerOnOnPostAddOnTileAnimationEffectEvent);
         }
 
         private void PlayerOnOnPostAddOnTileAnimationEffectEvent(Permutation perm, Player player, List<OnTileAnimationEffect> effects)

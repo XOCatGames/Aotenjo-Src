@@ -10,13 +10,13 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineForceDiscardTileEvent += HandlePlayerForceDiscardTile;
+            EventBus.Subscribe<PlayerEvents.DetermineForceDiscardTileEvent>(player, HandlePlayerForceDiscardTile);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineForceDiscardTileEvent -= HandlePlayerForceDiscardTile;
+            EventBus.Unsubscribe<PlayerEvents.DetermineForceDiscardTileEvent>(player, HandlePlayerForceDiscardTile);
         }
 
         private void HandlePlayerForceDiscardTile(PlayerDiscardTileEvent.DetermineForce evt)

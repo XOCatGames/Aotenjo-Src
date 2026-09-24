@@ -2,6 +2,8 @@
 {
     public class FishingRodGadget : ReusableGadget
     {
+        protected override Gadget CreateCopy() => new FishingRodGadget();
+
         public FishingRodGadget() : base("fishing_rod", 28, 2, 13)
         {
         }
@@ -16,7 +18,7 @@
             return player.GetRiverTiles().Count != 0;
         }
 
-        public override int GetMaxOnUseNum()
+        public override int GetMaxOnUseNum(Player player)
         {
             return 1;
         }

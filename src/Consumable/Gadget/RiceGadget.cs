@@ -4,13 +4,15 @@ using Aotenjo;
 [Serializable]
 public class RiceGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new RiceGadget();
+
     public RiceGadget() : base("rice", 0, 3, 4)
     {
     }
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        if (!ShouldHighlightTile(tile)) return false;
+        if (!ShouldHighlightTile(tile, player)) return false;
 
         tile.AddTransform(new TileTransformRice(), player);
         MessageManager.Instance.OnSoundEvent("Rice");
@@ -27,7 +29,7 @@ public class RiceGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         TileTransform tileTransform = tile.GetLastTransform();
         bool isRedMarked = tileTransform != null &&

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Aotenjo;
 
 [Serializable]
@@ -14,15 +13,12 @@ public class JuHuaFlowerTile : OneTimeUseFlowerTile
     {
         base.AppendScoringEffect(effects, player, perm);
         if (used) return;
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_chrysanthemum_name")));
+        effects.Add(new TextEffect("effect_chrysanthemum_name").OnTile(this));
         Tile[] tiles = { perm.jiang.tile1, perm.jiang.tile2 };
 
         foreach (Tile tile in tiles)
         {
-            List<OnTileAnimationEffect> lst = effects
-                .Where(e => e is OnTileAnimationEffect te && te.tile == tile && !te.isClone)
-                .Select(e => ((OnTileAnimationEffect)e).Clone()).ToList();
-            effects.AddRange(lst);
+            effects.Add(new TileScoringEffectAppendEffect(player, tile, perm, player.playHandEffectStack));
         }
 
         used = true;

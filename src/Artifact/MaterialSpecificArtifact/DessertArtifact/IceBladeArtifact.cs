@@ -24,16 +24,16 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnDessertTileConsumeAttemptEvent += OnDessertTileConsumeAttempt;
-            player.PreAddScoringAnimationEffectEvent += OnPreAddScoringAnimationEffect;
+            EventBus.Subscribe<PlayerEvents.OnDessertTileConsumeAttemptEvent>(player, OnDessertTileConsumeAttempt);
+            EventBus.Subscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, OnPreAddScoringAnimationEffect);
             EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnDessertTileConsumeAttemptEvent -= OnDessertTileConsumeAttempt;
-            player.PreAddScoringAnimationEffectEvent -= OnPreAddScoringAnimationEffect;
+            EventBus.Unsubscribe<PlayerEvents.OnDessertTileConsumeAttemptEvent>(player, OnDessertTileConsumeAttempt);
+            EventBus.Unsubscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, OnPreAddScoringAnimationEffect);
             EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
@@ -73,7 +73,7 @@ namespace Aotenjo
             base.AddOnRoundEndEffects(player, permutation, effects);
 
             // 冻结所有未打出的甜品牌
-            var dessertTilesToFreeze = player.GetAccumulatedPermutation()?.ToTiles().Where(t => t.properties.material is TileMaterialDessert);
+            var dessertTilesToFreeze = player.GetScoringTiles(player.GetAccumulatedPermutation()).Where(t => t.properties.material is TileMaterialDessert);
 
             if (dessertTilesToFreeze == null) return;
             effects.AddRange((dessertTilesToFreeze

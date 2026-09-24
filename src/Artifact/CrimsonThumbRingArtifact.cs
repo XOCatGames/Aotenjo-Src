@@ -10,7 +10,7 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineForceDiscardTileEvent += Player_DetermineDiscardTileEvent;
+            EventBus.Subscribe<PlayerEvents.DetermineForceDiscardTileEvent>(player, Player_DetermineDiscardTileEvent);
         }
 
         private void Player_DetermineDiscardTileEvent(PlayerDiscardTileEvent.DetermineForce obj)
@@ -22,7 +22,7 @@
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineForceDiscardTileEvent -= Player_DetermineDiscardTileEvent;
+            EventBus.Unsubscribe<PlayerEvents.DetermineForceDiscardTileEvent>(player, Player_DetermineDiscardTileEvent);
         }
     }
 }

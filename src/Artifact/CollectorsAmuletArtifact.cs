@@ -19,8 +19,14 @@ namespace Aotenjo
         public override bool ShouldHighlightTile(Tile tile, Player player)
         {
             if (tile.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()) return false;
-            string matName = tile.properties.material.GetRegName();
-            return collectedMaterials.All(c => !c.Equals(matName));
+            return GetCollectibleMaterialNames(player, tile).Any(name => !collectedMaterials.Contains(name));
+        }
+
+        private static IEnumerable<string> GetCollectibleMaterialNames(Player player, Tile tile)
+        {
+            return TileMaterial.Materials()
+                .Where(material => material != TileMaterial.PLAIN && player.DetermineMaterialCompatibility(tile, material))
+                .Select(material => material.GetRegName());
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
@@ -91,12 +97,10 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile) || tile.properties.mask is TileMaskSuppressed) return;
             if (tile.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()) return;
 
-            List<string> matNames = TileMaterial.Materials()
-                .Where(m => m != TileMaterial.PLAIN && player.DetermineMaterialCompatibility(tile, m))
-                .Select(m => m.GetRegName()).ToList();
+            List<string> matNames = GetCollectibleMaterialNames(player, tile).ToList();
 
             bool collected = false;
             foreach (string matName in matNames)

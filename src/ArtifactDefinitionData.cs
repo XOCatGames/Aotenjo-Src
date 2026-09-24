@@ -10,7 +10,7 @@ namespace Aotenjo
     {
         [HorizontalGroup("基础"), PreviewField(100), HideLabel] 
         [ShowInInspector]
-        public Sprite icon => Resources.LoadAll<Sprite>("Artifacts")[Artifacts.ARTIFACT_SPRITE_ID_MAP[Artifacts.GetArtifact(regName)]];
+        public Sprite icon => SpriteManager.GetSpritesOrLoad("Artifacts")[Artifacts.ARTIFACT_SPRITE_ID_MAP[Artifacts.GetArtifact(regName)]];
         
         [VerticalGroup("基础/信息")] [LabelText("ID")] public string regName;
 

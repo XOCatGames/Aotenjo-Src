@@ -32,6 +32,20 @@ public abstract class TileTransform
         return false;
     }
 
+    public virtual bool WipeBaseDisplay()
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// Horizontal offset for the displayed font, normalized by the font
+    /// RectTransform width. Most transforms keep the font centered.
+    /// </summary>
+    public virtual float GetFontDisplayOffsetX()
+    {
+        return 0f;
+    }
+
     public virtual string GetNameKey()
     {
         return $"transform_{name}_name";

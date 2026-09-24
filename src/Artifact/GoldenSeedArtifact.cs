@@ -33,12 +33,26 @@ namespace Aotenjo
         {
             base.ResetArtifactState();
             level = 0;
+            affecting = false;
+        }
+
+        public override string Serialize()
+        {
+            return base.Serialize() + "," + level;
+        }
+
+        public override void Deserialize(string data)
+        {
+            string[] parts = data.Split(',');
+            base.Deserialize(parts[0]);
+            // Legacy saves only contain the money counter; never reuse the singleton's later level.
+            level = parts.Length > 1 ? int.Parse(parts[1]) : 0;
         }
 
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.EarnMoneyEvent += OnEarnMoney;
+            EventBus.Subscribe<PlayerEvents.EarnMoneyEvent>(player, OnEarnMoney);
             EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
             EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(OnRoundEnd);
             affecting = player.inRound;
@@ -47,9 +61,9 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.EarnMoneyEvent -= OnEarnMoney;
+            EventBus.Unsubscribe<PlayerEvents.EarnMoneyEvent>(player, OnEarnMoney);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(OnRoundStart);
-            EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(OnRoundEnd);
+            EventBus.Unsubscribe<PlayerRoundEvent.End.PostPre>(OnRoundEnd);
         }
 
         private void OnRoundEnd(PlayerEvent playerEvent)

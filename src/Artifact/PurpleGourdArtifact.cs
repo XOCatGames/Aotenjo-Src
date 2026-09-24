@@ -69,7 +69,7 @@ namespace Aotenjo
                 for (var i = 0; i < data.consumedBosses.Count; i++)
                 {
                     string bossName = data.consumedBosses[i];
-                    Boss boss = Bosses.GetBossOrElseRedraw(bossName, player.ascensionLevel >= 8);
+                    Boss boss = Bosses.GetPreviewOrElseRedraw(bossName, player.ascensionLevel >= 8);
 
                     // 名字
                     string bossLine = $"{index}. <style=\"red\">{boss.GetName(player, localizer)}</style>\n";
@@ -87,7 +87,7 @@ namespace Aotenjo
                 for (var i = 0; i < data.consumedBosses.Count; i++)
                 {
                     string bossName = data.consumedBosses[i];
-                    Boss boss = Bosses.GetBossOrElseRedraw(bossName, player.ascensionLevel >= 8);
+                    Boss boss = Bosses.GetPreviewOrElseRedraw(bossName, player.ascensionLevel >= 8);
 
                     // 名字
                     string bossLine = $"<link=\"boss_reversed_effect_{boss.name}\"><style=\"red\">{boss.GetName(player, localizer)}</style></link>";
@@ -114,10 +114,16 @@ namespace Aotenjo
         public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
-            if ((player.CurrentAccumulatedScore + 1) >= player.levelTarget && player.Level % 4 == 0 && player.currentBoss != null && (player.currentBoss.name != Bosses.Timeless.name || !
-                    ((TimelessBoss)Bosses.Timeless).firstTime))
+            foreach (var bossArtifact in GetConsumedBossArtifacts(player))
             {
-                effects.Add(new ConsumeBossEffect(player.currentBoss, this));
+                bossArtifact.AddOnRoundEndEffects(player, permutation, effects);
+            }
+
+            if ((player.CurrentAccumulatedScore + 1) >= player.levelTarget &&
+                player.CurrentLevel is BossLevel bossLevel &&
+                (!(bossLevel.Boss is TimelessBoss timelessBoss) || !timelessBoss.firstTime))
+            {
+                effects.Add(new ConsumeBossEffect(bossLevel.Boss, this));
             }
         }
         
@@ -208,7 +214,7 @@ namespace Aotenjo
         public override void Deserialize(string json)
         {
             data = JsonConvert.DeserializeObject<PurpleGourdData>(json) ?? new PurpleGourdData();
-            bossArtifacts = data.consumedBosses.Select(boss => Bosses.GetBossOrElseRedraw(boss, false).GetReversedArtifact(this)).ToList();
+            bossArtifacts = data.consumedBosses.Select(boss => Bosses.GetPreviewOrElseRedraw(boss, false).GetReversedArtifact(this)).ToList();
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
@@ -220,7 +226,7 @@ namespace Aotenjo
                 {
                     bossArtifact.AppendOnTileEffects(player, permutation, tile, effects);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }

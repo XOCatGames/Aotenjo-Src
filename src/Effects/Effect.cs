@@ -17,6 +17,8 @@ namespace Aotenjo
         public virtual bool NoDefaultSound() => false;
 
         public virtual string GetSoundEffectName() => "AddFu";
+        
+        public virtual string GetEffectAnimationTrigger() => "NONE";
 
         public virtual Effect GetEffect() => this;
 
@@ -24,7 +26,7 @@ namespace Aotenjo
         public virtual bool ShouldWaitUntilFinished() => true;
 
         public OnTileAnimationEffect OnTile(Tile tile, bool isClone = false)
-            => new(tile, this, isClone);
+            => OnTileAnimationEffect.Create(tile, this, isClone);
 
         public OnBlockAnimationEffect OnBlock(Block block, bool isClone = false)
             => new(block, this);

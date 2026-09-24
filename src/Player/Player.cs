@@ -13,7 +13,6 @@ namespace Aotenjo
     [Serializable]
     public class Player
     {
-        
         #region 变量
         
         /// <summary>
@@ -27,6 +26,8 @@ namespace Aotenjo
         /// 持有小道具
         /// </summary>
         [SerializeReference] protected List<Gadget> HeldGadgets;
+
+        [SerializeReference] private Gadget lastUsedConsumableGadget;
 
         /// <summary>
         /// 牌库
@@ -52,7 +53,6 @@ namespace Aotenjo
         /// 已组建牌型
         /// </summary>
         [SerializeReference] protected Permutation CurrentAccumulatedBlock;
-
         
 
         /// <summary>
@@ -130,7 +130,27 @@ namespace Aotenjo
 
         [SerializeField] public SerializableMap<Skill.SkillType, int> skillMap;
 
-        public Boss currentBoss;
+        [NonSerialized] public Boss currentBoss;
+
+        [NonSerialized] private GameLevel currentLevel;
+
+        [SerializeReference] private GameLevel savedLevel;
+        [NonSerialized] private bool changingLevel;
+
+        /// <summary>
+        /// During Exit/Enter, returns the level whose callback is running without restoring it again.
+        /// Use SetLevel to change the level number; direct writes are supported for legacy callers.
+        /// </summary>
+        public GameLevel CurrentLevel
+        {
+            get
+            {
+                if (!changingLevel && (currentLevel == null || currentLevel.Number != Level))
+                    RestoreCurrentLevel();
+
+                return currentLevel;
+            }
+        }
 
         private Boss nextBoss;
 
@@ -160,6 +180,11 @@ namespace Aotenjo
 
         [SerializeField] public bool seededRun;
 
+        /// <summary>
+        /// 本局是否使用过控制台指令
+        /// </summary>
+        [SerializeField] public bool usedConsoleCommand;
+
         [SerializeField] public bool inRound = true;
 
         [SerializeField] public bool stillInTutorial;
@@ -171,145 +196,8 @@ namespace Aotenjo
         public Stack<IAnimationEffect> roundEndEffectsStack;
         public Stack<IAnimationEffect> discardTileEffectsStack;
 
-        #endregion
-
-        #region 事件
-
-        public delegate void PlayerEventListener(PlayerEvent playerEvent);
-
-        public delegate void PlayerPermutationEventListener(PlayerPermutationEvent permutationEvent);
-
-        public delegate void PlayerTileEventListener(PlayerTileEvent tileEvent);
-
-        public delegate void PlayerPreDrawTileEventListener(PlayerDrawTileEvent.Pre drawTileEvent);
-
-        public delegate void PlayerPostDrawTileEventListener(PlayerDrawTileEvent.Post drawTileEvent);
-
-        public delegate void PlayerPreDiscardTileEventListener(PlayerDiscardTileEvent.Pre discardTileEvent);
-
-        public delegate void PlayerPostDiscardTileEventListener(PlayerDiscardTileEvent.Post discardTileEvent);
-
-        public delegate void PlayerYakuObtainEventListener(PlayerYakuEvent.Obtain yakuEvent);
-
-        public delegate void PlayerYakuUpgradeEventListener(PlayerYakuEvent.Upgrade yakuEvent);
-
-        public delegate void PlayerYakuDeleteEventListener(PlayerYakuEvent.Delete yakuEvent);
+        [SerializeReference] public List<YakuType> pinnedYakus;
         
-        public delegate void PlayerRetrieveYakuMultiplierEventListener(PlayerYakuEvent.RetrieveMultiplier yakuEvent);
-
-        public delegate void PlayerObtainGadgetEvent(Player player, Gadget gadget);
-
-        public delegate void PlayerArtifactEventListener(PlayerArtifactEvent evt);
-
-        public delegate void PlayerUpgradeYakuEventListener(PlayerYakuEvent.Upgrade evt);
-
-        public delegate void DetermineMaterialCompatibilityEventListener(PlayerDetermineMaterialCompatibilityEvent evt);
-
-        public delegate void DetermineFontCompatibilityEventListener(PlayerDetermineFontCompatibilityEvent evt);
-
-        public delegate void PlayerGadgetEventListener(PlayerGadgetEvent evt);
-
-        public delegate void PlayerSetTransformEventListener(PlayerSetTransformEvent evt);
-
-        public delegate void PlayerSetAttributeEventListener(PlayerSetAttributeEvent evt);
-
-        public delegate void PlayerSetPropertiesEventListener(PlayerSetPropertiesEvent evt);
-
-        public delegate void PlayerSpendMoneyEventListener(PlayerMoneyEvent evt);
-
-        public delegate void PlayerEarnMoneyEventListener(PlayerMoneyEvent evt);
-
-        public delegate void DetermineTileCompatibilityEventListener(PlayerDetermineTileFaceCompatibilityEvent evt);
-
-        public delegate void ChoosePathEventListener(PlayerChoosePathEvent evt);
-
-        #region 游戏生命周期事件
-        public event PlayerEventListener PreSkipRoundEvent;
-        public event PlayerEventListener PostSkipRoundEvent;
-        
-        //Player, Winning
-        public event Action<Player, bool> OnEndRunEvent;
-        public event Action<Player, bool, PlayerStats> PostRunEndEvent;
-
-        #endregion
-
-        public event PlayerPermutationEventListener PreSettlePermutationEvent;
-        public event PlayerPermutationEventListener PreAppendSettleScoringEffectsEvent;
-        public event PlayerPermutationEventListener PostSettlePermutationEvent;
-        public event Action<Permutation, Player, List<IAnimationEffect>> OnPrePostAddOnTileAnimationEffectEvent;
-        public event Action<Permutation, Player, List<OnTileAnimationEffect>> OnPostAddOnTileAnimationEffectEvent;
-        public event Action<Permutation, Player, List<IAnimationEffect>, Tile> OnAddSingleTileScoringEffectEvent;
-
-        public event System.Action<Permutation, Player, List<OnTileAnimationEffect>, OnTileAnimationEffect, Tile> PostAddSingleTileAnimationEffectEvent;
-
-        public event Action<Permutation, Player, List<IAnimationEffect>> PreAddScoringAnimationEffectEvent;
-        public event Action<Permutation, Player, List<IAnimationEffect>> OnPostAddOnBlockAnimationEffectEvent;
-        public event Action<Permutation, Player, List<IAnimationEffect>> OnPostAddScoringAnimationEffectEvent;
-        public event Action<Permutation, Player, List<IAnimationEffect>> OnPostAddRoundEndAnimationEffectEvent;
-        public event Action<Player, List<IAnimationEffect>, IAnimationEffect> OnAddSingleAnimationEffectEvent;
-        public event Action<Player, List<IAnimationEffect>, Tile, bool> OnAddSingleDiscardTileAnimationEffectEvent;
-        public event Action<Permutation, Player, Effect> PostIngestEffect;
-        public event PlayerUpgradeYakuEventListener OnPreUpgradeYakuEvent;
-
-        public event PlayerSpendMoneyEventListener SpendMoneyEvent;
-        public event PlayerEarnMoneyEventListener EarnMoneyEvent;
-
-        public event PlayerArtifactEventListener PreRemoveArtifact;
-
-        public event PlayerTileEventListener PreAddTileEvent;
-        public event PlayerTileEventListener PostAddTileEvent;
-
-        public event PlayerYakuObtainEventListener ObtainYakuEvent;
-        public event PlayerYakuUpgradeEventListener UpgradeYakuEvent;
-        public event PlayerYakuDeleteEventListener DeleteYakuEvent;
-        public event PlayerRetrieveYakuMultiplierEventListener RetrieveYakuMultiplierEvent;
-
-        public event PlayerObtainGadgetEvent ObtainGadgetEvent;
-        public event Action<PlayerArtifactEvent.DetermineGettability> PreObtainArtifactEvent;
-        public event PlayerArtifactEventListener PostObtainArtifactEvent;
-        public event PlayerGadgetEventListener PostUseGadgetEvent;
-        public event PlayerSetTransformEventListener PreSetTransformEvent;
-
-        public event PlayerSetAttributeEventListener PreSetMaterialEvent;
-        public event PlayerSetAttributeEventListener PreSetFontEvent;
-        public event PlayerSetAttributeEventListener PreSetMaskEvent;
-        public event PlayerSetPropertiesEventListener PreSetPropertiesEvent;
-        public event PlayerSetPropertiesEventListener PreSetTilePropertiesEvent;
-
-        public event PlayerPreDrawTileEventListener PreDrawTileEvent;
-        public event PlayerPostDrawTileEventListener PostDrawTileEvent;
-
-        public event PlayerTileEventListener DetermineTileSelectivityEvent;
-        public event Action<PlayerKongTileEvent> PreKongTileEvent;
-        public event DetermineMaterialCompatibilityEventListener DetermineMaterialCompatibilityEvent;
-        public event DetermineFontCompatibilityEventListener DetermineFontCompatibilityEvent;
-        public event DetermineTileCompatibilityEventListener DetermineTileCompatibilityEvent;
-
-        public event Action<PlayerDiscardTileEvent.Determine> DetermineDiscardTileEvent;
-        public event Action<PlayerDiscardTileEvent.DetermineForce> DetermineForceDiscardTileEvent;
-        public event Action<DeterminePlayerSelectingTileEvent> DetermineSelectingTileEvent;
-        public event PlayerPreDiscardTileEventListener PreDiscardTileEvent;
-        public event PlayerPostDiscardTileEventListener PostDiscardTileEvent;
-
-        public event PlayerTileEventListener PreRemoveTileEvent;
-        public event PlayerTileEventListener PostRemoveTileEvent;
-        public event PlayerTileEventListener DetermineYaojiuTileEvent;
-        public event Action<PlayerDetermineShiftedPairEvent> DetermineShiftedPairEvent;
-
-        public event Action<Player, List<Destination>> PostGenerateDestinationEvent;
-        public event ChoosePathEventListener ChoosePathEvent;
-
-        public event PlayerEventListener DeterminePlayerWindEvent;
-        public event PlayerEventListener DeterminePrevalentWindEvent;
-
-        // 甜品牌被消耗完毕事件
-        public event Action<Player, Tile, TileMaterialDessert> OnDessertTileConsumedEvent;
-        
-        // 甜品牌消耗尝试事件（可以被阻止）
-        public event PlayerEventListener OnDessertTileConsumeAttemptEvent;
-        public event Action<PlayerYakuEvent.ReadBookResult> PostUpgradeYakuFromIBookEvent;
-        public event Action<PlayerJadeEvent.RetrieveEffectiveStack> RetrieveEffectiveJadeStackEvent;
-
         #endregion
 
         public void SetArtifactLimit(int n)
@@ -450,6 +338,10 @@ namespace Aotenjo
             materialSet?.SubscribeToPlayerEvents(this);
 
             GenerateNewUpcomingBosses();
+
+            savedLevel = currentLevel = new NormalLevel(Level);
+
+            pinnedYakus = new List<YakuType>();
         }
 
         private uint InitializeSeed(string randomSeed)
@@ -489,10 +381,6 @@ namespace Aotenjo
 
         #endregion
 
-        public virtual bool HasExtraInfo()
-        {
-            return false;
-        }
 
         public SkillSet GetSkillSet()
         {
@@ -550,6 +438,18 @@ namespace Aotenjo
         public List<Tile> GetSelectedTilesCopy()
         {
             return new(CurrentSelectedTiles);
+        }
+
+        /// <summary>本次打出的牌，包含等待首次计分的已补花牌。</summary>
+        public virtual List<Tile> GetPlayingTiles()
+        {
+            return GetSelectedTilesCopy();
+        }
+
+        /// <summary>参与牌效果结算的牌；花牌不加入番种和面子的判定。</summary>
+        public virtual List<Tile> GetScoringTiles(Permutation permutation)
+        {
+            return permutation?.ToTiles() ?? new List<Tile>();
         }
 
         public List<Tile> GetUnusedTilesInHand()
@@ -662,12 +562,35 @@ namespace Aotenjo
             RoundAccumulatedScore = Score.Base();
         }
 
-        public void ApplyEffect(Effect effect)
+        public void ApplyEffect(Effect effect, Stack<IAnimationEffect> followingEffectStack = null)
         {
+            var artifactsAtTrigger = GetArtifacts();
             effect.Ingest(this);
 
-            if(effect.WillTrigger())
-                PostIngestEffect?.Invoke(GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, this, effect);
+            if (effect.WillTrigger())
+            {
+                var triggered = new PlayerEvents.PostIngestEffectEvent(this,
+                    GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, effect, artifactsAtTrigger);
+                EventBus.Publish(triggered);
+                var followingEffects = new List<IAnimationEffect>();
+                foreach (Effect followingEffect in triggered.followingEffects)
+                {
+                    var neighbors = new List<IAnimationEffect> { followingEffect };
+                    TriggerOnAddSingleAnimationEffectEvent(neighbors, followingEffect);
+                    followingEffects.AddRange(neighbors);
+                }
+                if (followingEffectStack != null)
+                {
+                    // Stack order ensures reactions animate immediately after their source.
+                    for (int i = followingEffects.Count - 1; i >= 0; i--)
+                        followingEffectStack.Push(followingEffects[i]);
+                }
+                else
+                {
+                    foreach (IAnimationEffect followingEffect in followingEffects)
+                        ApplyEffect(followingEffect.GetEffect());
+                }
+            }
 
             stats.SyncPlayer(this);
         }
@@ -718,10 +641,15 @@ namespace Aotenjo
             TilePool.AddRange(tiles);
             return tiles;
         }
+        
+        public List<Tile> DrawPlainTilesFromPool(int n)
+        {
+            return DrawTilesFromPool(n, t => t.CompatWithMaterial(TileMaterial.PLAIN, this));
+        }
 
         public int GetLevelBaseBonusMoney()
         {
-            return Level % 4 == 0 ? 12 : 4;
+            return CurrentLevel.BaseBonusMoney;
         }
 
         public int GetAotenjoBonusMoney()
@@ -746,37 +674,28 @@ namespace Aotenjo
             return GetLevelBaseBonusMoney() + GetDiscardBonusMoney() + GetInterestBonusMoney() + GetAotenjoBonusMoney();
         }
 
-        /// <summary>
-        /// 已弃用
-        /// </summary>
-        /// <returns></returns>
-        public int GetGoldenOrizuruBonusMoney()
-        {
-            return 0;
-        }
-
         public bool DetermineForceDiscard(Tile tile)
         {
             bool rawRes = false;
-            PlayerDiscardTileEvent.DetermineForce evt = new(this, tile, rawRes);
-            DetermineForceDiscardTileEvent?.Invoke(evt);
+            PlayerEvents.DetermineForceDiscardTileEvent evt = new(this, tile, rawRes);
+            EventBus.Publish(evt);
             return evt.res;
         }
 
         public bool CanDiscardTile(Tile tile, bool forceDiscard, bool consumeDiscardChance)
         {
             bool rawRes = !consumeDiscardChance || DiscardLeft > 0;
-            PlayerDiscardTileEvent.Determine evt = new(this, tile, rawRes, forceDiscard, consumeDiscardChance);
-            DetermineDiscardTileEvent?.Invoke(evt);
+            PlayerEvents.DetermineDiscardTileEvent evt = new(this, tile, rawRes, forceDiscard, consumeDiscardChance);
+            EventBus.Publish(evt);
             if (evt.canceled) return false;
             return evt.res;
         }
 
         public bool PreDiscardTile(Tile tile, bool forced)
         {
-            PlayerDiscardTileEvent.Pre preEvent = new(this, tile, true);
+            PlayerEvents.PreDiscardTileEvent preEvent = new(this, tile, true);
             preEvent.forced = forced;
-            PreDiscardTileEvent?.Invoke(preEvent);
+            EventBus.Publish(preEvent);
             if (preEvent.canceled) return false;
             return true;
         }
@@ -801,36 +720,36 @@ namespace Aotenjo
             HandDeck.Remove(tile);
             Discarded.Add(tile);
 
-            PlayerDiscardTileEvent.Post postEvent = new(this, tile);
-            PostDiscardTileEvent?.Invoke(postEvent);
+            PlayerEvents.PostDiscardTileEvent postEvent = new(this, tile);
+            EventBus.Publish(postEvent);
             if (postEvent.canceled) return -2;
             return Pos;
         }
 
         public int MoveFromHandToDiscard(Tile tile)
         {
-            int Pos = HandDeck.IndexOf(tile);
+            int pos = HandDeck.IndexOf(tile);
             HandDeck.Remove(tile);
 
             Discarded.Add(tile);
 
-            return Pos;
+            return pos;
         }
 
         public int MoveFromDiscardToPool(Tile tile)
         {
-            int Pos = Discarded.IndexOf(tile);
+            int pos = Discarded.IndexOf(tile);
             Discarded.Remove(tile);
             TilePool.Add(tile);
-            return Pos;
+            return pos;
         }
 
         public int MoveFromHandToPool(Tile tile)
         {
-            int Pos = HandDeck.IndexOf(tile);
+            int pos = HandDeck.IndexOf(tile);
             HandDeck.Remove(tile);
             TilePool.Add(tile);
-            return Pos;
+            return pos;
         }
 
         public List<Tile> priortizedDrawingList = new List<Tile>();
@@ -853,26 +772,29 @@ namespace Aotenjo
             if (TilePool.Count == 0) return -1;
 
             //Randomly get a cand pos from the pool
-            int Pos = GenerateRandomInt(TilePool.Count, "draw_tile");
-            Tile tile = TilePool[Pos];
+            int pos = GenerateRandomInt(TilePool.Count, "draw_tile");
+            Tile toDraw = TilePool[pos];
 
             if (priortizedDrawingList.Count > 0)
             {
-                tile = priortizedDrawingList[0];
-                priortizedDrawingList.Remove(tile);
+                toDraw = priortizedDrawingList[0];
+                priortizedDrawingList.Remove(toDraw);
             }
 
-            PlayerDrawTileEvent.Pre preEvent = new(this, tile);
-            PreDrawTileEvent?.Invoke(preEvent);
-            TilePool.Remove(tile);
+            PlayerDrawTileEvent.Pre preEvent = new(this, toDraw);
+            EventBus.Publish(preEvent);
 
-            HandDeck.Add(tile);
+            toDraw = preEvent.tile;
+            
+            TilePool.Remove(toDraw);
+
+            HandDeck.Add(toDraw);
             if (sortDeck)
                 SortDeck();
 
-            PlayerDrawTileEvent.Post postEvent = new(this, tile);
-            PostDrawTileEvent?.Invoke(postEvent);
-            return HandDeck.IndexOf(tile);
+            PlayerDrawTileEvent.Post postEvent = new(this, toDraw);
+            EventBus.Publish(postEvent);
+            return HandDeck.IndexOf(toDraw);
         }
 
         /// <summary>
@@ -882,9 +804,9 @@ namespace Aotenjo
         /// <returns>牌插入手中的位置，如果牌库没牌了，返回-1，如果事件被取消了，返回-2</returns>
         public int ReplaceTileAndKeepPosition(Tile tile)
         {
-            PlayerDiscardTileEvent.Pre preEvent = new(this, tile, true);
-            PreDiscardTileEvent?.Invoke(preEvent);
-            if (preEvent.canceled) return -2;
+            PlayerEvents.PreDiscardTileEvent preDiscardEvent = new(this, tile, true);
+            EventBus.Publish(preDiscardEvent);
+            if (preDiscardEvent.canceled) return -2;
 
             stats.RecordCustomStats("discard", 1);
             if (tile.IsYaoJiu(this)) stats.RecordCustomStats("discard_yaojiu", 1);
@@ -892,7 +814,7 @@ namespace Aotenjo
             int Pos = HandDeck.IndexOf(tile);
             Discarded.Add(tile);
 
-            PostDiscardTileEvent?.Invoke(new(this, tile));
+            EventBus.Publish(new PlayerEvents.PostDiscardTileEvent(this, tile));
 
             if (TilePool.Count == 0)
             {
@@ -904,14 +826,20 @@ namespace Aotenjo
             int toDrawPos = GenerateRandomInt(TilePool.Count);
             Tile toDraw = TilePool[toDrawPos];
 
-            PlayerDrawTileEvent.Pre preDrawEvent = new(this, tile);
-            PreDrawTileEvent?.Invoke(preDrawEvent);
+            PlayerDrawTileEvent.Pre preDrawEvent = new(this, toDraw);
+            EventBus.Publish(preDrawEvent);
+            // Only accept redirects to a tile still in the wall. Use the same
+            // tile for removal, insertion and the post-draw notification.
+            if (preDrawEvent.tile != null && TilePool.Contains(preDrawEvent.tile))
+            {
+                toDraw = preDrawEvent.tile;
+            }
             TilePool.Remove(toDraw);
 
             HandDeck[Pos] = toDraw;
 
-            PlayerDrawTileEvent.Post postDrawEvent = new(this, tile);
-            PostDrawTileEvent?.Invoke(postDrawEvent);
+            PlayerDrawTileEvent.Post postDrawEvent = new(this, toDraw);
+            EventBus.Publish(postDrawEvent);
             return Pos;
         }
 
@@ -921,17 +849,17 @@ namespace Aotenjo
             HandDeck.Sort();
         }
 
-        public bool RemoveTileFromDiscarded(Tile toRemove, string message = "")
+        public virtual bool RemoveTileFromDiscarded(Tile toRemove, string message = "")
         {
-            PlayerTileEvent evt = new PlayerTileEvent(this, toRemove);
+            PlayerEvents.PreRemoveTileEvent evt = new(this, toRemove);
             evt.message = message;
 
-            PreRemoveTileEvent?.Invoke(evt);
+            EventBus.Publish(evt);
             if (evt.canceled) return false;
             bool res = Discarded.Remove(toRemove);
             toRemove.UnsubscribeFromPlayer(this);
 
-            PostRemoveTileEvent?.Invoke(evt);
+            EventBus.Publish(new PlayerEvents.PostRemoveTileEvent(this, toRemove));
 
             stats.RecordCustomStats("tile_destoryed", 1);
 
@@ -945,15 +873,15 @@ namespace Aotenjo
         /// <returns>移除是否成功</returns>
         public bool RemoveTileFromPool(Tile toRemove)
         {
-            PlayerTileEvent evt = new PlayerTileEvent(this, toRemove);
-            PreRemoveTileEvent?.Invoke(evt);
+            PlayerEvents.PreRemoveTileEvent evt = new(this, toRemove);
+            EventBus.Publish(evt);
 
             if (evt.canceled) return false;
 
             bool res = TilePool.Remove(toRemove);
             toRemove.UnsubscribeFromPlayer(this);
 
-            PostRemoveTileEvent?.Invoke(evt);
+            EventBus.Publish(new PlayerEvents.PostRemoveTileEvent(this, toRemove));
             stats.RecordCustomStats("tile_destoryed", 1);
             return res;
         }
@@ -971,8 +899,8 @@ namespace Aotenjo
                 return r;
             }
 
-            PlayerTileEvent evt = new PlayerTileEvent(this, toRemove);
-            PreRemoveTileEvent?.Invoke(evt);
+            PlayerEvents.PreRemoveTileEvent evt = new(this, toRemove);
+            EventBus.Publish(evt);
 
             if (evt.canceled) return false;
 
@@ -981,7 +909,7 @@ namespace Aotenjo
 
             if (destroyed)
             {
-                PostRemoveTileEvent?.Invoke(evt);
+                EventBus.Publish(new PlayerEvents.PostRemoveTileEvent(this, toRemove));
                 stats.RecordCustomStats("tile_destoryed", 1);
             }
             
@@ -1004,13 +932,13 @@ namespace Aotenjo
         /// <param name="toAdd">添加的Tile</param>
         public bool AddNewTileToPool(Tile toAdd)
         {
-            PlayerTileEvent preAddTileEvt = new PlayerTileEvent(this, toAdd);
-            PreAddTileEvent?.Invoke(preAddTileEvt);
+            PlayerEvents.PreAddTileEvent preAddTileEvt = new(this, toAdd);
+            EventBus.Publish(preAddTileEvt);
             if (preAddTileEvt.canceled) return false;
             toAdd.SubscribeToPlayerEvents(this);
             TilePool.Add(toAdd);
-            PlayerTileEvent postAddTileEvt = new PlayerTileEvent(this, toAdd);
-            PostAddTileEvent?.Invoke(postAddTileEvt);
+            PlayerEvents.PostAddTileEvent postAddTileEvt = new(this, toAdd);
+            EventBus.Publish(postAddTileEvt);
             MessageManager.Instance.OnAddTileEvent(new List<Tile> { toAdd });
             return true;
         }
@@ -1052,7 +980,7 @@ namespace Aotenjo
         /// <returns> 所有摸进手牌的牌 </returns>
         public List<Tile> Play(Hand hand)
         {
-            PreSettlePermutationEvent?.Invoke(new PlayerPermutationEvent(this, GetAccumulatedPermutation()));
+            EventBus.Publish(new PlayerEvents.PreSettlePermutationEvent(this, GetAccumulatedPermutation()));
             
             List<Tile> tiles = hand.tiles;
 
@@ -1073,8 +1001,8 @@ namespace Aotenjo
             
             Permutation perm = GetCurrentSelectedPerm();
             List<Block> blocks = GetCurrentSelectedBlocks();
-            DiscardLeft += 2 * blocks.Count(b => b.IsAAAA());
-            blocks.Where(b => b.IsAAAA()).ToList().ForEach(b => OnKong(b, perm));
+            DiscardLeft += 2 * blocks.Count(b => GetCombinator().IsKong(b));
+            blocks.Where(b => GetCombinator().IsKong(b)).ToList().ForEach(b => OnKong(b, perm));
             SetCurrentAccumulatedBlock(perm ?? throw new ArgumentNullException());
 
             List<YakuType> yakuTypes = perm.GetYakus(this, true).Where(y => !nativeYakus.Contains(y)).ToList();
@@ -1089,7 +1017,7 @@ namespace Aotenjo
             stats.RecordPlay(perm, this, perm.GetYakus(this, true).Where(a => skillSet.GetLevel(a) > 0).ToList(),
                 (Score) RoundAccumulatedScore.Clone());
             stats.SyncPlayer(this);
-            PostSettlePermutationEvent?.Invoke(new(this, perm));
+            TriggerPostSettlePermutationEvent(perm);
             ResetScore();
             CurrentPlayingStage++;
             DiscardLeft += properties.DiscardRefill;
@@ -1107,11 +1035,11 @@ namespace Aotenjo
 
         public void SkipSettle()
         {
-            PreSkipRoundEvent?.Invoke(new(this));
+            EventBus.Publish(new PlayerRoundEvent.Skip.Pre(this));
             SkipCount++;
             DiscardLeft += 10;
             CurrentPlayingStage++;
-            PostSkipRoundEvent?.Invoke(new(this));
+            EventBus.Publish(new PlayerRoundEvent.Skip.Post(this));
         }
 
         public bool OnRoundEndButtonPressed()
@@ -1139,6 +1067,12 @@ namespace Aotenjo
                 ResetTilePool();
                 EventBus.Publish(new PlayerRoundEvent.End.Post(this));
                 ResetScore();
+
+                Boss completedBoss = (CurrentLevel as BossLevel)?.Boss;
+                if (completedBoss != null)
+                    stats.RecordCustomStats($"encounter_boss_{completedBoss.name}", 1);
+
+                ExitCurrentLevel();
                 Level++;
 
                 if (Level == 5 && GetAscensionLevel() >= 3)
@@ -1146,19 +1080,9 @@ namespace Aotenjo
                     properties.DiscardLimit -= 5;
                 }
 
-                if (Level % 4 == 0)
-                {
-                    while (upcomingBosses.Count < Level / 4)
-                        GenerateNewUpcomingBosses();
-                    SetCurrentBoss(Bosses.GetBossOrElseRedraw(upcomingBosses[(Level / 4) - 1], HarderBossesEnabled()));
-                }
-                else if (currentBoss != null)
-                {
-                    stats.RecordCustomStats($"encounter_boss_{currentBoss.name}", 1);
-                    ResetBoss();
-                }
+                RestoreCurrentLevel();
 
-                if (Level % 4 == 1)
+                if (CurrentLevel.IsChapterStart)
                 {
                     while (upcomingBosses.Count <= Level / 4)
                         GenerateNewUpcomingBosses();
@@ -1191,10 +1115,13 @@ namespace Aotenjo
 
         protected virtual void ResetBoss()
         {
-            if (currentBoss != null)
-                currentBoss.UnsubscribeFromPlayerEvents(this);
-            currentBoss = null;
-            currentBossName = null;
+            if (currentLevel is BossLevel)
+                SetCurrentLevel(new NormalLevel(Level));
+            else
+            {
+                currentBoss = null;
+                currentBossName = null;
+            }
         }
 
         public void EncounterNextBoss(Boss nextB)
@@ -1205,11 +1132,123 @@ namespace Aotenjo
 
         public void SetCurrentBoss(Boss boss)
         {
-            ResetBoss();
-            currentBoss = boss;
-            currentBossName = boss.name;
-            upcomingBosses[(Level / 4) - 1] = boss.name;
-            boss.SubscribeToPlayerEvents(this);
+            EnsureNotChangingLevel();
+            if (boss == null)
+                throw new ArgumentNullException(nameof(boss));
+
+            if (currentLevel is BossLevel bossLevel && ReferenceEquals(bossLevel.Boss, boss) &&
+                currentLevel.Number == Level)
+                return;
+
+            SetCurrentLevel(new BossLevel(Level, boss));
+        }
+
+        /// <summary>
+        /// Restores the saved level, or infers it from legacy fields when no level was saved.
+        /// Rebinds lifecycle callbacks after loading or clearing the event bus.
+        /// </summary>
+        public void RestoreCurrentLevel()
+        {
+            EnsureNotChangingLevel();
+            if ((currentLevel != null && currentLevel.Number != Level) ||
+                (savedLevel != null && savedLevel.Number != Level))
+                ExitCurrentLevel();
+
+            GameLevel level = savedLevel ?? CreateCurrentLevel();
+            ValidateLevel(level);
+            ReplaceCurrentLevel(level);
+        }
+
+        protected virtual GameLevel CreateCurrentLevel()
+        {
+            return GameLevelFactory.Create(this);
+        }
+
+        /// <summary>
+        /// Replaces and saves the runtime level while keeping legacy boss fields in sync.
+        /// Assigning the current instance does nothing. Use RestartCurrentLevel to re-enter it.
+        /// </summary>
+        public void SetCurrentLevel(GameLevel level)
+        {
+            EnsureNotChangingLevel();
+            ValidateLevel(level);
+            if (ReferenceEquals(currentLevel, level))
+                return;
+
+            ReplaceCurrentLevel(level);
+        }
+
+        /// <summary>
+        /// Explicitly runs Exit/Enter again on the active level, including its encounter resets.
+        /// </summary>
+        public void RestartCurrentLevel()
+        {
+            EnsureNotChangingLevel();
+            if (currentLevel == null || currentLevel.Number != Level)
+                RestoreCurrentLevel();
+            else
+                ReplaceCurrentLevel(currentLevel);
+        }
+
+        private void ValidateLevel(GameLevel level)
+        {
+            if (level == null)
+                throw new ArgumentNullException(nameof(level));
+            if (level.Number != Level)
+                throw new ArgumentException("Runtime level number must match the persisted player level.", nameof(level));
+            if (!level.GetType().IsSerializable)
+                throw new ArgumentException("GameLevel subclasses must be marked Serializable to survive saves.", nameof(level));
+        }
+
+        private void EnsureNotChangingLevel()
+        {
+            if (changingLevel)
+                throw new InvalidOperationException("Cannot change levels from a level lifecycle callback.");
+        }
+
+        private void ReplaceCurrentLevel(GameLevel level)
+        {
+            EnsureNotChangingLevel();
+            changingLevel = true;
+            try
+            {
+                currentLevel?.Exit(this);
+
+                savedLevel = currentLevel = level;
+                currentBoss = (level as BossLevel)?.Boss;
+                currentBossName = currentBoss?.name;
+
+                if (currentBoss != null && GameLevelFactory.IsScheduledBossLevel(Level))
+                {
+                    int bossIndex = (Level / 4) - 1;
+                    while (upcomingBosses.Count <= bossIndex)
+                        GenerateNewUpcomingBosses();
+                    upcomingBosses[bossIndex] = currentBoss.name;
+                }
+
+                currentLevel?.Enter(this);
+            }
+            finally
+            {
+                changingLevel = false;
+            }
+        }
+
+        private void ExitCurrentLevel()
+        {
+            ReplaceCurrentLevel(null);
+        }
+
+        public string GetOrCreateBossNameForLevel(int levelNumber)
+        {
+            if (!GameLevelFactory.IsScheduledBossLevel(levelNumber))
+                return null;
+
+            int bossIndex = (levelNumber / 4) - 1;
+            while (upcomingBosses.Count <= bossIndex)
+                GenerateNewUpcomingBosses();
+
+            return upcomingBosses[bossIndex];
         }
 
         public void GenerateNewUpcomingBosses()
@@ -1238,18 +1277,18 @@ namespace Aotenjo
                     return Bosses.FinalBossList[GenerateRandomInt(Bosses.FinalBossList.Length, "boss")];
                 }
 
-                return Bosses.GetBossOrElseRedraw(generalBossesNamePool[GenerateRandomInt(generalBossCount, "boss")], harderBossesEnabled);
+                return Bosses.GetPreviewOrElseRedraw(generalBossesNamePool[GenerateRandomInt(generalBossCount, "boss")], harderBossesEnabled);
             }
 
             Boss result;
             if (finalRound)
             {
-                result = Bosses.GetBossOrElseRedraw(
+                result = Bosses.GetPreviewOrElseRedraw(
                     terminalBossesNamePool[GenerateRandomInt(terminalBossCount, "boss")], harderBossesEnabled);
             }
             else
             {
-                result = Bosses.GetBossOrElseRedraw(generalBossesNamePool[GenerateRandomInt(generalBossCount, "boss")], harderBossesEnabled);
+                result = Bosses.GetPreviewOrElseRedraw(generalBossesNamePool[GenerateRandomInt(generalBossCount, "boss")], harderBossesEnabled);
             }
 
 
@@ -1279,8 +1318,8 @@ namespace Aotenjo
                 return;
             }
 
-            PlayerMoneyEvent evt = new(this, money);
-            EarnMoneyEvent?.Invoke(evt);
+            PlayerEvents.EarnMoneyEvent evt = new(this, money);
+            EventBus.Publish(evt);
             if (evt.canceled) return;
 
             stats.MoneyEarned(evt.amount);
@@ -1410,6 +1449,13 @@ namespace Aotenjo
             }
 
             ArtifactBank.AddRange(artifactList.Select(a => a.GetRegName()));
+
+            DrawArtifactInShopEvent.On onEvt = new DrawArtifactInShopEvent.On(this, artifactList);
+            EventBus.Publish(onEvt);
+            
+            DrawArtifactInShopEvent.Post postEvt = new DrawArtifactInShopEvent.Post(this, new  List<Artifact>(artifactList));
+            EventBus.Publish(postEvt);
+            
             return artifactList;
         }
 
@@ -1417,12 +1463,9 @@ namespace Aotenjo
         {
             List<Artifact> bank = ArtifactBank.Select(Artifacts.GetArtifact).Where(a => a != null).ToList();
             LotteryPool<Artifact> pool = new();
-            foreach (var artifact in bank)
+            foreach (var artifact in bank.Where(artifact => artifact.GetRarity() == rarity && artifact.IsAvailableInShops(this)))
             {
-                if (artifact.GetRarity() == rarity && artifact.IsAvailableInShops(this))
-                {
-                    pool.Add(artifact, 100);
-                }
+                pool.Add(artifact, 100);
             }
 
             return pool;
@@ -1440,13 +1483,16 @@ namespace Aotenjo
                 price = (int)(price * 0.75);
             }
 
-            if (GetMoney() < price)
+            int moneyAvailable = GetMoney();
+            if (moneyAvailable < price)
             {
                 return -1;
             }
 
             if (!ObtainArtifact(artifact)) return -2;
             SpendMoney(price);
+            stats.OnPurchaseArtifact(artifact);
+            stats.RecordArtifactShopPurchase(artifact, Level, price, moneyAvailable);
 
             return 0;
         }
@@ -1464,7 +1510,7 @@ namespace Aotenjo
             ArtifactBank.Remove(artifact.GetRegName());
             stats.OnObtainArtifact(artifact);
 
-            PostObtainArtifactEvent?.Invoke(new(this, artifact));
+            EventBus.Publish(new PlayerEvents.PostObtainArtifactEvent(this, artifact));
 
             OnArtifactOrderChanged();
 
@@ -1486,9 +1532,11 @@ namespace Aotenjo
             if (!res) evt.res = false;
 
 
-            PreObtainArtifactEvent?.Invoke(evt);
+            var obtainEvent = new PlayerEvents.PreObtainArtifactEvent(this, artifact, evt.res);
+            obtainEvent.canceled = evt.canceled;
+            EventBus.Publish(obtainEvent);
 
-            return evt.res;
+            return obtainEvent.res;
         }
 
         public List<Tile> GetRiverTiles()
@@ -1513,7 +1561,7 @@ namespace Aotenjo
 
         public bool RemoveArtifact(Artifact artifact, bool resetArtifactState, bool reshuffleIntoPool = true)
         {
-            PreRemoveArtifact?.Invoke(new(this, artifact));
+            EventBus.Publish(new PlayerEvents.PreRemoveArtifactEvent(this, artifact));
             NewHeldArtifacts.Remove(artifact.GetRegName());
             artifact.OnRemoved(this);
             if (resetArtifactState)
@@ -1561,6 +1609,11 @@ namespace Aotenjo
             Random newRandom = new Random(respRandom.state);
             randomMap.Add(category, newRandom);
             return v1;
+        }
+        
+        public Func<int, int> GetRng(string category)
+        {
+            return (v) => GenerateRandomInt(v, category);
         }
 
         public int GenerateRandomInt(int v)
@@ -1668,6 +1721,12 @@ namespace Aotenjo
                     pack.count++;
                 }
 
+                if (pack.bluePrint.material is TileMaterialMechPart &&
+                    pack.bluePrint.material.GetRarity() == Rarity.COMMON)
+                {
+                    pack.count += 2;
+                }
+
                 packs.Add(pack);
             }
 
@@ -1710,7 +1769,8 @@ namespace Aotenjo
         /// <param name="effects"></param>
         public void TriggerPrePostAddOnTileAnimationEffect(List<IAnimationEffect> effects)
         {
-            OnPrePostAddOnTileAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm(), this, effects);
+            EventBus.Publish(new PlayerEvents.OnPrePostAddOnTileAnimationEffectEvent(this,
+                GetCurrentSelectedPerm(), effects));
         }
 
         /// <summary>
@@ -1719,23 +1779,25 @@ namespace Aotenjo
         /// <param name="effects"></param>
         public void TriggerPostAddOnTileAnimationEffect(List<OnTileAnimationEffect> effects)
         {
-            OnPostAddOnTileAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm(), this, effects);
+            EventBus.Publish(new PlayerEvents.OnPostAddOnTileAnimationEffectEvent(this,
+                GetCurrentSelectedPerm(), effects));
         }
 
         public void TriggerPostAddOnArtifactAnimationEffect(List<IAnimationEffect> effects)
         {
-            OnPostAddScoringAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, this,
-                effects);
+            EventBus.Publish(new PlayerEvents.OnPostAddScoringAnimationEffectEvent(this,
+                GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, effects));
         }
 
         public void TriggerPostAddOnBlockAnimationEffect(List<IAnimationEffect> effects)
         {
-            OnPostAddOnBlockAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm(), this, effects);
+            EventBus.Publish(new PlayerEvents.OnPostAddOnBlockAnimationEffectEvent(this,
+                GetCurrentSelectedPerm(), effects));
         }
 
         public void TriggerOnAddSingleAnimationEffectEvent(List<IAnimationEffect> neighbors, IAnimationEffect effect)
         {
-            OnAddSingleAnimationEffectEvent?.Invoke(this, neighbors, effect);
+            EventBus.Publish(new PlayerEvents.OnAddSingleAnimationEffectEvent(this, neighbors, effect));
         }
 
         public virtual List<Tile> GetAllTiles()
@@ -1765,7 +1827,7 @@ namespace Aotenjo
         [AotenjoCommand("spend", "ToInt")]
         public void SpendMoney(int v)
         {
-            SpendMoneyEvent?.Invoke(new(this, v));
+            EventBus.Publish(new PlayerEvents.SpendMoneyEvent(this, v));
             MessageManager.Instance.OnSpendMoney(v);
             DecreaseMoney(v);
             stats.SpendMoney(v);
@@ -1773,11 +1835,10 @@ namespace Aotenjo
 
         public virtual void OnRoundStart()
         {
-            //PreRoundStartEvent?.Invoke(new(this));
-            
             EventBus.Publish(new PlayerRoundEvent.Start.Pre(this));
-            
-            HeldGadgets.ForEach(g => g.ResetState(this));
+
+            lastUsedConsumableGadget = null;
+            HeldGadgets.ForEach(g => g.OnRoundStart(this));
             InitHandDeck();
             levelTarget = GetBasicLevelTarget();
 
@@ -1798,9 +1859,15 @@ namespace Aotenjo
 
         public bool Selecting(Tile tile)
         {
-            DeterminePlayerSelectingTileEvent evt = new(this, tile, GetSelectedTilesCopy().Contains(tile));
-            DetermineSelectingTileEvent?.Invoke(evt);
+            PlayerEvents.DetermineSelectingTileEvent evt = new(this, tile, GetSelectedTilesCopy().Contains(tile));
+            EventBus.Publish(evt);
             return evt.res;
+        }
+
+        /// <summary>判断打出时触发的牌效果，不改变普通手牌的选择状态。</summary>
+        public virtual bool IsPlayingTile(Tile tile)
+        {
+            return Selecting(tile);
         }
 
         public int GetGadgetLimit()
@@ -1826,7 +1893,7 @@ namespace Aotenjo
                         if (heldG.GetStackLimit() - heldG.uses >= gadget.uses)
                         {
                             heldG.uses += gadget.uses;
-                            ObtainGadgetEvent?.Invoke(this, gadget);
+                            EventBus.Publish(new PlayerEvents.ObtainGadgetEvent(this, gadget));
                             stats.OnBoughtGadget(gadget);
                             return true;
                         }
@@ -1843,7 +1910,7 @@ namespace Aotenjo
 
                 if (partialTransfered)
                 {
-                    ObtainGadgetEvent?.Invoke(this, gadget);
+                    EventBus.Publish(new PlayerEvents.ObtainGadgetEvent(this, gadget));
                     stats.OnBoughtGadget(gadget);
                     return true;
                 }
@@ -1862,7 +1929,7 @@ namespace Aotenjo
                         gadget.uses -= transferAmount;
                         if (gadget.uses <= 0)
                         {
-                            ObtainGadgetEvent?.Invoke(this, gadget);
+                            EventBus.Publish(new PlayerEvents.ObtainGadgetEvent(this, gadget));
                             stats.OnBoughtGadget(gadget);
                             return true;
                         }
@@ -1870,8 +1937,8 @@ namespace Aotenjo
                 }
             }
 
-            gadget.ResetState(this);
-            ObtainGadgetEvent?.Invoke(this, gadget);
+            gadget.OnObtained(this);
+            EventBus.Publish(new PlayerEvents.ObtainGadgetEvent(this, gadget));
             stats.OnBoughtGadget(gadget);
             HeldGadgets.Add(gadget);
             return true;
@@ -1992,11 +2059,11 @@ namespace Aotenjo
         /// <exception cref="ArgumentException">无法加杠</exception>
         public int KongTile(Tile tile, Block block, Permutation perm)
         {
-            PlayerKongTileEvent eventData = new(this, tile, perm, block);
-            PreKongTileEvent?.Invoke(eventData);
+            PlayerEvents.PreKongTileEvent eventData = new(this, tile, perm, block);
+            EventBus.Publish(eventData);
             if (eventData.canceled) return -1;
 
-            bool res = block.Kong(tile);
+            bool res = block.Kong(tile, GetCombinator());
             if (!res) throw new ArgumentException("INVALID KONG COMMAND RECEIVED");
             MoveFromHandToDiscard(tile);
             DiscardLeft += 2;
@@ -2004,16 +2071,22 @@ namespace Aotenjo
             return DrawTileToHandDeck();
         }
 
+        /// <summary>
+        /// 杠牌回调
+        /// </summary>
+        /// <param name="block">被杠面子</param>
+        /// <param name="perm">当前牌型</param>
         public virtual void OnKong(Block block, Permutation perm)
         {
+            EventBus.Publish(new PostKongTilesEvent(this, perm, block));
         }
 
         [AotenjoCommand("destroyYaku", nameof(ArgumentParsers.ToYakuType))]
-        public void DestoryYaku(YakuType yakuTypeID)
+        public void DestroyYaku(YakuType yakuTypeID)
         {
             int level = skillSet.GetLevel(yakuTypeID);
-            PlayerYakuEvent.Delete yakuEvent = new(this, yakuTypeID, level);
-            DeleteYakuEvent?.Invoke(yakuEvent);
+            PlayerEvents.DeleteYakuEvent yakuEvent = new(this, yakuTypeID, level);
+            EventBus.Publish(yakuEvent);
             if (yakuEvent.canceled) return;
             skillSet.ClearLevel(yakuTypeID);
         }
@@ -2021,11 +2094,18 @@ namespace Aotenjo
         [AotenjoCommand("setLevel", nameof(ArgumentParsers.ToInt))]
         public void SetLevel(int level)
         {
+            EnsureNotChangingLevel();
             if (level <= 0)
             {
                 throw new ArgumentException("Level must be positive");
             }
+
+            if (Level == level)
+                return;
+
+            ExitCurrentLevel();
             Level = level;
+            RestoreCurrentLevel();
         }
         
         [AotenjoCommand("upgradeYaku", nameof(ArgumentParsers.ToYakuType), nameof(ArgumentParsers.ToInt))]
@@ -2053,10 +2133,10 @@ namespace Aotenjo
         {
             if (count <= 0) count = 20;
             var artifacts = Artifacts.ArtifactList.Take(count).ToArray();
-            UnityEngine.Debug.Log($"Available artifacts (first {count}):");
+            Debug.Log($"Available artifacts (first {count}):");
             foreach (var artifact in artifacts)
             {
-                UnityEngine.Debug.Log($"- {artifact.GetNameID()} (Field: {artifact.GetType().Name})");
+                Debug.Log($"- {artifact.GetNameID()} (Field: {artifact.GetType().Name})");
             }
         }
 
@@ -2091,13 +2171,19 @@ namespace Aotenjo
             return new RoundStatus(this).RoundWind;
         }
 
-        public virtual List<YakuPack> TryDrawYakuPack(int v, List<YakuPack> yakuPacks)
+        /// <summary>
+        /// 抽取番种包，返回抽取到的番种包列表
+        /// </summary>
+        /// <param name="drawCount">抽取数量</param>
+        /// <param name="globalYakuPacks">总番种包集合，将从中筛选出玩家拥有的番种包池再进行抽取</param>
+        /// <returns>抽取结果</returns>
+        /// <exception cref="ArgumentOutOfRangeException">抽取数量大于可用番种包数量（通常为4）</exception>
+        public virtual List<YakuPack> TryDrawYakuPack(int drawCount, List<YakuPack> globalYakuPacks)
         {
-            if (yakuPacks.Count < v) throw new ArgumentOutOfRangeException("NOT ENOUGH YAKUPACKS TO POLL");
-
-            List<YakuPack> bank = new(yakuPacks);
+            List<YakuPack> bank = new(globalYakuPacks.Where(y => properties.YakuPacks.Contains(y.id)));
+            if (bank.Count < drawCount) throw new ArgumentOutOfRangeException(nameof(drawCount));
             List<YakuPack> result = new();
-            for (int i = 0; i < v; i++)
+            for (int i = 0; i < drawCount; i++)
             {
                 LotteryPool<YakuPack> pool = new LotteryPool<YakuPack>();
                 bank.ForEach(p => pool.Add(p, 1));
@@ -2109,9 +2195,18 @@ namespace Aotenjo
             return result;
         }
 
+        /// <summary>
+        /// 小道具使用后回调
+        /// </summary>
+        /// <param name="gadget">被使用完毕的小道具</param>
+        /// <param name="tile">受体牌（可为null）</param>
         public void PostUsedGadget(Gadget gadget, Tile tile = null)
         {
-            if (gadget.uses < 0) throw new ArgumentException("GADGET USES EXHAUSTED");
+            if (gadget.uses < 0) throw new ArgumentException("Gadget uses exhausted");
+            if (gadget.IsConsumable())
+            {
+                lastUsedConsumableGadget = gadget.Copy().SetUses(Math.Max(1, gadget.uses));
+            }
             gadget.uses--;
             if (gadget.uses == 0)
             {
@@ -2121,11 +2216,20 @@ namespace Aotenjo
                 }
             }
 
-            var playerGadgetEvent = new PlayerGadgetEvent(this, gadget);
+            var playerGadgetEvent = new PlayerEvents.PostUseGadgetEvent(this, gadget);
             playerGadgetEvent.tile = tile;
-            PostUseGadgetEvent?.Invoke(playerGadgetEvent);
+            EventBus.Publish(playerGadgetEvent);
         }
 
+        public Gadget GetLastUsedConsumableGadget()
+        {
+            return lastUsedConsumableGadget;
+        }
+
+        /// <summary>
+        /// 抽取可用地点
+        /// </summary>
+        /// <returns>抽取结果</returns>
         public virtual List<Destination> GenerateDestinations()
         {
             int v = Level > 8 ? 4 : 2;
@@ -2137,7 +2241,7 @@ namespace Aotenjo
             commonDestination.Add(TileModifyShopDestination.Create(this, Destination.DestinationEventType.COMMON), 10);
             commonDestination.Add(TileAddShopDestination.Create(this, Destination.DestinationEventType.COMMON), 10);
 
-            if (!(Level % 4 == 1 && Level > 1))
+            if (!CurrentLevel.IsPostBossChapterStart)
             {
                 commonDestination.Add(new WastelandDestination(false, this), 10);
             }
@@ -2149,7 +2253,7 @@ namespace Aotenjo
                 result.Add(commonDestination.Draw(range => GenerateRandomInt(range, "destination"), false));
             }
 
-            if (Level % 4 == 1 && Level > 1)
+            if (CurrentLevel.IsPostBossChapterStart)
             {
                 result[0] = result[0].GetRandomRedEventVariant(this);
                 if (v == 4)
@@ -2165,7 +2269,7 @@ namespace Aotenjo
                 result[saleIndex].SetOnSale();
 
 
-            PostGenerateDestinationEvent?.Invoke(this, result);
+            EventBus.Publish(new PlayerEvents.PostGenerateDestinationEvent(this, result));
 
             return result;
         }
@@ -2276,29 +2380,29 @@ namespace Aotenjo
         public PlayerYakuEvent.Upgrade OnPreUpgradeYaku(YakuType yaku, int level)
         {
             skillSet.GetLevel(yaku);
-            PlayerYakuEvent.Upgrade evt = new PlayerYakuEvent.Upgrade(this, yaku, level);
-            OnPreUpgradeYakuEvent?.Invoke(evt);
+            PlayerEvents.OnPreUpgradeYakuEvent evt = new(this, yaku, level);
+            EventBus.Publish(evt);
             return evt;
         }
 
         public bool DetermineMaterialCompatibility(Tile tile, TileMaterial mat)
         {
-            PlayerDetermineMaterialCompatibilityEvent evt = new(this, tile, mat);
-            DetermineMaterialCompatibilityEvent?.Invoke(evt);
+            PlayerEvents.DetermineMaterialCompatibilityEvent evt = new(this, tile, mat);
+            EventBus.Publish(evt);
             return evt.res;
         }
 
         public bool DetermineFontCompatibility(Tile tile, TileFont font)
         {
-            PlayerDetermineFontCompatibilityEvent evt = new(this, tile, font);
-            DetermineFontCompatibilityEvent?.Invoke(evt);
+            PlayerEvents.DetermineFontCompatibilityEvent evt = new(this, tile, font);
+            EventBus.Publish(evt);
             return evt.res;
         }
 
         public bool DetermineTileCompatibility(Tile tile, int cat, int order)
         {
-            PlayerDetermineTileFaceCompatibilityEvent evt = new(this, tile, cat, order);
-            DetermineTileCompatibilityEvent?.Invoke(evt);
+            PlayerEvents.DetermineTileCompatibilityEvent evt = new(this, tile, cat, order);
+            EventBus.Publish(evt);
             return evt.res;
         }
 
@@ -2311,14 +2415,14 @@ namespace Aotenjo
 
         public void OnChoosePath(Direction direction, IEnumerable<Destination> destinations)
         {
-            PlayerChoosePathEvent evt = new PlayerChoosePathEvent(this, direction, destinations.ToArray());
-            ChoosePathEvent?.Invoke(evt);
+            PlayerEvents.ChoosePathEvent evt = new(this, direction, destinations.ToArray());
+            EventBus.Publish(evt);
         }
 
         public bool OnSetTransform(Tile tile, TileTransform tileTransform, Gadget gadget = null)
         {
-            PlayerSetTransformEvent evt = new PlayerSetTransformEvent(this, gadget, tileTransform, tile);
-            PreSetTransformEvent?.Invoke(evt);
+            PlayerEvents.PreSetTransformEvent evt = new(this, gadget, tileTransform, tile);
+            EventBus.Publish(evt);
             return !evt.canceled;
         }
 
@@ -2341,8 +2445,8 @@ namespace Aotenjo
 
         public void TriggerPreAddScoringEffectEvent(List<IAnimationEffect> inRoundAnimationQueue)
         {
-            PreAddScoringAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, this,
-                inRoundAnimationQueue);
+            EventBus.Publish(new PlayerEvents.PreAddScoringAnimationEffectEvent(this,
+                GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, inRoundAnimationQueue));
         }
 
         protected virtual void AddExtraScoringEffects(List<IAnimationEffect> inRoundAnimationQueue)
@@ -2503,18 +2607,18 @@ namespace Aotenjo
 
         public void OnChangeMaterial(Tile tile, TileMaterial newMaterial, bool isCopy)
         {
-            PreSetMaterialEvent?.Invoke(new PlayerSetAttributeEvent(this, tile, newMaterial, isCopy));
+            EventBus.Publish(new PlayerEvents.PreSetMaterialEvent(this, tile, newMaterial, isCopy));
         }
 
         public void OnChangeFont(Tile tile, TileFont newFont, bool isCopy)
         {
-            PreSetFontEvent?.Invoke(new PlayerSetAttributeEvent(this, tile, newFont, isCopy));
+            EventBus.Publish(new PlayerEvents.PreSetFontEvent(this, tile, newFont, isCopy));
         }
 
         public bool OnChangeMask(Tile tile, TileMask newMask, bool isCopy)
         {
-            PlayerSetAttributeEvent evt = new PlayerSetAttributeEvent(this, tile, newMask, isCopy);
-            PreSetMaskEvent?.Invoke(evt);
+            PlayerEvents.PreSetMaskEvent evt = new(this, tile, newMask, isCopy);
+            EventBus.Publish(evt);
             return evt.canceled;
         }
 
@@ -2523,7 +2627,7 @@ namespace Aotenjo
         /// </summary>
         public void OnchangeProperties(Tile tile, TileProperties toBecome, bool isCopy)
         {
-            PreSetPropertiesEvent?.Invoke(new PlayerSetPropertiesEvent(this, tile, toBecome, isCopy));
+            EventBus.Publish(new PlayerEvents.PreSetPropertiesEvent(this, tile, toBecome, isCopy));
         }
         
         /// <summary>
@@ -2531,7 +2635,7 @@ namespace Aotenjo
         /// </summary>
         public void PreChangedProperties(Tile tile, TileProperties newProperties)
         {
-            PreSetTilePropertiesEvent?.Invoke(new PlayerSetPropertiesEvent(this, tile, newProperties, false));
+            EventBus.Publish(new PlayerEvents.PreSetTilePropertiesEvent(this, tile, newProperties, false));
         }
 
         public virtual int GetMaxPlayingStage()
@@ -2542,9 +2646,10 @@ namespace Aotenjo
         public Block GenerateRandomBlock()
         {
             List<Tile> tiles = GetUniqueFullDeck();
-            Tile generator = tiles[GenerateRandomInt(tiles.Count)];
+            int Rand(int max) => GenerateRandomInt(max, "random_block");
+            Tile generator = tiles[Rand(tiles.Count)];
 
-            bool isSequence = generator.IsNumbered() && GenerateRandomInt(4) <= 2;
+            bool isSequence = generator.IsNumbered() && Rand(4) <= 2;
 
             Category category = generator.GetCategory();
             int order = generator.GetOrder();
@@ -2566,7 +2671,7 @@ namespace Aotenjo
                     }));
                 }
 
-                return candBlocks[GenerateRandomInt(candBlocks.Count)];
+                return candBlocks[Rand(candBlocks.Count)];
             }
 
             return new Block(new[] { new Tile(category, order), new Tile(category, order), new Tile(category, order) });
@@ -2580,13 +2685,20 @@ namespace Aotenjo
             }
 
             AppendOnTileRoundEndEffect(onRoundEndEffects);
+            AppendAdditionalTileRoundEndEffects(onRoundEndEffects, GetAccumulatedPermutation());
             TriggerOnAddRoundEndAnimationEffectEvent(onRoundEndEffects);
+        }
+
+        // Shared by the legacy and deferred round-end pipelines. Deck-specific
+        // tiles (such as played flowers) live outside the hand and permutation.
+        public virtual void AppendAdditionalTileRoundEndEffects(List<IAnimationEffect> effects, Permutation permutation)
+        {
         }
 
         public void TriggerOnAddRoundEndAnimationEffectEvent(List<IAnimationEffect> onRoundEndEffects)
         {
-            OnPostAddRoundEndAnimationEffectEvent?.Invoke(GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, this,
-                onRoundEndEffects);
+            EventBus.Publish(new PlayerEvents.OnPostAddRoundEndAnimationEffectEvent(this,
+                GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, onRoundEndEffects));
         }
 
         protected virtual void AppendOnTileRoundEndEffect(List<IAnimationEffect> onRoundEndEffects)
@@ -2621,7 +2733,8 @@ namespace Aotenjo
 
         public void TriggerOnAddDiscardTileAnimationEffectEvent(List<IAnimationEffect> onDiscardTileEffects, Tile tile, bool withForce)
         {
-            OnAddSingleDiscardTileAnimationEffectEvent?.Invoke(this, onDiscardTileEffects, tile, withForce);
+            EventBus.Publish(new PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent(this,
+                onDiscardTileEffects, tile, withForce));
         }
 
         public bool OnPreModifyCarvedDesign(Tile t, Category newCat, int newOrd)
@@ -2638,24 +2751,14 @@ namespace Aotenjo
 
         public void TriggerDessertTileConsumedEvent(Tile tile, TileMaterialDessert dessert)
         {
-            OnDessertTileConsumedEvent?.Invoke(this, tile, dessert);
+            EventBus.Publish(new PlayerEvents.OnDessertTileConsumedEvent(this, tile, dessert));
         }
 
         public bool TriggerDessertTileConsumeAttemptEvent(Tile tile, TileMaterialDessert dessert)
         {
-            var evt = new PlayerConsumeDessertEvent(this, tile, dessert);
-            OnDessertTileConsumeAttemptEvent?.Invoke(evt);
+            var evt = new PlayerEvents.OnDessertTileConsumeAttemptEvent(this, tile, dessert);
+            EventBus.Publish(evt);
             return !evt.canceled;
-        }
-
-        public void OnEndRun()
-        {
-            OnEndRunEvent?.Invoke(this, won);
-        }
-
-        public void PostEndRun(PlayerStats globalStats)
-        {
-            PostRunEndEvent?.Invoke(this, won, globalStats);
         }
 
         public bool IsArtifactDebuffed(Artifact artifact)
@@ -2670,7 +2773,7 @@ namespace Aotenjo
         {
             int index = (Level / 4);
             while (index >= upcomingBosses.Count) GenerateNewUpcomingBosses();
-            return Bosses.GetBossOrElseRedraw(upcomingBosses[index], HarderBossesEnabled());
+            return Bosses.GetPreviewOrElseRedraw(upcomingBosses[index], HarderBossesEnabled());
         }
 
         public Boss GetBossAtRound(int prevalentWind)
@@ -2678,7 +2781,7 @@ namespace Aotenjo
             int pluses = (Level - 1) / 16;
             int index = 4 * pluses + prevalentWind - 1;
             while (index >= upcomingBosses.Count) GenerateNewUpcomingBosses();
-            return Bosses.GetBossOrElseRedraw(upcomingBosses[index], HarderBossesEnabled());
+            return Bosses.GetPreviewOrElseRedraw(upcomingBosses[index], HarderBossesEnabled());
         }
 
         public void SyncSelectingTiles(List<Tile> tiles)
@@ -2691,12 +2794,28 @@ namespace Aotenjo
             properties.GadgetLimit = v;
         }
 
+        public void ReplaceYakuPack(int from, int to)
+        {
+            var oldList = properties.YakuPacks;
+            int[] newList = oldList.Select(x => x == from ? to : x).ToArray();
+            properties.YakuPacks = newList;
+        }
+
+        public void UpgradeYakuPack(YakuPack from, YakuPack to)
+        {
+            ReplaceYakuPack(from.id, to.id);
+            foreach (var yaku in to.GetYakuPool(this).Select(y => y.GetYakuType()).Distinct())
+            {
+                UpgradeYaku(yaku, 1);
+            }
+        }
+
         public bool DetermineYaojiu(Tile tile)
         {
-            PlayerTileEvent evt = new(this, tile);
+            PlayerEvents.DetermineYaojiuTileEvent evt = new(this, tile);
             evt.canceled =
                 !(tile.IsHonor(this) || (tile.IsNumbered() && (tile.GetOrder() == 1 || tile.GetOrder() == 9)));
-            DetermineYaojiuTileEvent?.Invoke(evt);
+            EventBus.Publish(evt);
             return !evt.canceled;
         }
 
@@ -2707,27 +2826,27 @@ namespace Aotenjo
 
         public bool DetermineShiftedPair(Block b1, Block b2, int step, bool categorySensitive)
         {
-            PlayerDetermineShiftedPairEvent evt = new(this, b1, b2, step, categorySensitive,
+            PlayerEvents.DetermineShiftedPairEvent evt = new(this, b1, b2, step, categorySensitive,
                 GetCombinator().ASuccB(b2, b1, categorySensitive, step));
-            DetermineShiftedPairEvent?.Invoke(evt);
+            EventBus.Publish(evt);
             return evt.res;
         }
 
         public bool IsPlayerWind(int v)
         {
-            PlayerEvent evt = new PlayerEvent(this);
+            PlayerEvents.DeterminePlayerWindEvent evt = new(this);
             evt.message = v.ToString();
             evt.canceled = v != GetPlayerWind();
-            DeterminePlayerWindEvent?.Invoke(evt);
+            EventBus.Publish(evt);
             return !evt.canceled;
         }
 
         public bool IsPrevalentWind(int v)
         {
-            PlayerEvent evt = new PlayerEvent(this);
+            PlayerEvents.DeterminePrevalentWindEvent evt = new(this);
             evt.message = v.ToString();
             evt.canceled = v != GetPrevalentWind();
-            DeterminePrevalentWindEvent?.Invoke(evt);
+            EventBus.Publish(evt);
             return !evt.canceled;
         }
 
@@ -2753,24 +2872,30 @@ namespace Aotenjo
 
         public virtual bool CanSelectTile(Tile tile)
         {
-            PlayerTileEvent evt = new(this, tile);
-            DetermineTileSelectivityEvent?.Invoke(evt);
+            PlayerEvents.DetermineTileSelectivityEvent evt = new(this, tile);
+            EventBus.Publish(evt);
             return !evt.canceled;
         }
 
         public void TriggerPreSettlePermutationEvent()
         {
-            PreSettlePermutationEvent?.Invoke(new(this, GetCurrentSelectedPerm()));
+            EventBus.Publish(new PlayerEvents.PreSettlePermutationEvent(this, GetCurrentSelectedPerm()));
+        }
+
+        public virtual void TriggerPostSettlePermutationEvent(Permutation permutation)
+        {
+            EventBus.Publish(new PlayerEvents.PostSettlePermutationEvent(this, permutation));
         }
         
         public void TriggerPreAppendSettleScoringEffectsEvent()
         {
-            PreAppendSettleScoringEffectsEvent?.Invoke(new(this, GetCurrentSelectedPerm()));
+            EventBus.Publish(new PlayerEvents.PreAppendSettleScoringEffectsEvent(this, GetCurrentSelectedPerm()));
         }
 
         public void TriggerOnAddSingleTileAnimationEffectEvent(Permutation perm, List<OnTileAnimationEffect> tileAnimationQueue, OnTileAnimationEffect eff, Tile tile)
         {
-            PostAddSingleTileAnimationEffectEvent?.Invoke(perm, this, tileAnimationQueue, eff, tile);
+            EventBus.Publish(new PlayerEvents.PostAddSingleTileAnimationEffectEvent(this, perm,
+                tileAnimationQueue, eff, tile));
         }
       
         #region 指令
@@ -2801,7 +2926,7 @@ namespace Aotenjo
         {
             foreach (var tile in tiles)
             {
-                AddTileToPool(new Tile(tile));
+                AddTileToPool(tile.Copy());
             }
         }
         
@@ -2825,8 +2950,8 @@ namespace Aotenjo
 
         public virtual double GetYakuMultiplier(YakuType yakuType)
         {
-            PlayerYakuEvent.RetrieveMultiplier evt = new(this, yakuType, 1.0D);
-            RetrieveYakuMultiplierEvent?.Invoke(evt);
+            PlayerEvents.RetrieveYakuMultiplierEvent evt = new(this, yakuType, 1.0D);
+            EventBus.Publish(evt);
             return evt.canceled ? 0.0D : evt.multiplier;
         }
 
@@ -2841,8 +2966,8 @@ namespace Aotenjo
 
         public void PostReadIBook(IBook book, List<Yaku> drawnYakus)
         {
-            var evt = new PlayerYakuEvent.ReadBookResult(this, drawnYakus.ToArray(), book);
-            PostUpgradeYakuFromIBookEvent?.Invoke(evt);
+            var evt = new PlayerEvents.PostUpgradeYakuFromIBookEvent(this, drawnYakus.ToArray(), book);
+            EventBus.Publish(evt);
         }
 
         public int GetYakuPackResultCount()
@@ -2862,8 +2987,8 @@ namespace Aotenjo
 
         public int GetEffectiveJadeStack(IJade jade)
         {
-            PlayerJadeEvent.RetrieveEffectiveStack evt = new(this, jade, jade.GetLevel(this));
-            RetrieveEffectiveJadeStackEvent?.Invoke(evt);
+            PlayerEvents.RetrieveEffectiveJadeStackEvent evt = new(this, jade, jade.GetLevel(this));
+            EventBus.Publish(evt);
             return evt.effectiveStack;
         }
 
@@ -2876,17 +3001,21 @@ namespace Aotenjo
 
         public void TriggerOnAddSingleTileScoringEffectEvent(List<IAnimationEffect> effects, Tile tile, Permutation permutation)
         {
-            OnAddSingleTileScoringEffectEvent?.Invoke(permutation, this, effects, tile);
+            EventBus.Publish(new PlayerEvents.OnAddSingleTileScoringEffectEvent(this, permutation, effects, tile));
         }
 
         public int GetYakuPackPrice(IBook yakuPack)
         {
-            //TODO: 改
+            int basePrice = 3;
+            if(yakuPack is YakuPack pack && pack.id >= 4)
+            {
+                basePrice += 2;
+            }
             if (GetArtifacts().Contains(Artifacts.Magnifier))
             {
-                return 4;
+                return basePrice + 1;
             }
-            return 3;
+            return basePrice;
         }
 
         public double GetBaseFuOfTile(Tile tile)
@@ -2900,7 +3029,7 @@ namespace Aotenjo
         public virtual List<IAnimationEffect> GetBaseEffectFromTile(Tile tile)
         {
             return new List<IAnimationEffect>()
-                { ScoreEffect.AddFu(() => GetBaseFuOfTile(tile), null).OnTile(tile) };
+                { ScoreEffect.AddFu(() => GetBaseFuOfTile(tile), null).HideWhenZero().OnTile(tile) };
         }
 
         public virtual bool EraseBlock(Block block)
@@ -2922,6 +3051,39 @@ namespace Aotenjo
 
         public virtual void PostRoundStart()
         {
+        }
+
+        public List<(YakuPack, YakuPack)> GenerateYakuPackUpgradeOptions(YakuPack[] globalTable)
+        {
+            var nativePacks = properties.YakuPacks.Where(id => id < 4).Select(id => globalTable[id]).ToList();
+            var upgradedPacks = properties.YakuPacks.Where(id => id >= 4).Select(id => globalTable[id]).ToList();
+            var upgradedPacksPool = new LotteryPool<YakuPack>();
+            upgradedPacksPool.AddRange(upgradedPacks);
+            var fromPool = new HasFallbackLotteryPool<YakuPack>(upgradedPacksPool);
+            fromPool.AddRange(nativePacks);
+            
+            var res = new List<(YakuPack, YakuPack)>();
+            
+            for (int i = 0; i < 2; i++)
+            {
+                if (fromPool.IsEmpty()) throw new ArgumentException("No available YakuPack to upgrade");
+                YakuPack from = fromPool.Draw(GetRng("YakuPackUpgrade"));
+                var toPool = new LotteryPool<YakuPack>();
+                
+                //若为初始番种包，只能升级为相同种类的升级包；否则可以升级为任意非初始番种包
+                bool fromNativePack = from.id < 4;
+                toPool.AddRange(globalTable.Where(pack =>
+                    pack.GetYakuPool(this).Any() &&
+                    pack.id >= 4 && 
+                    (!fromNativePack || pack.id % 4 == from.id))
+                );
+
+                if (toPool.IsEmpty()) throw new ArgumentException("No available YakuPack to upgrade");
+                YakuPack to = toPool.Draw(GetRng("YakuPackUpgrade"));
+                res.Add((from, to));
+            }
+
+            return res;
         }
     }
 }

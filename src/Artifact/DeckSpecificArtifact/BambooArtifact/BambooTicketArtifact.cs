@@ -18,7 +18,7 @@ public class BambooTicketArtifact : LevelingArtifact, IPersistantAura
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.PostGenerateDestinationEvent += OnPostGenerateDestinationEvent;
+        EventBus.Subscribe<PlayerEvents.PostGenerateDestinationEvent>(player, OnPostGenerateDestinationEvent);
     }
 
     private void OnPostGenerateDestinationEvent(Player player, List<Destination> list)
@@ -58,7 +58,7 @@ public class BambooTicketArtifact : LevelingArtifact, IPersistantAura
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.PostGenerateDestinationEvent -= OnPostGenerateDestinationEvent;
+        EventBus.Unsubscribe<PlayerEvents.PostGenerateDestinationEvent>(player, OnPostGenerateDestinationEvent);
     }
 
     public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)

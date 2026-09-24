@@ -14,13 +14,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffect;
+            EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffect;
+            EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
         }
 
         private void OnPostAddScoringAnimationEffect(Permutation perm, Player player, List<IAnimationEffect> list)

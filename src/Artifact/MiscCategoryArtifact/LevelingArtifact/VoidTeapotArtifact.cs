@@ -25,6 +25,19 @@ namespace Aotenjo
             base.ResetArtifactState();
             first = true;
         }
+
+        public override string Serialize()
+        {
+            return base.Serialize() + "," + first;
+        }
+
+        public override void Deserialize(string data)
+        {
+            var parts = data.Split(',');
+            base.Deserialize(parts[0]);
+            // Legacy saves only contain the level; do not reuse the singleton's later state.
+            first = parts.Length < 2 || bool.Parse(parts[1]);
+        }
         
         public double GetMul(Player player)
         {
@@ -64,7 +77,6 @@ namespace Aotenjo
             if (first)
             {
                 effects.Add(new UpgradeEffect(this));
-                first = false;
             }
         }
 
@@ -85,6 +97,7 @@ namespace Aotenjo
             public override void Ingest(Player player)
             {
                 artifact.Level++;
+                artifact.first = false;
             }
 
             public override string GetEffectDisplay(Func<string, string> func)

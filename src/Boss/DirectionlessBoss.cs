@@ -14,7 +14,7 @@ public class DirectionlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent += Directionless;
+        EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, Directionless);
         EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         playedYakus.Clear();
     }
@@ -22,7 +22,7 @@ public class DirectionlessBoss : Boss
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent -= Directionless;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, Directionless);
         EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 

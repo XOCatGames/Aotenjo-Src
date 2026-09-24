@@ -28,7 +28,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             if (tile.IsNumbered() && (tile.GetOrder() == 4 || tile.GetOrder() == 7))
             {
                 int res = player.GenerateRandomInt(7);

@@ -14,6 +14,18 @@ using UnityEngine.Localization.Tables;
 using static Skill;
 
 [Serializable]
+public sealed class YakuGraphPositionOverride
+{
+    [LabelText("番种包 ID")] public int categoryId;
+
+    [LabelText("使用自定义位置")] public bool useCustomPosition = true;
+
+    [LabelText("番种图列"), MinValue(0), ShowIf(nameof(useCustomPosition))] public int graphLane;
+
+    [LabelText("番种图行"), MinValue(1), ShowIf(nameof(useCustomPosition))] public int graphRow = 1;
+}
+
+[Serializable]
 public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 {
     [LabelText("番种类型")] public YakuType type;
@@ -44,6 +56,21 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     [LabelText("番种图显示顺序")] public int order;
 
+    [LabelText("使用自定义番种图位置")] public bool useCustomGraphPosition;
+
+    [LabelText("番种图列"), MinValue(0), ShowIf(nameof(useCustomGraphPosition))] public int graphLane;
+
+    [LabelText("番种图行"), MinValue(1), ShowIf(nameof(useCustomGraphPosition))] public int graphRow = 1;
+
+    [LabelText("按番种包覆盖番种图位置")]
+    public List<YakuGraphPositionOverride> graphPositionOverrides = new();
+
+    [LabelText("使用自定义 V2 番种图行")] public bool useCustomGraphV2Row;
+
+    [LabelText("V2 番种图行"), MinValue(1), ShowIf(nameof(useCustomGraphV2Row))] public int graphV2Row = 1;
+
+    [LabelText("番种图隐藏链接（不影响继承）")] public YakuType[] hiddenGraphConnections = Array.Empty<YakuType>();
+
     [LabelText("番种范围黑名单")] public string[] blacklistedGroups;
 
     public Yaku(YakuType yakuType, int fullFan, double growthFactor, double levelingFactor, YakuType[] includedYakus,
@@ -58,6 +85,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         this.rarity = rarity;
         this.example = example;
         this.yakuCategories = yakuCategories.ToList();
+        
         blacklistedGroups = new string[] { };
     }
 
@@ -75,7 +103,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
     public string GetNameRomajiKey()
     {
-        return $"yaku_{type.ToString()}_romaji_name";
+        return $"yaku_{type}_romaji_name";
     }
 
     public string GetDescriptionLocalizationKey()
@@ -93,8 +121,7 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
 
         if (this.type == FixedYakuType.LiGuLiGu || this.type == FixedYakuType.YiShiSanYao)
         {
-            int[] intervals;
-            intervals = type == FixedYakuType.LiGuLiGu ? new[] { 3, 2, 2, 2, 2, 2, 2, 2 } : new[] { 3, 12, 2 };
+            int[] intervals = type == FixedYakuType.LiGuLiGu ? new[] { 3, 2, 2, 2, 2, 2, 2, 2 } : new[] { 3, 12, 2 };
             int j = 0;
             int k = 0;
             for (int i = 0; i < tiles.Count; i++)
@@ -162,16 +189,44 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
         return other.rarity - rarity == 0 ? (other.fullFan - fullFan) : other.rarity - rarity;
     }
 
-    public bool AvailableIn(string name)
+    public bool AvailableIn(string deckName)
     {
-        return groups.Contains(name);
+        return groups.Contains(deckName);
     }
 
     public string GetFormattedName(Func<string, string> loc)
     {
-        return string.Format($"<style=\"{rarity.ToString()}\">{{0}}</style>", loc(GetNameLocalizeKey()));
+        return string.Format($"<style=\"{rarity.ToString()}\"><link=\"pattern_{type}\">{{0}}</link></style>", loc(GetNameLocalizeKey()));
     }
 
+    public string GetFormattedInitial(Func<string, string> loc)
+    {
+        string fullName = loc(GetNameLocalizeKey());
+
+        if (string.IsNullOrWhiteSpace(fullName))
+            return "";
+
+        var words = fullName
+            .Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
+
+        StringBuilder sb = new StringBuilder();
+
+        foreach (string word in words)
+        {
+            char first = word[0];
+
+            if (char.IsLetter(first))
+            {
+                sb.Append(char.ToUpper(first));
+                sb.Append(". ");
+            }
+        }
+
+        string result = sb.ToString().TrimEnd();
+
+        return $"<style=\"{rarity}\">{result}</style>";
+    }
+    
     public string GetYakuSkillRequirementText(Func<string, string> loc)
     {
         string format = loc("ui_require_skill_level_format");
@@ -205,6 +260,61 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
     public List<int> GetYakuCategories()
     {
         return new List<int>(yakuCategories);
+    }
+
+    public bool TryGetGraphPosition(int? categoryId, out int lane, out int row)
+    {
+        if (categoryId.HasValue)
+        {
+            YakuGraphPositionOverride categoryOverride = graphPositionOverrides?
+                .LastOrDefault(position => position != null && position.categoryId == categoryId.Value);
+            if (categoryOverride != null)
+            {
+                lane = Math.Max(0, categoryOverride.graphLane);
+                row = Math.Max(1, categoryOverride.graphRow);
+                return categoryOverride.useCustomPosition;
+            }
+        }
+
+        lane = Math.Max(0, graphLane);
+        row = Math.Max(1, graphRow);
+        return useCustomGraphPosition;
+    }
+
+    public void SetGraphPosition(int categoryId, int lane, int row)
+    {
+        YakuGraphPositionOverride categoryOverride = GetOrCreateGraphPositionOverride(categoryId);
+        categoryOverride.useCustomPosition = true;
+        categoryOverride.graphLane = Math.Max(0, lane);
+        categoryOverride.graphRow = Math.Max(1, row);
+    }
+
+    public void SetAutomaticGraphPosition(int categoryId)
+    {
+        YakuGraphPositionOverride categoryOverride = GetOrCreateGraphPositionOverride(categoryId);
+        categoryOverride.useCustomPosition = false;
+    }
+
+    private YakuGraphPositionOverride GetOrCreateGraphPositionOverride(int categoryId)
+    {
+        graphPositionOverrides ??= new List<YakuGraphPositionOverride>();
+        YakuGraphPositionOverride categoryOverride = graphPositionOverrides
+            .LastOrDefault(position => position != null && position.categoryId == categoryId);
+        if (categoryOverride != null)
+        {
+            return categoryOverride;
+        }
+
+        categoryOverride = new YakuGraphPositionOverride { categoryId = categoryId };
+        graphPositionOverrides.Add(categoryOverride);
+        return categoryOverride;
+    }
+
+    public bool IsGraphConnectionHidden(YakuType prerequisiteType)
+    {
+        return prerequisiteType != null &&
+               hiddenGraphConnections != null &&
+               hiddenGraphConnections.Any(hiddenType => hiddenType == prerequisiteType);
     }
 
     public List<SkillType> GetYakuRequiredSkills()
@@ -244,9 +354,16 @@ public class Yaku : ScriptableObject, IComparable<Yaku>, ITileHighlighter
     public bool ShouldHighlightTile(Tile tile, Player player)
     {
         Permutation permutation = player.GetCurrentSelectedPerm() ?? player.GetAccumulatedPermutation();
-        if(permutation == null) return false;
-        YakuTester.TestYaku(permutation, type, player, out var tiles);
+        YakuTester.TestYakuForHighlight(permutation, type, player, out var tiles);
+        
         return tiles.Contains(tile);
+    }
+
+    public string GetSubHeader(Func<string, string> loc)
+    {
+        string rarityName = rarity.ToString().ToLower();
+        string rarityText = loc($"rarity_{rarityName}_name") + " " + loc("pattern_name");
+        return rarityText;
     }
 }
 

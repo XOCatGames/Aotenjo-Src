@@ -22,7 +22,7 @@ namespace Aotenjo
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialSecretColorPorcelain(spriteID, material);
+            return new TileMaterialSecretColorPorcelain(spriteID, material?.Copy());
         }
 
         public TileMaterial DrawNewMaterial(Player player)
@@ -51,7 +51,7 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             EventBus.Subscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
-            player.DetermineMaterialCompatibilityEvent += DetermineMaterial;
+            EventBus.Subscribe<PlayerEvents.DetermineMaterialCompatibilityEvent>(player, DetermineMaterial);
         }
 
         private void DetermineMaterial(PlayerDetermineMaterialCompatibilityEvent evt)
@@ -59,7 +59,6 @@ namespace Aotenjo
             TileMaterial thisTileMaterial = evt.tile.properties.material;
             TileMaterial materialToCast = evt.mat;
             if (thisTileMaterial != this) return;
-            if (materialToCast == material) return;
             if (material == null || materialToCast is TileMaterialSecretColorPorcelain) return;
             evt.res = evt.res || materialToCast.GetRegName() == material.GetRegName();
         }
@@ -68,14 +67,19 @@ namespace Aotenjo
         {
             base.UnsubscribeToPlayerEvents(player);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Pre>(ChangeMaterial);
-            player.DetermineMaterialCompatibilityEvent -= DetermineMaterial;
+            EventBus.Unsubscribe<PlayerEvents.DetermineMaterialCompatibilityEvent>(player, DetermineMaterial);
         }
 
         public override int GetSpriteID(Player player)
         {
-            if (material == null)
-                return base.GetSpriteID(player);
-            return material.GetSpriteID(player) + 50;
+            // The animated glaze identifies secret porcelain; the body uses the
+            // actual porcelain instead of the old green/dashed placeholders.
+            return (material ?? WHITE_PORCELAIN).GetSpriteID(player);
+        }
+
+        public override Sprite GetSprite(Player player)
+        {
+            return material == null ? base.GetSprite(player) : material.GetSprite(player);
         }
 
         public override string GetLocalizeKey()

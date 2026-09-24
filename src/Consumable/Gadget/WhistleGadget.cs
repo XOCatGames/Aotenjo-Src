@@ -5,6 +5,8 @@ namespace Aotenjo
 {
     public class WhistleGadget : ReusableGadget
     {
+        protected override Gadget CreateCopy() => new WhistleGadget();
+
         public WhistleGadget() : base("whistle", 11, 1, 7)
         {
         }
@@ -41,12 +43,12 @@ namespace Aotenjo
                 return false;
             }
 
-            return UseOnTilesReturnInfluencedTiles(player, selectingTiles).Count != 0;
+            return UseOnTiles(player, selectingTiles).Success;
         }
 
-        public override List<Tile> UseOnTilesReturnInfluencedTiles(Player player, List<Tile> tiles)
+        public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
         {
-            if (!CanUseOnTiles(tiles, player)) return null;
+            if (tiles == null || uses <= 0 || !CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
             Permutation perm = player.GetAccumulatedPermutation();
             Tile t1 = tiles[0];
             Tile t2 = tiles[1];
@@ -63,10 +65,10 @@ namespace Aotenjo
             perm.jiang.tile1 = t1;
             perm.jiang.tile2 = t2;
             MessageManager.Instance.OnSoundEvent("Whistle");
-            return new List<Tile> { jiang1, jiang2 };
+            return GadgetUseResult.Succeeded(new[] { jiang1, jiang2 });
         }
 
-        public override int GetMaxOnUseNum()
+        public override int GetMaxOnUseNum(Player player)
         {
             return 2;
         }

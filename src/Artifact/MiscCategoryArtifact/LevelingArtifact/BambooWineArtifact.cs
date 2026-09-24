@@ -34,7 +34,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.GetCategory() != Tile.Category.Suo || !player.Selecting(tile)) return;
+            if (tile.GetCategory() != Tile.Category.Suo || !player.IsPlayingTile(tile)) return;
             effects.Add(new ConsumeEffect(this, tile));
         }
 

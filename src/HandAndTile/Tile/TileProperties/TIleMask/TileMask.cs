@@ -26,5 +26,10 @@ namespace Aotenjo
         {
             return "TileMask";
         }
+
+        public override string GetSubheader(Func<string, string> loc)
+        {
+            return loc("ui_debuff");
+        }
     }
 }

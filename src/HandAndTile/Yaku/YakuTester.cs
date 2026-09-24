@@ -13,7 +13,7 @@ namespace Aotenjo
 
         public static bool TestYaku(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
         {
-            RelatedTiles = permutation.ToTiles();
+            RelatedTiles = permutation?.ToTiles() ?? new List<Tile>();
             YAKUS_PREDICATE_MAP.TryGetValue(yaku, out var predicate);
             if (predicate != null)
             {
@@ -24,7 +24,24 @@ namespace Aotenjo
             relatedTiles = new (RelatedTiles);
             return false;
         }
-
+        public static bool TestYakuForHighlight(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
+        {
+            RelatedTiles = permutation?.ToTiles() ?? new List<Tile>();
+            YAKUS_PREDICATE_MAP.TryGetValue(yaku, out var predicate);
+            if (predicate != null)
+            {
+                try
+                {
+                    bool testYaku = predicate.Invoke(permutation, status);
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine(e);
+                }
+            }
+            relatedTiles = new (RelatedTiles);
+            return false;
+        }
         public static bool IncludeYaku(YakuType a, YakuType b)
         {
             return GetYakuChilds(a).Contains(b);
@@ -316,7 +333,7 @@ namespace Aotenjo
         private static bool VerifyZhenJiuLianBaoDeng(Permutation perm, Player status)
         {
             if (perm.blocks.Length != 5) return false;
-            if (perm.blocks.Any(b => b.IsAAAA())) return false;
+            if (perm.blocks.Any(b => status.GetCombinator().IsKong(b))) return false;
             if (!VerifyQingYiSe(perm, status)) return false;
             Dictionary<int, int> dict = new();
             for (int i = 1; i < 10; i++)
@@ -337,7 +354,7 @@ namespace Aotenjo
         private static bool VerifyWuGang(Permutation perm, Player player)
         {
             if (perm.blocks.Length != 5) return false;
-            return VerifyForBlockCount(perm, player, b => b.IsAAAA(), 5);
+            return VerifyForBlockCount(perm, player, b => player.GetCombinator().IsKong(b), 5);
         }
         
         private static bool VerifyWuKe(Permutation perm, Player player)
@@ -1080,22 +1097,22 @@ namespace Aotenjo
 
         private static bool VerifyGang(Permutation permutation, Player status)
         {
-            return VerifyForBlockCount(permutation, status, b => b.IsAAAA(), 1);
+            return VerifyForBlockCount(permutation, status, b => status.GetCombinator().IsKong(b), 1);
         }
 
         private static bool VerifyShuangGang(Permutation permutation, Player status)
         {
-            return VerifyForBlockCount(permutation, status, b => b.IsAAAA(), 2);
+            return VerifyForBlockCount(permutation, status, b => status.GetCombinator().IsKong(b), 2);
         }
 
         private static bool VerifySanGang(Permutation permutation, Player status)
         {
-            return VerifyForBlockCount(permutation, status, b => b.IsAAAA(), 3);
+            return VerifyForBlockCount(permutation, status, b => status.GetCombinator().IsKong(b), 3);
         }
 
         private static bool VerifySiGang(Permutation permutation, Player status)
         {
-            return VerifyForBlockCount(permutation, status, b => b.IsAAAA(), 4);
+            return VerifyForBlockCount(permutation, status, b => status.GetCombinator().IsKong(b), 4);
         }
 
         private static bool VerifyDuanYaoJiu(Permutation permutation, Player status)
@@ -1350,7 +1367,7 @@ namespace Aotenjo
 
         private static bool VerifyJiuLianBaoDeng(Permutation permutation, Player status)
         {
-            if (permutation.blocks.Any(b => b.IsAAAA())) return false;
+            if (permutation.blocks.Any(b => status.GetCombinator().IsKong(b))) return false;
             if (VerifyQingYiSe(permutation, status))
             {
                 Dictionary<int, int> dict = new();
@@ -1673,8 +1690,9 @@ namespace Aotenjo
             return permutationType == PermutationType.SEVEN_PAIRS;
         }
 
-        private static bool VerifyThirteenOrphan(Permutation perm, Player _)
+        private static bool VerifyThirteenOrphan(Permutation perm, Player player)
         {
+            SetRelatedTilesWithPred(perm, player, (t => t.IsYaoJiu(player)));
             return perm.GetPermType() == PermutationType.THIRTEEN_ORPHANS;
         }
         
@@ -1684,9 +1702,15 @@ namespace Aotenjo
         
         public static bool VerifyForAllTiles(Permutation perm, Player status, Func<Tile, bool> pred)
         {
-            var permTiles = perm.ToTiles();
-            RelatedTiles = permTiles.Union(status.GetHandDeckCopy()).Where(t => t != null).Where(pred).ToList();
+            var permTiles = SetRelatedTilesWithPred(perm, status, pred);
             return permTiles.All(t => RelatedTiles.Contains(t));
+        }
+
+        private static List<Tile> SetRelatedTilesWithPred(Permutation perm, Player status, Func<Tile, bool> pred)
+        {
+            var permTiles = perm?.ToTiles() ?? new List<Tile>();
+            RelatedTiles = permTiles.Union(status.GetHandDeckCopy()).Where(t => t != null).Where(pred).ToList();
+            return permTiles;
         }
 
         public static bool VerifyForBlockCount(Permutation perm, Player status, Func<Block, bool> pred, int num)

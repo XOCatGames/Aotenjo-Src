@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class StimulantGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new StimulantGadget();
+
     public StimulantGadget() : base("stimulant", 9, 2, 6)
     {
     }
@@ -24,7 +26,8 @@ public class StimulantGadget : Gadget
 
     public override bool ShouldHighlightTile(Tile tile, Player player)
     {
-        return (tile.IsNumbered() || tile.IsHonor(player)) && tile.CompatWithMaterial(TileMaterial.PLAIN, player);
+        return (tile is FlowerTile || tile.IsNumbered() || tile.IsHonor(player)) &&
+               tile.CompatWithMaterial(TileMaterial.PLAIN, player);
     }
 
     public override bool IsConsumable()

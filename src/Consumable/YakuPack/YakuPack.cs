@@ -39,6 +39,15 @@ namespace Aotenjo
 
         public DrawYakuResult Draw(Func<int, int> rng, List<YakuType> includedYakus, int stage, int minimumRarity = 0)
         {
+            return TryDraw(rng, includedYakus, stage, out DrawYakuResult result, minimumRarity)
+                ? result
+                : new DrawYakuResult(FixedYakuType.Base, Rarity.COMMON);
+        }
+
+        public bool TryDraw(Func<int, int> rng, List<YakuType> includedYakus, int stage,
+            out DrawYakuResult result, int minimumRarity = 0)
+        {
+            result = null;
             List<List<YakuType>> pool = new()
             {
                 common,
@@ -75,60 +84,20 @@ namespace Aotenjo
                 weightedWeights[3] *= 2;
             }
 
-            for (int i = 0; i < minimumRarity; i++)
+            // Filter before choosing a rarity: a weighted but unavailable tier is not a valid draw.
+            LotteryPool<int> rangePool = new LotteryPool<int>();
+            for (int i = Math.Max(0, minimumRarity); i < pool.Count; i++)
             {
-                if (i >= weightedWeights.Length - 1 || weightedWeights[i + 1] == 0)
-                {
-                    break;
-                }
-
-                weightedWeights[i] = 0;
+                pool[i] = pool[i].Where(includedYakus.Contains).ToList();
+                if (weightedWeights[i] > 0 && pool[i].Count > 0)
+                    rangePool.Add(i, weightedWeights[i]);
             }
 
-            LotteryPool<List<YakuType>> rangePool = new LotteryPool<List<YakuType>>();
-
-            for (int i = minimumRarity; i < 5; i++)
-            {
-                if (weightedWeights[i] > 0)
-                    rangePool.Add(pool[i], weightedWeights[i]);
-            }
-
-            List<YakuType> range = rangePool.Draw(rng);
-
-            Rarity rarity;
-
-            if (range == common)
-            {
-                rarity = Rarity.COMMON;
-            }
-            else if (range == rare)
-            {
-                rarity = Rarity.RARE;
-            }
-            else if (range == epic)
-            {
-                rarity = Rarity.EPIC;
-            }
-            else if (range == legendary)
-            {
-                rarity = Rarity.LEGENDARY;
-            }
-            else
-            {
-                rarity = Rarity.ANCIENT;
-            }
-
-            if (range.Count == 0)
-            {
-                return new(FixedYakuType.Base, Rarity.COMMON);
-            }
-
-            List<YakuType> possibleYakus = new List<YakuType>(range);
-            possibleYakus.RemoveAll(y => !includedYakus.Contains(y));
-
-            int index = rng(possibleYakus.Count);
-
-            return new(possibleYakus[index], rarity);
+            if (rangePool.IsEmpty()) return false;
+            int rarityIndex = rangePool.Draw(rng);
+            List<YakuType> candidates = pool[rarityIndex];
+            result = new DrawYakuResult(candidates[rng(candidates.Count)], (Rarity)rarityIndex);
+            return true;
         }
 
         public string GetRegName()

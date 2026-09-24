@@ -8,19 +8,10 @@ namespace Aotenjo
         {
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void PostRunEnd(RunStatusEvent.End.Post eventData)
         {
-            player.PostRunEndEvent += PostRunEnd;
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.PostRunEndEvent -= PostRunEnd;
-        }
-
-        private void PostRunEnd(Player player, bool won, PlayerStats stats)
-        {
-            if (MahjongDeck.ascensionDecks.All(d => stats.GetWonNumberByDeck(d.regName, 8) > 0))
+            if (MahjongDeck.ascensionDecks.All(d => eventData.stats.GetWonNumberByDeck(d.regName, 8) > 0))
                 SetComplete();
         }
     }

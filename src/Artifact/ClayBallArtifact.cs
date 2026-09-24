@@ -18,8 +18,8 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreSetTransformEvent += OnSetTransform;
-            player.PreSetFontEvent += OnSetFont;
+            EventBus.Subscribe<PlayerEvents.PreSetTransformEvent>(player, OnSetTransform);
+            EventBus.Subscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
             EventBus.Subscribe<PlayerModifyCarvedDesignEvent.Post>(OnModifyFace);
         }
 
@@ -34,8 +34,8 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreSetTransformEvent -= OnSetTransform;
-            player.PreSetFontEvent -= OnSetFont;
+            EventBus.Unsubscribe<PlayerEvents.PreSetTransformEvent>(player, OnSetTransform);
+            EventBus.Unsubscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
             EventBus.Unsubscribe<PlayerModifyCarvedDesignEvent.Post>(OnModifyFace);
         }
 

@@ -14,13 +14,13 @@ public class KnowledgelessBoss : Boss
     public override void SubscribeToPlayerEvents(Player player)
     {
         robbedYakus = new List<Tuple<YakuType, int>>();
-        player.PostSettlePermutationEvent += RobYakus;
+        EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, RobYakus);
         EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PostSettlePermutationEvent -= RobYakus;
+        EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, RobYakus);
         EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
@@ -40,8 +40,10 @@ public class KnowledgelessBoss : Boss
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
         return LuaArtifactBuilder.Create($"{this.name}_reversed", Rarity.COMMON)
-            .OnSubscribeToPlayer((p, a) => p.RetrieveYakuMultiplierEvent += OnYakuMult)
-            .OnUnsubscribeToPlayer((p, a) => p.RetrieveYakuMultiplierEvent -= OnYakuMult)
+            .OnSubscribeToPlayer((p, a) =>
+                EventBus.Subscribe<PlayerEvents.RetrieveYakuMultiplierEvent>(p, OnYakuMult))
+            .OnUnsubscribeToPlayer((p, a) =>
+                EventBus.Unsubscribe<PlayerEvents.RetrieveYakuMultiplierEvent>(p, OnYakuMult))
             .Build();
     }
 

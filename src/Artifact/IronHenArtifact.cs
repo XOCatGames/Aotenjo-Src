@@ -16,13 +16,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.SpendMoneyEvent += OnSpendMoney;
+            EventBus.Subscribe<PlayerEvents.SpendMoneyEvent>(player, OnSpendMoney);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.SpendMoneyEvent -= OnSpendMoney;
+            EventBus.Unsubscribe<PlayerEvents.SpendMoneyEvent>(player, OnSpendMoney);
         }
 
         private void OnSpendMoney(PlayerMoneyEvent evt)

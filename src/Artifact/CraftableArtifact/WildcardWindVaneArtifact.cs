@@ -19,7 +19,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             if (tile.GetCategory() != Tile.Category.Feng || !player.IsPlayerWind(tile.GetOrder())) return;
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 effects.Add(new EarnMoneyEffect(WindVaneArtifact.MONEY, this));
             }
@@ -31,15 +31,15 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DeterminePlayerWindEvent += DetermineWind;
-            player.DeterminePrevalentWindEvent += DetermineWind;
+            EventBus.Subscribe<PlayerEvents.DeterminePlayerWindEvent>(player, DetermineWind);
+            EventBus.Subscribe<PlayerEvents.DeterminePrevalentWindEvent>(player, DetermineWind);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DeterminePlayerWindEvent -= DetermineWind;
-            player.DeterminePrevalentWindEvent -= DetermineWind;
+            EventBus.Unsubscribe<PlayerEvents.DeterminePlayerWindEvent>(player, DetermineWind);
+            EventBus.Unsubscribe<PlayerEvents.DeterminePrevalentWindEvent>(player, DetermineWind);
         }
 
         private void DetermineWind(PlayerEvent playerEvent)

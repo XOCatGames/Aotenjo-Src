@@ -15,39 +15,43 @@ namespace Aotenjo
         [Serializable]
         private class LibraryCardArtifactData
         {
-            [SerializeField] public List<string> entries = new();
-            [SerializeReference] public List<List<YakuType>> buffedYakuList = new();
+            [JsonProperty] public List<string> entries = new();
+            [JsonProperty] public List<List<YakuType>> buffedYakuList = new();
 
             public void PutEntry(string entry, YakuType[] types)
             {
-                if (!entries.Contains(entry))
+                int index = entries.IndexOf(entry);
+                if (index >= 0)
                 {
-                    entries.Add(entry);
-                    buffedYakuList.Add(types.ToList());
-                    return;
+                    entries.RemoveAt(index);
+                    buffedYakuList.RemoveAt(index);
                 }
 
-                buffedYakuList.RemoveAt(entries.IndexOf(entry));
-                entries.Remove(entry);
-                PutEntry(entry, types);
+                entries.Add(entry);
+                buffedYakuList.Add(types.ToList());
             }
-            
+
             public int CountRepeats(YakuType type)
             {
-                return buffedYakuList.SelectMany(Enumerable.AsEnumerable).Count(t => t == type);
+                return buffedYakuList.SelectMany(x => x).Count(t => t == type);
             }
         }
 
         private LibraryCardArtifactData data = new();
 
+        private static readonly JsonSerializerSettings JsonSettings = new()
+        {
+            Converters = { new YakuTypeConverter() }
+        };
+
         public override string Serialize()
         {
-            return JsonConvert.SerializeObject(data);
+            return JsonConvert.SerializeObject(data, JsonSettings);
         }
 
         public override void Deserialize(string json)
         {
-            data = JsonConvert.DeserializeObject<LibraryCardArtifactData>(json);
+            data = JsonConvert.DeserializeObject<LibraryCardArtifactData>(json, JsonSettings)!;
         }
 
         public override void ResetArtifactState()
@@ -89,20 +93,20 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.RetrieveYakuMultiplierEvent += PlayerOnRetrieveYakuMultiplierEvent;
-            player.PostUpgradeYakuFromIBookEvent += PlayerOnOpenIBookEvent;
+            EventBus.Subscribe<PlayerEvents.RetrieveYakuMultiplierEvent>(player, PlayerOnRetrieveYakuMultiplierEvent);
+            EventBus.Subscribe<PlayerEvents.PostUpgradeYakuFromIBookEvent>(player, PlayerOnOpenIBookEvent);
         }
 
         private void PlayerOnOpenIBookEvent(PlayerYakuEvent.ReadBookResult obj)
         {
-            data.PutEntry(obj.book.GetRegName(), obj.results.Select(y => y.GetYakuType()).ToArray());
+            data.PutEntry(obj.book.GetRegName(), obj.results.Select(y => y.GetYakuType()).Distinct().ToArray());
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.RetrieveYakuMultiplierEvent -= PlayerOnRetrieveYakuMultiplierEvent;
-            player.PostUpgradeYakuFromIBookEvent -= PlayerOnOpenIBookEvent;
+            EventBus.Unsubscribe<PlayerEvents.RetrieveYakuMultiplierEvent>(player, PlayerOnRetrieveYakuMultiplierEvent);
+            EventBus.Unsubscribe<PlayerEvents.PostUpgradeYakuFromIBookEvent>(player, PlayerOnOpenIBookEvent);
         }
 
         private void PlayerOnRetrieveYakuMultiplierEvent(PlayerYakuEvent.RetrieveMultiplier yakuEvent)

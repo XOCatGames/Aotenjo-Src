@@ -21,10 +21,17 @@ namespace Aotenjo
                 
                 new ArtifactOnRoundEndAppendEffect(effectStack, permutation, player, 0),
                 
-                new SimpleAppendEffect(effectStack, () => permutation == null? new List<IAnimationEffect>() : permutation.ToTiles().Union(player.GetHandDeckCopy())
+                new SimpleAppendEffect(effectStack, () => (permutation?.ToTiles() ?? new List<Tile>()).Union(player.GetHandDeckCopy())
                     .OrderBy(t => player.TileSettlingOrder(t, permutation))
                     .Select(t => new TileRoundEndEffectAppendEffect(player, t, permutation, effectStack))
                     .ToList<IAnimationEffect>()),
+
+                new SimpleAppendEffect(effectStack, () =>
+                {
+                    List<IAnimationEffect> effects = new List<IAnimationEffect>();
+                    player.AppendAdditionalTileRoundEndEffects(effects, permutation);
+                    return effects;
+                }),
                 
                 new SimpleAppendEffect(effectStack, () =>
                 {

@@ -4,13 +4,15 @@ using Aotenjo;
 [Serializable]
 public class StickerGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new StickerGadget();
+
     public StickerGadget() : base("sticker", 3, 3, 4)
     {
     }
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        if (!ShouldHighlightTile(tile)) return false;
+        if (!ShouldHighlightTile(tile, player)) return false;
 
         tile.AddTransform(new TileTransformSticker(), player);
         MessageManager.Instance.OnSoundEvent("Sticker");
@@ -27,7 +29,7 @@ public class StickerGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return tile.GetCategory() == Tile.Category.Wan && tile.GetOrder() < 9;
     }

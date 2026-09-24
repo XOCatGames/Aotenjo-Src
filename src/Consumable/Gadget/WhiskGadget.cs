@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class WhiskGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new WhiskGadget();
+
     public WhiskGadget() : base("whisk", 10, 3, 6)
     {
     }
@@ -32,7 +34,7 @@ public class WhiskGadget : Gadget
         return false;
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return true;
     }

@@ -8,18 +8,11 @@ namespace Aotenjo
         {
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void OnLost(RunStatusEvent.End eventData)
         {
-            player.OnEndRunEvent += OnLost;
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.OnEndRunEvent -= OnLost;
-        }
-
-        private void OnLost(Player player, bool won)
-        {
+            Player player = eventData.player;
+            bool won = eventData.won;
             if (!won || player.Level > 16)
             {
                 double diff = Math.Floor(player.CurrentAccumulatedScore) - Math.Floor(player.GetLevelTarget());

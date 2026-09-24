@@ -5,6 +5,8 @@ namespace Aotenjo
 {
     public class HairDryerGadget : ReusableGadget
     {
+        protected override Gadget CreateCopy() => new HairDryerGadget();
+
         public HairDryerGadget() : base("hair_dryer", 19, 1, 9)
         {
         }
@@ -24,9 +26,13 @@ namespace Aotenjo
                 ? block.tiles.Select(t => 9 - t.GetOrder()).Min()
                 : block.tiles.Select(t => 1 - t.GetOrder()).Max();
 
+            Direction direction = shiftValue > 0 ? Direction.RIGHT : Direction.LEFT;
+
             foreach (var item in block.tiles)
             {
-                item.AddTransform(new TileTransformTrivial(item.GetCategory(), item.GetOrder() + shiftValue), player);
+                item.AddTransform(
+                    new TileTransformHairDryer(item.GetCategory(), item.GetOrder() + shiftValue, direction),
+                    player);
             }
 
             MessageManager.Instance.OnSoundEvent("HairDryer");
@@ -45,20 +51,19 @@ namespace Aotenjo
             return UseOnBlock(player, block);
         }
 
-        public override bool CanUseOnSettledTiles()
+        public override bool CanUseOnSettledTiles(Player player)
         {
             return false;
         }
 
-        public override int GetMaxOnUseNum()
+        public override int GetMaxOnUseNum(Player player)
         {
             return 4;
         }
 
-        public override bool CanUseOnTiles(List<Tile> tiles)
+        public override bool CanUseOnTiles(List<Tile> tiles, Player player)
         {
             if (tiles.Count < 3 || tiles.Any(t => !t.IsNumbered()) || uses <= 0) return false;
-            Player player = GameManager.Instance.player;
             Block formedBlock = Block.FormValidBlock(tiles.ToArray(), player);
             if (formedBlock == null)
             {
@@ -75,11 +80,12 @@ namespace Aotenjo
             return true;
         }
 
-        public override bool UseOnTiles(Player player, List<Tile> tiles)
+        public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
         {
-            if(!CanUseOnTiles(tiles)) return false;
+            if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
+            if(!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
             Block formedBlock = Block.FormValidBlock(tiles.ToArray(), player);
-            return UseOnBlock(player, formedBlock);
+            return GadgetUseResult.FromSuccess(UseOnBlock(player, formedBlock), tiles);
         }
     }
 }

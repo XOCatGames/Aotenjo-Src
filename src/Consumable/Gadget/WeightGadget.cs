@@ -4,6 +4,8 @@ namespace Aotenjo
 {
     public class WeightGadget : Gadget
     {
+        protected override Gadget CreateCopy() => new WeightGadget();
+
         public WeightGadget() : base("weight", 32, 3, 7)
         {
         }

@@ -11,7 +11,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             if (tile.CompatWithCategory(Tile.Category.Wan))
             {
                 if (tile.CompatWith("5m"))

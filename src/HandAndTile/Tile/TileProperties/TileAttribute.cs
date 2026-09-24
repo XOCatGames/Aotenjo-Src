@@ -20,6 +20,10 @@ namespace Aotenjo
             this.effect = effect;
         }
 
+        public virtual Rarity GetRarity()
+        {
+            return Rarity.COMMON;
+        }
 
         public virtual bool IsDebuff()
         {
@@ -100,6 +104,8 @@ namespace Aotenjo
         {
             return GetLocalizeKey();
         }
+        
+        public abstract string GetSubheader(Func<string, string> loc);
 
         public virtual string GetDescription(Func<string, string> localizer, Player player)
         {

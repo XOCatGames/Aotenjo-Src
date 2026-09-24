@@ -168,10 +168,10 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostAddSingleTileAnimationEffectEvent += Player_PostAddSingleTileAnimationEffectEvent;
-            player.PostAddTileEvent += OnPostAddTile;
-            player.PostObtainArtifactEvent += Player_PostObtainArtifactEvent;
-            player.DetermineYaojiuTileEvent += Player_DetermineYaojiuTileEvent;
+            EventBus.Subscribe<PlayerEvents.PostAddSingleTileAnimationEffectEvent>(player, Player_PostAddSingleTileAnimationEffectEvent);
+            EventBus.Subscribe<PlayerEvents.PostAddTileEvent>(player, OnPostAddTile);
+            EventBus.Subscribe<PlayerEvents.PostObtainArtifactEvent>(player, Player_PostObtainArtifactEvent);
+            EventBus.Subscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, Player_DetermineYaojiuTileEvent);
         }
 
         private void Player_DetermineYaojiuTileEvent(PlayerTileEvent tileEvent)
@@ -202,10 +202,10 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostAddSingleTileAnimationEffectEvent -= Player_PostAddSingleTileAnimationEffectEvent;
-            player.PostAddTileEvent -= OnPostAddTile;
-            player.PostObtainArtifactEvent -= Player_PostObtainArtifactEvent;
-            player.DetermineYaojiuTileEvent -= Player_DetermineYaojiuTileEvent;
+            EventBus.Unsubscribe<PlayerEvents.PostAddSingleTileAnimationEffectEvent>(player, Player_PostAddSingleTileAnimationEffectEvent);
+            EventBus.Unsubscribe<PlayerEvents.PostAddTileEvent>(player, OnPostAddTile);
+            EventBus.Unsubscribe<PlayerEvents.PostObtainArtifactEvent>(player, Player_PostObtainArtifactEvent);
+            EventBus.Unsubscribe<PlayerEvents.DetermineYaojiuTileEvent>(player, Player_DetermineYaojiuTileEvent);
         }
 
         private void OnPostAddTile(PlayerTileEvent tileEvent)
@@ -240,7 +240,7 @@ namespace Aotenjo
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
             ScarletPlayer p = (ScarletPlayer)player;
-            if (player.Level % 4 != 0 && p.GetCategoryLevel(Category.Suo) >= 4 &&
+            if (!player.CurrentLevel.IsBossLevel && p.GetCategoryLevel(Category.Suo) >= 4 &&
                 p.CurrentAccumulatedScore < p.levelTarget)
                 effects.Add(new SimpleEffect("effect_wudi_name", this,
                     p => p.levelTarget = p.CurrentAccumulatedScore - 1));

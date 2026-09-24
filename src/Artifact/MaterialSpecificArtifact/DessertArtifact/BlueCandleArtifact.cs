@@ -20,19 +20,19 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnDessertTileConsumedEvent += OnDessertTileConsumed;
+            EventBus.Subscribe<PlayerEvents.OnDessertTileConsumedEvent>(player, OnDessertTileConsumed);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnDessertTileConsumedEvent -= OnDessertTileConsumed;
+            EventBus.Unsubscribe<PlayerEvents.OnDessertTileConsumedEvent>(player, OnDessertTileConsumed);
         }
 
         private void OnDessertTileConsumed(Player player, Tile tile, TileMaterialDessert dessert)
         {
             // 只对黄油牌响应
-            if (dessert is TileMaterialButter)
+            if (dessert is TileMaterialButter && tile is not FlowerTile)
             {
                 var transformEffect = new BlueCandleEffect(this, tile).MaybeTriggerWithChance(CHANCE, "blue_candle");
                 transformEffect.Ingest(player);
@@ -50,6 +50,7 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
+                if (targetTile is FlowerTile) return;
                 // 生成随机字牌（风牌：1-4z，三元牌：5-7z）
                 List<Tile.Category> honorCategories = new List<Tile.Category> { Tile.Category.Feng, Tile.Category.Jian };
                 Tile.Category selectedCategory = honorCategories[player.GenerateRandomInt(honorCategories.Count)];

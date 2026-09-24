@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class RedMarkerGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new RedMarkerGadget();
+
     public RedMarkerGadget() : base("red_marker", 1, 2, 12)
     {
     }

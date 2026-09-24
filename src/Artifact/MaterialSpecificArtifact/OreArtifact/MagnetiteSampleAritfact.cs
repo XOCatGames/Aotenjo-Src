@@ -10,13 +10,13 @@ public class MagnetiteSampleAritfact : Artifact
     public override void SubscribeToPlayer(Player player)
     {
         base.SubscribeToPlayer(player);
-        player.PreKongTileEvent += Gilde;
+        EventBus.Subscribe<PlayerEvents.PreKongTileEvent>(player, Gilde);
     }
 
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        player.PreKongTileEvent -= Gilde;
+        EventBus.Unsubscribe<PlayerEvents.PreKongTileEvent>(player, Gilde);
     }
 
     private void Gilde(PlayerKongTileEvent eventData)

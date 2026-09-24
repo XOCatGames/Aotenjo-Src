@@ -15,7 +15,7 @@ public class ReadingFlowerTile : OneTimeUseFlowerTile
         base.AppendScoringEffect(effects, player, perm);
         if (used) return;
         used = true;
-        effects.Add(new OnTileAnimationEffect(this, new UpgradeYakusEffect()));
+        effects.Add(new UpgradeYakusEffect().OnTile(this));
     }
 
 

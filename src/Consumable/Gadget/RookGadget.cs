@@ -2,6 +2,8 @@
 
 public class RookGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new RookGadget();
+
     public RookGadget() : base("rook", 20, 2, 9)
     {
     }
@@ -19,7 +21,7 @@ public class RookGadget : ReusableGadget
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (uses <= 0) return false;
-        if (ShouldHighlightTile(tile))
+        if (ShouldHighlightTile(tile, player))
         {
             MessageManager.Instance.OnUseRookEvent(this, tile);
             return true;

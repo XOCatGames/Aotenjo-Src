@@ -10,14 +10,14 @@
         {
             base.SubscribeToPlayer(player);
             EventBus.Subscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
-            player.ObtainGadgetEvent += OnObtainGadget;
+            EventBus.Subscribe<PlayerEvents.ObtainGadgetEvent>(player, OnObtainGadget);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
             EventBus.Unsubscribe<PlayerRoundEvent.Start.Post>(PostRoundStart);
-            player.ObtainGadgetEvent -= OnObtainGadget;
+            EventBus.Unsubscribe<PlayerEvents.ObtainGadgetEvent>(player, OnObtainGadget);
         }
 
         private void PostRoundStart(PlayerEvent playerEvent)

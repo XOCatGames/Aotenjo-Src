@@ -11,12 +11,12 @@ public class HeartlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += Corrupt;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Corrupt);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= Corrupt;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Corrupt);
     }
 
     private void Corrupt(Permutation perm, Player player, List<OnTileAnimationEffect> list)
@@ -25,7 +25,7 @@ public class HeartlessBoss : Boss
 
         if (!NeedCorrupt(perm, player)) return;
 
-        foreach (Tile t in player.GetSelectedTilesCopy().OrderBy(t => player.TileSettlingOrder(t, player.GetAccumulatedPermutation())))
+        foreach (Tile t in player.GetPlayingTiles().OrderBy(t => player.TileSettlingOrder(t, player.GetAccumulatedPermutation())))
             list.Add(new CorruptEffect(t).OnTile(t));
     }
 

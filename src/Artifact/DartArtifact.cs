@@ -40,8 +40,8 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreAddScoringAnimationEffectEvent += OnPreAddScoringEffect;
-            player.OnAddSingleAnimationEffectEvent += PlayerOnOnAddSingleAnimationEffectEvent;
+            EventBus.Subscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, OnPreAddScoringEffect);
+            EventBus.Subscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PlayerOnOnAddSingleAnimationEffectEvent);
         }
 
         private void PlayerOnOnAddSingleAnimationEffectEvent(Player player, List<IAnimationEffect> effects, IAnimationEffect eff)
@@ -55,8 +55,8 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreAddScoringAnimationEffectEvent -= OnPreAddScoringEffect;
-            player.OnAddSingleAnimationEffectEvent -= PlayerOnOnAddSingleAnimationEffectEvent;
+            EventBus.Unsubscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, OnPreAddScoringEffect);
+            EventBus.Unsubscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PlayerOnOnAddSingleAnimationEffectEvent);
         }
 
         private void OnPreAddScoringEffect(Permutation perm, Player player, List<IAnimationEffect> effects)

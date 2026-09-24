@@ -44,13 +44,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DeleteYakuEvent += OnDeleteYaku;
+            EventBus.Subscribe<PlayerEvents.DeleteYakuEvent>(player, OnDeleteYaku);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DeleteYakuEvent -= OnDeleteYaku;
+            EventBus.Unsubscribe<PlayerEvents.DeleteYakuEvent>(player, OnDeleteYaku);
         }
 
         private void OnDeleteYaku(PlayerYakuEvent.Delete eventData)

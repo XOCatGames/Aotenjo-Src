@@ -16,13 +16,13 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.DetermineTileSelectivityEvent += RemoveFrozenTiles;
+            EventBus.Subscribe<PlayerEvents.DetermineTileSelectivityEvent>(player, RemoveFrozenTiles);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.DetermineTileSelectivityEvent -= RemoveFrozenTiles;
+            EventBus.Unsubscribe<PlayerEvents.DetermineTileSelectivityEvent>(player, RemoveFrozenTiles);
         }
 
         public void RemoveFrozenTiles(PlayerTileEvent evt)

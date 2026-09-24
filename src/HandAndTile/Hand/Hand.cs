@@ -111,14 +111,15 @@ namespace Aotenjo
             foreach (var cand in clonedTiles)
             {
                 // Find XXXX
-                foreach (Tile another in clonedTiles.Where(t => combinator.IsIdenticalFormingBlock(t, cand) && t != cand))
+                foreach (Tile another in clonedTiles.Where(t => combinator.CanBeKongMate(t, cand) && t != cand))
                 {
                     foreach (Tile yetAnother in clonedTiles.Where(a =>
-                                 combinator.IsIdenticalFormingBlock(a, cand) && a != another && a != cand))
+                                 combinator.CanBeKongMate(a, cand) && a != another && a != cand))
                     {
                         foreach (Tile lastAnother in clonedTiles.Where(a =>
-                                     combinator.IsIdenticalFormingBlock(a, cand) && a != yetAnother && a != another && a != cand))
+                                     combinator.CanBeKongMate(a, cand) && a != yetAnother && a != another && a != cand))
                         {
+                            if (!combinator.CanFormKong(cand, another, yetAnother, lastAnother)) continue;
                             possibleBlocks.Add(new Block(new []{ cand, another, yetAnother, lastAnother}));
                         }
                     }
@@ -466,14 +467,15 @@ namespace Aotenjo
             }
 
             // Find XXXX
-            foreach (Tile another in clonedTiles.Where(t => combinator.IsIdentical(t, cand)))
+            foreach (Tile another in clonedTiles.Where(t => combinator.CanBeKongMate(t, cand) && t != cand))
             {
                 foreach (Tile yetAnother in clonedTiles.Where(a =>
-                             combinator.IsIdenticalFormingBlock(a, cand) && a != another && another != cand))
+                             combinator.CanBeKongMate(a, cand) && a != another && a != cand))
                 {
                     foreach (Tile lastAnother in clonedTiles.Where(a =>
-                                 combinator.IsIdenticalFormingBlock(a, cand) && a != yetAnother && a != another && a != cand))
+                                 combinator.CanBeKongMate(a, cand) && a != yetAnother && a != another && a != cand))
                     {
+                        if (!combinator.CanFormKong(cand, another, yetAnother, lastAnother)) continue;
                         BuildKong(cand, another, yetAnother, lastAnother, tiles, perms, formedBlocks, jiang, player);
                     }
                 }

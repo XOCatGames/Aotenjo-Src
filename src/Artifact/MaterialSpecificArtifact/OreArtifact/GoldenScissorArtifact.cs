@@ -19,20 +19,20 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += Golden;
+            EventBus.Subscribe<PlayerRoundEvent.Skip.Post>(Golden);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= Golden;
+            EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(Golden);
         }
 
         private void Golden(PlayerEvent eventData)
         {
             Player player = eventData.player;
             List<Tile> cands = player.GetHandDeckCopy().Where(t =>
-                (t.IsNumbered() || t.IsHonor(player)) && t.CompatWithMaterial(TileMaterial.PLAIN, player)).ToList();
+                t.CompatWithMaterial(TileMaterial.PLAIN, player)).ToList();
             if (cands.Count == 0) return;
             Tile tile = cands[player.GenerateRandomInt(cands.Count())];
             tile.SetMaterial(TileMaterial.GOLDEN, player);
@@ -48,7 +48,6 @@ namespace Aotenjo
             public override void Ingest(Player player)
             {
                 List<Tile> targets = player.GetHandDeckCopy().Where(t =>
-                    (t.IsNumbered() || t.IsHonor(player)) &&
                     t.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()).ToList();
                 if (targets.Count == 0) return;
                 LotteryPool<Tile> pool = new();

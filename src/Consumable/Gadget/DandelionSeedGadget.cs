@@ -28,9 +28,9 @@ public class DandelionSeedGadget : Gadget
         return true;
     }
 
-    public override Gadget Copy()
+    protected override Gadget CreateCopy()
     {
-        return new DandelionSeedGadget(order).SetUses(uses);
+        return new DandelionSeedGadget(order);
     }
 
     public override bool IsConsumable()

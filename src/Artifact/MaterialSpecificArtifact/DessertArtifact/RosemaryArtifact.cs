@@ -23,13 +23,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnDessertTileConsumeAttemptEvent += OnDessertTileConsumeAttempt;
+            EventBus.Subscribe<PlayerEvents.OnDessertTileConsumeAttemptEvent>(player, OnDessertTileConsumeAttempt);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnDessertTileConsumeAttemptEvent -= OnDessertTileConsumeAttempt;
+            EventBus.Unsubscribe<PlayerEvents.OnDessertTileConsumeAttemptEvent>(player, OnDessertTileConsumeAttempt);
         }
 
         // 阻止含有绿色的甜品牌消耗

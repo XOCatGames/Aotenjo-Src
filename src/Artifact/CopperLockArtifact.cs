@@ -1,19 +1,22 @@
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 
 namespace Aotenjo
 {
     public class CopperLockArtifact : BaseLockArtifact
     {
+        private const double FAN_MULTIPLIER = 2;
+        private const int REQUIRED_ACTIVATIONS = 24;
+        protected override double FanMultiplier => FAN_MULTIPLIER;
+        protected override int TaskTarget => REQUIRED_ACTIVATIONS;
+        protected override BaseLockArtifact NextLock => Artifacts.SilverLock;
+        protected override int ShopCircle => 1;
+
         public CopperLockArtifact() : base("copper_lock", Rarity.COMMON)
         {
         }
 
-        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
-        {
-            base.AppendOnSelfEffects(player, permutation, effects);
-            effects.Add(ScoreEffect.MulFan(MUL_BASE, this));
-        }
-        
+        public override string GetDescription(Func<string, string> localizer) =>
+            string.Format(CultureInfo.InvariantCulture, base.GetDescription(localizer), FAN_MULTIPLIER, Level, REQUIRED_ACTIVATIONS);
     }
 }

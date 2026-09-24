@@ -14,6 +14,11 @@ namespace Aotenjo
         {
             return false;
         }
+        
+        public override string GetSubheader(Func<string, string> loc)
+        {
+            return loc("tile_mask_name");
+        }
 
         public override void SubscribeToPlayerEvents(Player player)
         {

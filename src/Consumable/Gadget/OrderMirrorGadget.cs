@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class OrderMirrorGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new OrderMirrorGadget();
+
     public OrderMirrorGadget() : base("order_mirror", 13, 3, 6)
     {
     }
@@ -15,7 +17,7 @@ public class OrderMirrorGadget : Gadget
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        if (ShouldHighlightTile(tile))
+        if (ShouldHighlightTile(tile, player))
         {
             tile.AddTransform(new TileTransformMirrored(), player);
             return true;
@@ -34,7 +36,7 @@ public class OrderMirrorGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return tile.IsNumbered();
     }

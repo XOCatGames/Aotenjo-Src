@@ -5,19 +5,12 @@
         public ProtectorAchievement(string id) : base(id)
         {
         }
-
-        public override void SubscribeToPlayer(Player player)
+        
+        [SubscribeToEvent]
+        private void OnWonGame(RunStatusEvent.End eventData)
         {
-            player.OnEndRunEvent += OnWonGame;
-        }
-
-        public override void UnsubscribeFromPlayer(Player player)
-        {
-            player.OnEndRunEvent -= OnWonGame;
-        }
-
-        private void OnWonGame(Player player, bool won)
-        {
+            Player player = eventData.player;
+            bool won = eventData.won;
             if (!won || player.Level > 16) return;
             if (player.stats.GetCustomStats("tile_destoryed") == 0)
             {

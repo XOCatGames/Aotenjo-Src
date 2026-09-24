@@ -21,11 +21,19 @@ namespace Aotenjo
         {
             return new List<IAnimationEffect>()
             {
+                SimpleAppendEffect.Create(effectStack, () =>
+                {
+                    List<IAnimationEffect> effects = new();
+                    if (tile is FlowerTile flower && tile.properties.mask is not TileMaskSuppressed)
+                        flower.AppendScoringEffect(effects, player, permutation);
+                    return effects;
+                }),
                 SimpleAppendEffect.Create(effectStack, () => player.GetBaseEffectFromTile(tile)),
                 SimpleAppendEffect.Create(effectStack, () =>
                 {
                     List<Effect> styleEffects = new();
-                    tile.properties.AppendBonusEffects(styleEffects, permutation, player, tile);
+                    if (tile.properties.mask is not TileMaskSuppressed)
+                        tile.properties.AppendBonusEffects(styleEffects, permutation, player, tile);
                     return styleEffects.Select(e => e.OnTile(tile)).ToList<IAnimationEffect>();
                 }),
                 new ArtifactOnTileAppendEffect(effectStack, permutation, player, 0, tile),
@@ -34,6 +42,13 @@ namespace Aotenjo
                     List<IAnimationEffect> styleEffects = new();
                     player.TriggerOnAddSingleTileScoringEffectEvent(styleEffects, tile, permutation);
                     return styleEffects.ToList();
+                }),
+                SimpleAppendEffect.Create(effectStack, () =>
+                {
+                    List<IAnimationEffect> effects = new();
+                    if (tile is FlowerTile flower && tile.properties.mask is not TileMaskSuppressed)
+                        flower.AppendPostScoringEffect(effects, player, permutation, tile);
+                    return effects;
                 }),
             };
         }

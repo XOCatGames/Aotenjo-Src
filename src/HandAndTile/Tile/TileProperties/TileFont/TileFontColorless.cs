@@ -10,6 +10,11 @@ namespace Aotenjo
         {
         }
 
+        public override Rarity GetRarity()
+        {
+            return Rarity.RARE;
+        }
+
         public override bool IsDebuff()
         {
             return true;

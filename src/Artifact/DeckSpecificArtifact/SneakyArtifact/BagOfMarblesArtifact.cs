@@ -24,7 +24,7 @@ namespace Aotenjo
                     }
 
                     tilesTraversed.Add(item);
-                    effects.Add(new OnTileAnimationEffect(item, new EarnMoneyEffect(1, this)));
+                    effects.Add(new EarnMoneyEffect(1, this).OnTile(item));
                 }
             }
         }

@@ -5,25 +5,36 @@ namespace Aotenjo
 {
     public class CakeHandAchievement : Achievement
     {
+        private int cakeCount = 0;
         public CakeHandAchievement(string id) : base(id)
         {
         }
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffectEvent;
+            EventBus.Subscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendSettleScoringEffects);
+            EventBus.Subscribe<PlayerEvents.PostIngestEffectEvent>(player, PostIngestEffect);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffectEvent;
+            EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendSettleScoringEffects);
+            EventBus.Unsubscribe<PlayerEvents.PostIngestEffectEvent>(player, PostIngestEffect);
         }
 
-        private void OnPostAddScoringAnimationEffectEvent(Permutation permutation, Player player,
-            List<IAnimationEffect> list)
+        private void PreAppendSettleScoringEffects(PlayerPermutationEvent permutationEvent)
         {
-            if (list.Where(ie => ie is OnTileAnimationEffect e && e.effect.GetEffectSource() == Artifacts.CakeExpert)
-                    .Count() >= 7)
+            cakeCount = 0;
+        }
+
+        private void PostIngestEffect(Permutation permutation, Player player,
+            Effect effect)
+        {
+            if (effect.GetEffectSource() == Artifacts.CakeExpert)
+            {
+                cakeCount++;
+            }
+            if (cakeCount >= 7)
             {
                 SetComplete();
             }

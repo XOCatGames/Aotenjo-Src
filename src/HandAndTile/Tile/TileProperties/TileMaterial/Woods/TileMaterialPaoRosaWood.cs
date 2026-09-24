@@ -15,6 +15,11 @@ namespace Aotenjo
         {
         }
 
+        public override TileMaterial Copy()
+        {
+            return new TileMaterialPaoRosaWood(spriteID) { level = level };
+        }
+
         public override int GetOrnamentSpriteID(Player player)
         {
             return 49;
@@ -52,13 +57,13 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.DetermineDiscardTileEvent += OnPreDiscardTile;
+            EventBus.Subscribe<PlayerEvents.DetermineDiscardTileEvent>(player, OnPreDiscardTile);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.DetermineDiscardTileEvent -= OnPreDiscardTile;
+            EventBus.Unsubscribe<PlayerEvents.DetermineDiscardTileEvent>(player, OnPreDiscardTile);
         }
 
         private void OnPreDiscardTile(PlayerDiscardTileEvent.Determine pre)

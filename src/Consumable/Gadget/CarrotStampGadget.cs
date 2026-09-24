@@ -4,6 +4,8 @@ using Aotenjo;
 [Serializable]
 public class CarrotStampGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new CarrotStampGadget();
+
     public CarrotStampGadget() : base("carrot_stamp", 27, 3, 9)
     {
     }
@@ -15,7 +17,7 @@ public class CarrotStampGadget : Gadget
 
     public override bool UseOnTile(Player player, Tile tile)
     {
-        if (!ShouldHighlightTile(tile)) return false;
+        if (!ShouldHighlightTile(tile, player)) return false;
 
         Tile.Category cat = tile.GetCategory();
         int ord = tile.GetOrder();
@@ -38,12 +40,12 @@ public class CarrotStampGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return tile.GetTransforms().Count > 0;
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return true;
     }

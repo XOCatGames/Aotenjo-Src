@@ -21,11 +21,11 @@ namespace Aotenjo
             if (perm != null)
                 visibleTiles.AddRange(perm.ToTiles());
             visibleTiles.AddRange(player.GetHandDeckCopy());
+            visibleTiles.AddRange(player.GetScoringTiles(perm).Except(visibleTiles));
 
             pool.AddRange(player.GetTilePool());
             pool.AddRange(player.GetHandDeckCopy());
-            if (perm != null)
-                pool.AddRange(perm.ToTiles());
+            pool.AddRange(player.GetScoringTiles(perm));
 
             foreach (Tile t in visibleTiles)
             {
@@ -39,7 +39,7 @@ namespace Aotenjo
                 }
             }
 
-            if (pool.Any(a => a != tile && a.CompatWith(tile))) return false;
+            if (pool.Any(a => a != tile && IsMatchingTile(a, tile))) return false;
             return true;
         }
 
@@ -50,12 +50,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (tile is FlowerTile)
-            {
-                return;
-            }
-
-            if (isScored(tile)) return;
+            if (isScored(tile) || tile.properties.mask is TileMaskSuppressed) return;
 
             scoredTiles.Add(tile);
 
@@ -65,20 +60,31 @@ namespace Aotenjo
             pool.AddRange(player.GetHandDeckCopy());
 
             Permutation perm = player.GetAccumulatedPermutation();
-            if (perm != null)
-                pool.AddRange(
-                    perm.ToTiles().Where(t => t != perm.jiang.tile1 && t != perm.jiang.tile2)
-                );
+            pool.AddRange(player.GetScoringTiles(perm)
+                .Where(t => perm?.jiang == null || (t != perm.jiang.tile1 && t != perm.jiang.tile2)));
 
             pool.RemoveAll(a => isScored(a));
-            if (pool.Any(a => a != tile && a.CompatWith(tile))) return;
+            if (pool.Any(a => a != tile && IsMatchingTile(a, tile))) return;
             effects.Add(ScoreEffect.MulFan(1.5, this));
         }
 
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSettlePermutationEvent += OnRoundStart;
+            EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, OnRoundStart);
+        }
+
+        public override void UnsubscribeToPlayer(Player player)
+        {
+            base.UnsubscribeToPlayer(player);
+            EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, OnRoundStart);
+        }
+
+        private static bool IsMatchingTile(Tile candidate, Tile tile)
+        {
+            return candidate is FlowerTile || tile is FlowerTile
+                ? candidate.GetCategory() == tile.GetCategory() && candidate.GetOrder() == tile.GetOrder()
+                : candidate.CompatWith(tile);
         }
 
         private bool isScored(Tile t)

@@ -24,15 +24,17 @@ namespace Aotenjo
             {
                 return new List<IAnimationEffect>();
             }
-            tile.properties.AppendUnusedEffects(player, permutation, effects);
+            if (tile.properties.mask is not TileMaskSuppressed)
+                tile.properties.AppendUnusedEffects(player, permutation, effects);
             
             animationEffects.AddRange(effects.ConvertAll(e => e.OnTile(tile)));
             
-            foreach (var onTile in permutation.ToTiles().OrderBy(t => player.TileSettlingOrder(t, permutation)))
+            foreach (var onTile in player.GetScoringTiles(permutation).OrderBy(t => player.TileSettlingOrder(t, permutation)))
             {
                 //TODO: 不够动态
                 effects.Clear();
-                tile.properties.AppendToListOnTileUnusedEffect(player, permutation, effects, tile, onTile);
+                if (tile.properties.mask is not TileMaskSuppressed)
+                    tile.properties.AppendToListOnTileUnusedEffect(player, permutation, effects, tile, onTile);
                 animationEffects.AddRange(effects.ConvertAll(e => e.OnTile(onTile)));
             }
             

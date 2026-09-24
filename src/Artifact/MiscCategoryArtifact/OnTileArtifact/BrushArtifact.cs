@@ -18,7 +18,7 @@ namespace Aotenjo
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
 
             if ((player.DetermineFontCompatibility(tile, TileFont.COLORLESS) ||
                  player.DetermineFontCompatibility(tile, TileFont.PLAIN)) &&

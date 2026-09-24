@@ -11,8 +11,8 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.ObtainGadgetEvent += OnObtainGadget;
-            player.PostObtainArtifactEvent += OnPostObtainArtifact;
+            EventBus.Subscribe<PlayerEvents.ObtainGadgetEvent>(player, OnObtainGadget);
+            EventBus.Subscribe<PlayerEvents.PostObtainArtifactEvent>(player, OnPostObtainArtifact);
         }
 
         private void OnPostObtainArtifact(PlayerArtifactEvent evt)
@@ -27,8 +27,8 @@ namespace Aotenjo
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.ObtainGadgetEvent -= OnObtainGadget;
-            player.PostObtainArtifactEvent -= OnPostObtainArtifact;
+            EventBus.Unsubscribe<PlayerEvents.ObtainGadgetEvent>(player, OnObtainGadget);
+            EventBus.Unsubscribe<PlayerEvents.PostObtainArtifactEvent>(player, OnPostObtainArtifact);
         }
 
         private void CheckPlayer(Player player)

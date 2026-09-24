@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
+using Aotenjo.ClientSideEvent;
 
 public class TimelessBoss : Boss
 {
@@ -64,13 +65,14 @@ public class TimelessBoss : Boss
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += PostSkipRound;
+            
+            EventBus.Subscribe<PlayerRoundEvent.Skip.Post>(PostSkipRound);
         }
         
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= PostSkipRound;
+            EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(PostSkipRound);
         }
 
         private void PostSkipRound(PlayerEvent playerEvent)
@@ -95,6 +97,10 @@ public class TimelessBoss : Boss
         player.CurrentAccumulatedScore = 0f;
         player.CurrentPlayingStage = 0;
         playerEvent.canceled = true;
+        player.PostRoundStart();
+        
+        EventBus.Publish(new FullScreenAnimationEffectEvent(player, FullScreenAnimationEffectType.TIMELESS));
+        MessageManager.Instance.OnSoundEvent("Timeless");
     }
 
     protected virtual void OnFirstSuccessKeepPlaying(Player player) { }
@@ -104,6 +110,8 @@ public class TimelessBoss : Boss
 
 public class TimeShardGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new TimeShardGadget();
+
     public TimeShardGadget() : base("time_shard", 36, 1, 999)
     {
     }
@@ -134,7 +142,7 @@ public class TimeShardGadget : Gadget
         return false;
     }
 
-    public override bool CanUseOnSettledTiles()
+    public override bool CanUseOnSettledTiles(Player player)
     {
         return true;
     }

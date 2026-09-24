@@ -36,7 +36,7 @@ namespace Aotenjo
         {
             base.AppendBonusEffects(player, perm, tile, effects);
             effects.Add(ScoreEffect.MulFan(MULTIPLIER, null));
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             effects.Add(new TransformEffect(this));
         }
 
@@ -61,8 +61,10 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                List<Tile> cands = player.GetSelectedTilesCopy();
+                List<Tile> cands = player.GetPlayingTiles();
+                if (cands.Count < 2) return;
                 Tile tile = cands.Find(t => t.properties.material == material);
+                if (tile == null) return;
                 int index = cands.IndexOf(tile);
                 int handTotal = cands.Count;
                 int offset = player.GenerateRandomInt(handTotal - 1) + 1;

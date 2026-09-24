@@ -40,7 +40,7 @@ namespace Aotenjo
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialMilleFeuille(materialID, usesLeft, totalUsesConsumed);
+            return new TileMaterialMilleFeuille(materialID, usesLeft, totalUsesConsumed) { maxUses = maxUses };
         }
 
         protected override string GetDescription(Func<string, string> localizer)

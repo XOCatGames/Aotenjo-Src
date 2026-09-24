@@ -22,17 +22,17 @@ public class UnstableBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.PostSkipRoundEvent += OnSkip;
-        player.PostSettlePermutationEvent += PostSettle;
-        player.OnPostAddOnTileAnimationEffectEvent += Persist;
+        EventBus.Subscribe<PlayerRoundEvent.Skip.Post>(PostSkip);
+        EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Persist);
         state = EVEN_AND_WIND;
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.PostSkipRoundEvent -= OnSkip;
-        player.PostSettlePermutationEvent -= PostSettle;
-        player.OnPostAddOnTileAnimationEffectEvent -= Persist;
+        EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(PostSkip);
+        EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, Persist);
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
@@ -44,7 +44,7 @@ public class UnstableBoss : Boss
         Switch();
     }
 
-    private void OnSkip(PlayerEvent playerEvent)
+    private void PostSkip(PlayerEvent playerEvent)
     {
         Switch();
     }
@@ -95,15 +95,15 @@ public class UnstableBoss : Boss
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostSkipRoundEvent += OnSkip;
-            player.PostSettlePermutationEvent += PostSettle;
+            EventBus.Subscribe<PlayerRoundEvent.Skip.Post>(OnSkip);
+            EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostSkipRoundEvent -= OnSkip;
-            player.PostSettlePermutationEvent -= PostSettle;
+            EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(OnSkip);
+            EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
         }
         
         private void PostSettle(PlayerPermutationEvent permutationEvent)

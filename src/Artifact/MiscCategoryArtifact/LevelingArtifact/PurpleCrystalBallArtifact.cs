@@ -52,13 +52,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.RetrieveEffectiveJadeStackEvent += PlayerOnRetrieveEffectiveJadeStackEvent;
+            EventBus.Subscribe<PlayerEvents.RetrieveEffectiveJadeStackEvent>(player, PlayerOnRetrieveEffectiveJadeStackEvent);
         }
         
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.RetrieveEffectiveJadeStackEvent -= PlayerOnRetrieveEffectiveJadeStackEvent;
+            EventBus.Unsubscribe<PlayerEvents.RetrieveEffectiveJadeStackEvent>(player, PlayerOnRetrieveEffectiveJadeStackEvent);
         }
 
         private void PlayerOnRetrieveEffectiveJadeStackEvent(PlayerJadeEvent.RetrieveEffectiveStack evt)

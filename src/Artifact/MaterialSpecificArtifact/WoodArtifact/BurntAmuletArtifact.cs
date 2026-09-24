@@ -10,13 +10,13 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostAddTileEvent += OnPostAddTile;
+            EventBus.Subscribe<PlayerEvents.PostAddTileEvent>(player, OnPostAddTile);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostAddTileEvent -= OnPostAddTile;
+            EventBus.Unsubscribe<PlayerEvents.PostAddTileEvent>(player, OnPostAddTile);
         }
 
         private void OnPostAddTile(PlayerTileEvent tileEvent)

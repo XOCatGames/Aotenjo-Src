@@ -43,10 +43,10 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostIngestEffect += OnPostIngest;
+            EventBus.Subscribe<PlayerEvents.PostIngestEffectEvent>(player, OnPostIngest);
             EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            player.PreAppendSettleScoringEffectsEvent += OnPreAppendSettleScoringEffects;
-            player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffect;
+            EventBus.Subscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, OnPreAppendSettleScoringEffects);
+            EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
         }
 
         private void OnPostAddScoringAnimationEffect(Permutation permutation, Player player,
@@ -77,10 +77,10 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostIngestEffect -= OnPostIngest;
+            EventBus.Unsubscribe<PlayerEvents.PostIngestEffectEvent>(player, OnPostIngest);
             EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            player.PreAppendSettleScoringEffectsEvent -= OnPreAppendSettleScoringEffects;
-            player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffect;
+            EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, OnPreAppendSettleScoringEffects);
+            EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
         }
 
         private void PostRoundEnd(PlayerEvent playerEvent)

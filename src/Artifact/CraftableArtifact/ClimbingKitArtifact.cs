@@ -35,15 +35,15 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineShiftedPairEvent += OnDetermineShifted;
-            player.OnAddSingleAnimationEffectEvent += PostAddScoringEffect;
+            EventBus.Subscribe<PlayerEvents.DetermineShiftedPairEvent>(player, OnDetermineShifted);
+            EventBus.Subscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PostAddScoringEffect);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineShiftedPairEvent -= OnDetermineShifted;
-            player.OnAddSingleAnimationEffectEvent -= PostAddScoringEffect;
+            EventBus.Unsubscribe<PlayerEvents.DetermineShiftedPairEvent>(player, OnDetermineShifted);
+            EventBus.Unsubscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PostAddScoringEffect);
         }
 
         private void PostAddScoringEffect(Player player, List<IAnimationEffect> lst, IAnimationEffect arg4)

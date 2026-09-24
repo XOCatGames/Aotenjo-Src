@@ -10,12 +10,12 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostSettlePermutationEvent += OnSettlePermutation;
+            EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, OnSettlePermutation);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostSettlePermutationEvent -= OnSettlePermutation;
+            EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, OnSettlePermutation);
         }
 
         private void OnSettlePermutation(PlayerPermutationEvent permutationEvent)

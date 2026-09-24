@@ -13,13 +13,13 @@ namespace Aotenjo.TileMaterialGlobalEffect
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.OnAddSingleDiscardTileAnimationEffectEvent += Player_OnAddSingleDiscardTileAnimationEffectEvent;
+            EventBus.Subscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, Player_OnAddSingleDiscardTileAnimationEffectEvent);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.OnAddSingleDiscardTileAnimationEffectEvent -= Player_OnAddSingleDiscardTileAnimationEffectEvent;
+            EventBus.Unsubscribe<PlayerEvents.OnAddSingleDiscardTileAnimationEffectEvent>(player, Player_OnAddSingleDiscardTileAnimationEffectEvent);
         }
 
         private void Player_OnAddSingleDiscardTileAnimationEffectEvent(Player p, List<IAnimationEffect> effects,
@@ -46,7 +46,7 @@ namespace Aotenjo.TileMaterialGlobalEffect
 
             public override List<Tile> GetAffectedTiles(Player player)
             {
-                return player.GetSettledTiles()
+                return player.GetScoringTiles(player.GetAccumulatedPermutation())
                     .Union(player.GetHandDeckCopy())
                     .Where(t => t.properties.material is TileMaterialEmeraldWood &&
                                 t.GetCategory() == tile.GetCategory())

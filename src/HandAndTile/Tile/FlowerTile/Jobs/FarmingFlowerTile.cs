@@ -28,7 +28,7 @@ public class FarmingFlowerTile : OneTimeUseFlowerTile
         foreach (Tile t in player.GetHandDeckCopy()
                      .Where(o => o.IsNumbered() && perm.jiang.All(pairT => pairT.GetOrder() == o.GetOrder())))
         {
-            effects.Add(new OnTileAnimationEffect(t, new GrowFuEffect(null, t, FU, "grow_bamboo_segment")));
+            effects.Add(new GrowFuEffect(null, t, FU, "grow_bamboo_segment").OnTile(t));
         }
     }
 }

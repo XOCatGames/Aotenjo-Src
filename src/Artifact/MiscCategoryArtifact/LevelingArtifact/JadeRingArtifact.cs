@@ -48,6 +48,19 @@ namespace Aotenjo
             first = true;
         }
 
+        public override string Serialize()
+        {
+            return base.Serialize() + "," + first;
+        }
+
+        public override void Deserialize(string data)
+        {
+            var parts = data.Split(',');
+            base.Deserialize(parts[0]);
+            // Legacy saves only contain the level; do not reuse the singleton's later state.
+            first = parts.Length < 2 || bool.Parse(parts[1]);
+        }
+
         public double GetMul(Player player)
         {
             return 1.5f + FAN_BONUS_MULTIPLIER * this.GetEffectiveJadeStack(player);

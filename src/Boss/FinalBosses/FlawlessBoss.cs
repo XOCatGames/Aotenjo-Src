@@ -12,12 +12,12 @@ public class FlawlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent += Flawless;
+        Aotenjo.EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, Flawless);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent -= Flawless;
+        Aotenjo.EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, Flawless);
     }
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
@@ -110,9 +110,9 @@ public class FlawlessBoss : Boss
         {
             debuffedArtifacts = new List<Artifact>();
             debuffEffects = new List<Effect>();
-            player.PreAddScoringAnimationEffectEvent += Flawless;
-            player.OnAddSingleAnimationEffectEvent += PostAddScoringEffect;
-            player.PostSettlePermutationEvent += ResetArtifacts;
+            Aotenjo.EventBus.Subscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, Flawless);
+            Aotenjo.EventBus.Subscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PostAddScoringEffect);
+            Aotenjo.EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, ResetArtifacts);
         }
 
         private void ResetArtifacts(PlayerPermutationEvent permutationEvent)
@@ -123,9 +123,9 @@ public class FlawlessBoss : Boss
 
         public override void UnsubscribeFromPlayerEvents(Player player)
         {
-            player.PreAddScoringAnimationEffectEvent -= Flawless;
-            player.OnAddSingleAnimationEffectEvent -= PostAddScoringEffect;
-            player.PostSettlePermutationEvent -= ResetArtifacts;
+            Aotenjo.EventBus.Unsubscribe<PlayerEvents.PreAddScoringAnimationEffectEvent>(player, Flawless);
+            Aotenjo.EventBus.Unsubscribe<PlayerEvents.OnAddSingleAnimationEffectEvent>(player, PostAddScoringEffect);
+            Aotenjo.EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, ResetArtifacts);
         }
 
         private void PostAddScoringEffect(Player player, List<IAnimationEffect> list, IAnimationEffect eff)

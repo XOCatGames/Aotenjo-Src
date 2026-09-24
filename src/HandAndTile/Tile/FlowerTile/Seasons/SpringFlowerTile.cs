@@ -14,11 +14,11 @@ public class SpringFlowerTile : FlowerTile
     {
         base.AppendScoringEffect(effects, player, perm);
 
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_spring_name")));
+        effects.Add(new TextEffect("effect_spring_name").OnTile(this));
         foreach (Tile tile in player.GetSelectedTilesCopy().Where(t => t.IsNumbered()))
         {
             if (player.GenerateRandomInt(4) == 0)
-                effects.Add(new OnTileAnimationEffect(tile, new GrowEffect(tile, null)));
+                effects.Add(new GrowEffect(tile, null).OnTile(tile));
         }
     }
 

@@ -48,7 +48,7 @@ namespace Aotenjo
                 List<Tile> tilesToAdd = new List<Tile>();
                 foreach (var item in tiles)
                 {
-                    Tile copy = new Tile(item);
+                    Tile copy = item.Copy();
                     copy.ClearTransform(player);
                     copy.SetCategoryForced(category);
                     copy.properties = new(item.properties.CopyWithMask(TileMask.Fractured()));

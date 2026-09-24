@@ -18,7 +18,7 @@
 
         public override void Ingest(Player player)
         {
-            Tile newTile = new Tile(tile);
+            Tile newTile = tile.Copy();
             if (!withProperties)
             {
                 newTile.properties = TileProperties.Plain();

@@ -18,13 +18,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnPostAddRoundEndAnimationEffectEvent += OnPostAddRoundEndAnimationEffect;
+            EventBus.Subscribe<PlayerEvents.OnPostAddRoundEndAnimationEffectEvent>(player, OnPostAddRoundEndAnimationEffect);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnPostAddRoundEndAnimationEffectEvent -= OnPostAddRoundEndAnimationEffect;
+            EventBus.Unsubscribe<PlayerEvents.OnPostAddRoundEndAnimationEffectEvent>(player, OnPostAddRoundEndAnimationEffect);
         }
 
         public void OnPostAddRoundEndAnimationEffect(Permutation permutation, Player player,

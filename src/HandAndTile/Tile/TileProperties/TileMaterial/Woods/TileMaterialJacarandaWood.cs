@@ -29,8 +29,10 @@ namespace Aotenjo
         {
             base.AppendToListDiscardEffect(player, perm, effects, tile, withForce, isClone);
 
-            Tile newTile = LotteryPool<Tile>.DrawFromCollection(
-                player.GetUniqueFullDeck().Where(t => t.GetCategory() == tile.GetCategory()), player.GenerateRandomInt);
+            IEnumerable<Tile> candidates = tile is FlowerTile
+                ? Enumerable.Range(1, 4).Select(order => FlowerTile.FromCategoryAndOrder(tile.GetCategory(), order))
+                : player.GetUniqueFullDeck().Where(t => t.GetCategory() == tile.GetCategory());
+            Tile newTile = LotteryPool<Tile>.DrawFromCollection(candidates, player.GenerateRandomInt);
             newTile.properties = player.GenerateRandomTileProperties(0, 90, 10, 0);
             effects.Add(new SimpleEffect("effect_jacaranda_wood", null, p =>
             {

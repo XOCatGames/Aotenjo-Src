@@ -24,7 +24,7 @@ namespace Aotenjo
         public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             base.AppendBonusEffects(player, perm, tile, effects);
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 effects.Add(new SpawnEffect(this, tile));
             }
@@ -56,9 +56,10 @@ namespace Aotenjo
                 if (tile.properties.material != tileMat) return;
                 tile.SetMask(TileMask.Fractured(), player, true);
 
-                List<Tile> cands = player.GetSelectedTilesCopy().Where(t => t.CompatWithMaterial(PLAIN, player))
+                List<Tile> cands = player.GetPlayingTiles().Where(t => t.CompatWithMaterial(PLAIN, player))
                     .ToList();
-                if (cands.Count == 0) cands = player.GetSelectedTilesCopy();
+                if (cands.Count == 0) cands = player.GetPlayingTiles();
+                if (cands.Count == 0) return;
                 Tile newTile = cands[player.GenerateRandomInt(cands.Count)];
                 newTile.SetMaterial(tileMat.DrawMaterial(player), player);
             }

@@ -22,7 +22,7 @@ namespace Aotenjo
             if (tile.properties.material is TileMaterialPorcelain)
             {
                 effects.Add(ScoreEffect.AddFu(FU, this));
-                if (player.Selecting(tile))
+                if (player.IsPlayingTile(tile))
                 {
                     effects.Add(new FractureEffect(this, tile));
                 }

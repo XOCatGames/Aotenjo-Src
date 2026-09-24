@@ -45,7 +45,7 @@ namespace Aotenjo
 
         private void PostRoundStart(PlayerEvent player)
         {
-            if (player.player.Level % 4 == 0)
+            if (player.player.CurrentLevel.IsBossLevel)
             {
                 removedTargets += (player.player.levelTarget * 0.5d);
                 player.player.levelTarget *= 0.5d;
@@ -55,7 +55,7 @@ namespace Aotenjo
 
         public bool IsAffecting(Player player)
         {
-            return player.Level % 4 == 0;
+            return player.CurrentLevel.IsBossLevel;
         }
     }
 }

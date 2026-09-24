@@ -14,10 +14,10 @@ public class PlumFlowerTile : OneTimeUseFlowerTile
     {
         base.AppendScoringEffect(effects, player, perm);
         if (used) return;
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_plum_name")));
+        effects.Add(new TextEffect("effect_plum_name").OnTile(this));
         foreach (Tile tile in player.GetSelectedTilesCopy().OrderBy(t => player.TileSettlingOrder(t, perm)))
         {
-            effects.Add(new OnTileAnimationEffect(tile, new CleanseEffect(null, tile)));
+            effects.Add(new CleanseEffect(null, tile).OnTile(tile));
         }
 
         used = true;

@@ -2,6 +2,8 @@
 
 public class CloudGlovesGadget : ReusableGadget
 {
+    protected override Gadget CreateCopy() => new CloudGlovesGadget();
+
     public CloudGlovesGadget() : base("cloud_gloves", 26, 5, 99)
     {
     }

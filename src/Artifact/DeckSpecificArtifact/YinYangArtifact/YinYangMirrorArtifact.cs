@@ -10,13 +10,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineShiftedPairEvent += OnDetermineShiftedPair;
+            EventBus.Subscribe<PlayerEvents.DetermineShiftedPairEvent>(player, OnDetermineShiftedPair);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineShiftedPairEvent -= OnDetermineShiftedPair;
+            EventBus.Unsubscribe<PlayerEvents.DetermineShiftedPairEvent>(player, OnDetermineShiftedPair);
         }
 
 

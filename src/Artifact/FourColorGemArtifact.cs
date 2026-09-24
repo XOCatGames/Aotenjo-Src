@@ -6,11 +6,11 @@ namespace Aotenjo
 {
     public class FourColorGemArtifact : Artifact, ICountable
     {
-        public const int MUL = 3;
+        public const int MUL = 2;
 
         protected List<int> triggeredCategories = new List<int>();
 
-        public FourColorGemArtifact() : base("four_color_gem", Rarity.RARE)
+        public FourColorGemArtifact() : base("four_color_gem", Rarity.EPIC)
         {
         }
 
@@ -63,7 +63,7 @@ namespace Aotenjo
         public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
             base.AppendOnSelfEffects(player, permutation, effects);
-            int id_added_predicted = 0;
+            int idAddedPredicted = 0;
             List<YakuType> yakuTypes =
                 permutation.GetYakus(player).Where(y => player.GetSkillSet().GetLevel(y) > 0).ToList();
             HashSet<int> idList = new HashSet<int>();
@@ -72,6 +72,7 @@ namespace Aotenjo
             {
                 foreach (var yakuCategory in type.ToYaku().yakuCategories)
                 {
+                    if (yakuCategory < 0 || yakuCategory > 3) continue;
                     idList.Add(yakuCategory);
                 }
             }
@@ -81,11 +82,15 @@ namespace Aotenjo
                 if (!triggeredCategories.Contains(id))
                 {
                     effects.Add(new FourColorGemEffect(this, id));
-                    id_added_predicted++;
+                    idAddedPredicted++;
                 }
             }
 
-            if (id_added_predicted + triggeredCategories.Count() == 4)
+            if (idAddedPredicted + triggeredCategories.Count() >= 3)
+            {
+                effects.Add(ScoreEffect.MulFan(MUL, this));
+            }
+            if (idAddedPredicted + triggeredCategories.Count() >= 4)
             {
                 effects.Add(ScoreEffect.MulFan(MUL, this));
             }

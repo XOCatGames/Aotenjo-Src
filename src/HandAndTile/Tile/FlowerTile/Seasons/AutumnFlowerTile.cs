@@ -20,8 +20,8 @@ public class AutumnFlowerTile : FlowerTile
     public override void AppendScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm)
     {
         base.AppendScoringEffect(effects, player, perm);
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_autumn_name")));
+        effects.Add(new TextEffect("effect_autumn_name").OnTile(this));
         foreach (Tile tile in perm.ToTiles().OrderBy(t => player.TileSettlingOrder(t, perm)).Where(t => t.IsNumbered()))
-            effects.Add(new OnTileAnimationEffect(tile, ScoreEffect.AddFu(FU_PER_TILE, null)));
+            effects.Add(ScoreEffect.AddFu(FU_PER_TILE, null).OnTile(tile));
     }
 }

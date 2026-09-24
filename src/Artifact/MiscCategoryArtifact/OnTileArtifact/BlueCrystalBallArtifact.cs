@@ -35,7 +35,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
 
 
             if (tile.IsYaoJiu(player))

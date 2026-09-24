@@ -37,13 +37,13 @@ namespace Aotenjo
         protected override void AddDessertEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             effects.Add(ScoreEffect.MulFan(SCORE_MULTIPLIER, null));
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
                 effects.Add(new ShufflePlainCopyEffect(tile));
         }
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialJelly(materialID, usesLeft, totalUsesConsumed);
+            return new TileMaterialJelly(materialID, usesLeft, totalUsesConsumed) { maxUses = maxUses };
         }
 
         protected override string GetDescription(Func<string, string> localizer)
@@ -64,7 +64,9 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                Tile copy = new Tile(sourceTile.GetCategory(), sourceTile.GetOrder());
+                Tile copy = sourceTile is FlowerTile
+                    ? FlowerTile.FromCategoryAndOrder(sourceTile.GetCategory(), sourceTile.GetOrder())
+                    : new Tile(sourceTile.GetCategory(), sourceTile.GetOrder());
                 player.AddNewTileToPool(copy);
             }
         }

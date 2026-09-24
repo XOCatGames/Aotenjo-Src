@@ -15,9 +15,9 @@ public class BambooFlowerTile : OneTimeUseFlowerTile
     {
     }
 
-    public override FlowerTile Copy()
+    public override FlowerTile CopyFlowerEffect()
     {
-        FlowerTile flowerTile = base.Copy();
+        FlowerTile flowerTile = base.CopyFlowerEffect();
         ((BambooFlowerTile)flowerTile).level = level;
         return flowerTile;
     }
@@ -27,28 +27,35 @@ public class BambooFlowerTile : OneTimeUseFlowerTile
         return string.Format(base.GetFlowerDescription(loc), FU_BASE + level * FU_PER_LEVEL, FU_PER_LEVEL);
     }
 
-    public override void AppendScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm)
+    public override double GetBaseFu()
     {
-        base.AppendScoringEffect(effects, player, perm);
+        // Keep saved growth levels and other permanent tile bonuses without migrating save data.
+        return FU_BASE + level * FU_PER_LEVEL + base.GetBaseFu();
+    }
+
+    public override void AppendPostScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm,
+        Tile scoringTile)
+    {
+        base.AppendPostScoringEffect(effects, player, perm, scoringTile);
         if (used) return;
-        effects.Add(new OnTileAnimationEffect(this, new TextEffect("effect_orchid_name")));
-        effects.Add(new OnTileAnimationEffect(this, ScoreEffect.AddFu(FU_BASE + level * FU_PER_LEVEL, null)));
-        effects.Add(new OnTileAnimationEffect(this, new UpgradeFlowerEffect(this)));
+        effects.Add(new UpgradeFlowerEffect(this, scoringTile).OnTile(scoringTile));
         used = true;
     }
 
     private class UpgradeFlowerEffect : Effect
     {
-        private BambooFlowerTile tile;
+        private readonly BambooFlowerTile tile;
+        private readonly Tile scoringTile;
 
-        public UpgradeFlowerEffect(BambooFlowerTile tile)
+        public UpgradeFlowerEffect(BambooFlowerTile tile, Tile scoringTile)
         {
             this.tile = tile;
+            this.scoringTile = scoringTile;
         }
 
         public override string GetEffectDisplay(Func<string, string> func)
         {
-            return func("effect_chrys_upgrade");
+            return func("effect_grow_bamboo_segment");
         }
 
         public override Artifact GetEffectSource()
@@ -59,6 +66,12 @@ public class BambooFlowerTile : OneTimeUseFlowerTile
         public override void Ingest(Player player)
         {
             tile.level++;
+            // Music copies the growth ability, not Bamboo's intrinsic base fu.
+            if (!ReferenceEquals(scoringTile, tile)) scoringTile.addonFu += FU_PER_LEVEL;
         }
+
+        public override string GetSoundEffectName() => "AddExtraFu";
+
+        public override string GetEffectAnimationTrigger() => "fu_increase";
     }
 }

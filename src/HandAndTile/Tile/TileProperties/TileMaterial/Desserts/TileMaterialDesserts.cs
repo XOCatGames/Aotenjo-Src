@@ -101,7 +101,7 @@ namespace Aotenjo
             Tile tile)
         {
             if (perm == null) return;
-            if (perm.ToTiles().Contains(tile))
+            if (player.GetScoringTiles(perm).Contains(tile))
             {
                 // 如果这是最后一口，使用特殊的LastBiteEffect
                 if (usesLeft == 1)

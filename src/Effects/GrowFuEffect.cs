@@ -36,5 +36,10 @@ namespace Aotenjo
         {
             return "AddExtraFu";
         }
+
+        public override string GetEffectAnimationTrigger()
+        {
+            return "fu_increase";
+        }
     }
 }

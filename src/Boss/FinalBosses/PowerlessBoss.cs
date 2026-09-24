@@ -13,12 +13,12 @@ public class PowerlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent += OnPostAddScoringAnimationEffect;
+        EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddScoringAnimationEffectEvent -= OnPostAddScoringAnimationEffect;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
     }
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
@@ -37,12 +37,12 @@ public class PowerlessBoss : Boss
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnPrePostAddOnTileAnimationEffectEvent += PlayerOnOnPostAddOnTileAnimationEffectEvent;
+            EventBus.Subscribe<PlayerEvents.OnPrePostAddOnTileAnimationEffectEvent>(player, PlayerOnOnPostAddOnTileAnimationEffectEvent);
         }
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnPrePostAddOnTileAnimationEffectEvent -= PlayerOnOnPostAddOnTileAnimationEffectEvent;
+            EventBus.Unsubscribe<PlayerEvents.OnPrePostAddOnTileAnimationEffectEvent>(player, PlayerOnOnPostAddOnTileAnimationEffectEvent);
         }
 
         private void PlayerOnOnPostAddOnTileAnimationEffectEvent(Permutation arg1, Player arg2, List<IAnimationEffect> arg3)

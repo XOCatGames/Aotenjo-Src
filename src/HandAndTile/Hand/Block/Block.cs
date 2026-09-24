@@ -17,24 +17,46 @@ namespace Aotenjo
         public Block(Tile[] tiles)
         {
             this.tiles = tiles;
-            Array.Sort(this.tiles, (x, y) => CompareTile(x, y, tiles));
-            if (tiles.Length != 3 && tiles.Count(t => t.CompatWith(tiles[0])) != 4)
+            SortTiles(this.tiles);
+            if (tiles.Length != 3 && tiles.Count(t => t.CompatWith(tiles[0])) != 4 && !IsFourWinds(tiles))
             {
                 throw new ArgumentException("Invalid Block structure Received");
             }
         }
 
-        private static int CompareTile(Tile x, Tile y, Tile[] tiles)
+        public static bool IsFourWinds(Tile[] tiles)
+        {
+            return tiles is { Length: 4 } &&
+                   tiles.All(tile => tile.CompatWithCategory(Tile.Category.Feng)) &&
+                   tiles.Select(tile => tile.GetOrder()).Distinct().OrderBy(order => order)
+                       .SequenceEqual(new[] { 1, 2, 3, 4 });
+        }
+
+        private static void SortTiles(Tile[] tiles)
+        {
+            // Array.Sort mutates the array during comparisons, so determine its ordering rules first.
+            bool isFourWinds = IsFourWinds(tiles);
+            bool wrapsNumbers = !isFourWinds &&
+                                tiles.Any(tile => tile.GetOrder() == 1) &&
+                                tiles.Any(tile => tile.GetOrder() == 9);
+            bool wrapsWinds = !isFourWinds &&
+                              tiles.Any(tile => tile.CompatWith(new Tile("1z"))) &&
+                              tiles.Any(tile => tile.CompatWith(new Tile("4z")));
+            Array.Sort(tiles, (x, y) => CompareTile(x, y, wrapsNumbers, wrapsWinds));
+        }
+
+        private static int CompareTile(Tile x, Tile y, bool wrapsNumbers, bool wrapsWinds)
         {
             int x_order = x.GetOrder();
             int y_order = y.GetOrder();
-            if (tiles.Any(a => a.GetOrder() == 1) && tiles.Any(a => a.GetOrder() == 9))
+
+            if (wrapsNumbers)
             {
                 if (x_order <= 5) x_order += 10;
                 if (y_order <= 5) y_order += 10;
             }
 
-            if (tiles.Any(a => a.CompatWith(new Tile("1z"))) && tiles.Any(a => a.CompatWith(new Tile("4z"))))
+            if (wrapsWinds)
             {
                 if (x_order <= 2) x_order += 4;
                 if (y_order <= 2) y_order += 4;
@@ -43,18 +65,20 @@ namespace Aotenjo
             return x_order.CompareTo(y_order);
         }
 
-        public Block(string representation)
+        public Block(string representation) : this(ParseRepresentation(representation))
         {
+        }
+
+        private static Tile[] ParseRepresentation(string representation)
+        {
+            if (representation == null || representation.Length is not (4 or 5))
+                throw new ArgumentException("Invalid Block representation Received");
+
             char[] chars = representation.ToCharArray();
-
-            char men = chars[3];
-
-            tiles = new Tile[]
-            {
-                new(chars[0].ToString() + men),
-                new(chars[1].ToString() + men),
-                new(chars[2].ToString() + men)
-            };
+            char category = chars[^1];
+            return chars.Take(chars.Length - 1)
+                .Select(order => new Tile(order.ToString() + category))
+                .ToArray();
         }
 
         public virtual bool All(Predicate<Tile> predicate)
@@ -69,13 +93,14 @@ namespace Aotenjo
 
         public virtual bool CompatWithNumbers(string numbers)
         {
+            if (tiles.Length != 3) return false;
             string strRepresentation = ToFormat();
             return numbers.All(c => strRepresentation.Contains(c));
         }
 
         public virtual bool IsABC()
         {
-            return tiles.Any(a => tiles.Any(b => a != b && !a.CompatWith(b)));
+            return tiles.Length == 3 && tiles.Any(a => tiles.Any(b => a != b && !a.CompatWith(b)));
         }
 
         public virtual bool IsAAA()
@@ -131,6 +156,10 @@ namespace Aotenjo
 
         public virtual bool CompatWith(Block other)
         {
+            bool isFourWinds = IsFourWinds(tiles);
+            bool otherIsFourWinds = IsFourWinds(other.tiles);
+            if (isFourWinds || otherIsFourWinds) return isFourWinds && otherIsFourWinds;
+
             return tiles[0].CompatWith(other.tiles[0])
                    && tiles[1].CompatWith(other.tiles[1])
                    && tiles[2].CompatWith(other.tiles[2]);
@@ -172,7 +201,8 @@ namespace Aotenjo
 
         public virtual string ToFormat()
         {
-            return tiles[0].GetOrder().ToString() + tiles[1].GetOrder() + tiles[2].GetOrder() +
+            Tile[] formattedTiles = IsFourWinds(tiles) ? tiles : tiles.Take(3).ToArray();
+            return string.Concat(formattedTiles.Select(tile => tile.GetOrder().ToString())) +
                    Tile.GetCharFromCategory(tiles[0].GetCategory());
         }
 
@@ -204,7 +234,7 @@ namespace Aotenjo
 
             if (tiles.Length == 4)
             {
-                if (tiles[0].CompatWith(tiles[1]) && tiles[1].CompatWith(tiles[2]) && tiles[2].CompatWith(tiles[3]))
+                if (player.GetCombinator().CanFormKong(tiles))
                 {
                     return new Block(tiles);
                 }
@@ -235,13 +265,19 @@ namespace Aotenjo
 
         public bool Kong(Tile tile)
         {
-            if (tiles.Length != 3 || IsAAAA() || !IsAAA() || !tiles.All(t => t.CompatWith(tile)))
+            return Kong(tile, BlockCombinator.Default);
+        }
+
+        public bool Kong(Tile tile, BlockCombinator combinator)
+        {
+            if (combinator == null || !combinator.CanExtendKong(this, tile))
             {
                 return false;
             }
 
             Array.Resize(ref tiles, 4);
             tiles[3] = tile;
+            if (IsFourWinds(tiles)) SortTiles(tiles);
             return true;
         }
 

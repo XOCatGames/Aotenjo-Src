@@ -19,13 +19,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreDiscardTileEvent += Backup;
+            EventBus.Subscribe<PlayerEvents.PreDiscardTileEvent>(player, Backup);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreDiscardTileEvent -= Backup;
+            EventBus.Unsubscribe<PlayerEvents.PreDiscardTileEvent>(player, Backup);
         }
 
         private void Backup(PlayerDiscardTileEvent.Pre eventData)

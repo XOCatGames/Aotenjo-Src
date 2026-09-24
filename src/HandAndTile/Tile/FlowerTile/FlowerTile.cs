@@ -17,7 +17,15 @@ public class FlowerTile : Tile
         }
     }
 
-    public virtual FlowerTile Copy()
+    public override Tile Copy()
+    {
+        FlowerTile copy = CopyFlowerEffect();
+        CopyStateTo(copy);
+        return copy;
+    }
+
+    /// <summary>Copies the flower ability for Music without tile properties or round use state.</summary>
+    public virtual FlowerTile CopyFlowerEffect()
     {
         return (FlowerTile)FromCategoryAndOrder(category, GetBaseOrder());
     }
@@ -28,6 +36,12 @@ public class FlowerTile : Tile
     }
 
     public virtual void AppendScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm)
+    {
+    }
+
+    /// <summary>Runs after this scoring pass; scoringTile is the physical carrier when Music mimics an ability.</summary>
+    public virtual void AppendPostScoringEffect(List<IAnimationEffect> effects, Player player, Permutation perm,
+        Tile scoringTile)
     {
     }
 
@@ -42,6 +56,11 @@ public class FlowerTile : Tile
     public override bool CompatWith(Tile cand)
     {
         return cand == this;
+    }
+
+    public override double GetBaseFu()
+    {
+        return addonFu;
     }
 
     public override bool CompatWithCategory(Category category)

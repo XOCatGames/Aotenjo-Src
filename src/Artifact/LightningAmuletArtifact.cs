@@ -12,19 +12,19 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PreSetMaterialEvent += OnSetMaterial;
-            player.PreSetFontEvent += OnSetFont;
-            player.PreSetMaskEvent += OnSetMask;
-            player.PreSetPropertiesEvent += OnSetProperties;
+            EventBus.Subscribe<PlayerEvents.PreSetMaterialEvent>(player, OnSetMaterial);
+            EventBus.Subscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
+            EventBus.Subscribe<PlayerEvents.PreSetMaskEvent>(player, OnSetMask);
+            EventBus.Subscribe<PlayerEvents.PreSetPropertiesEvent>(player, OnSetProperties);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PreSetMaterialEvent -= OnSetMaterial;
-            player.PreSetFontEvent -= OnSetFont;
-            player.PreSetMaskEvent -= OnSetMask;
-            player.PreSetPropertiesEvent -= OnSetProperties;
+            EventBus.Unsubscribe<PlayerEvents.PreSetMaterialEvent>(player, OnSetMaterial);
+            EventBus.Unsubscribe<PlayerEvents.PreSetFontEvent>(player, OnSetFont);
+            EventBus.Unsubscribe<PlayerEvents.PreSetMaskEvent>(player, OnSetMask);
+            EventBus.Unsubscribe<PlayerEvents.PreSetPropertiesEvent>(player, OnSetProperties);
         }
 
         private void OnSetProperties(PlayerSetPropertiesEvent evt)

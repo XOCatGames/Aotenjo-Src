@@ -10,12 +10,17 @@ namespace Aotenjo
         public TileFontNeon() : base(3, "neon", ScoreEffect.AddFu(FU, null))
         {
         }
+        
+        public override Rarity GetRarity()
+        {
+            return Rarity.RARE;
+        }
 
         public override void AppendToListRoundEndEffect(Player player, Permutation perm, List<IAnimationEffect> effects,
             Tile tile)
         {
             if (tile.IsNumbered())
-                effects.Add(new OnTileAnimationEffect(tile, new RealChangeSuitEffect(tile)));
+                effects.Add(new RealChangeSuitEffect(tile).OnTile(tile));
         }
 
         protected override string GetDescription(Func<string, string> localizer)

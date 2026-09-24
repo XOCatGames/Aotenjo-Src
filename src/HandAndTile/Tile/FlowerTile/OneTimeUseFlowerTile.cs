@@ -11,6 +11,12 @@ public class OneTimeUseFlowerTile : FlowerTile
     {
     }
 
+    protected override void CopyStateTo(Tile copy)
+    {
+        base.CopyStateTo(copy);
+        ((OneTimeUseFlowerTile)copy).used = used;
+    }
+
     public override void SubscribeToPlayerEvents(Player player)
     {
         base.SubscribeToPlayerEvents(player);
@@ -20,7 +26,7 @@ public class OneTimeUseFlowerTile : FlowerTile
     public override void UnsubscribeFromPlayer(Player player)
     {
         base.UnsubscribeFromPlayer(player);
-        EventBus.Subscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
+        EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(PreRoundEnd);
     }
 
     private void PreRoundEnd(PlayerEvent playerEvent)

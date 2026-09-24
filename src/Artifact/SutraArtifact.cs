@@ -9,13 +9,13 @@
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.OnPreUpgradeYakuEvent += OnPreUpgradeYaku;
+            EventBus.Subscribe<PlayerEvents.OnPreUpgradeYakuEvent>(player, OnPreUpgradeYaku);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.OnPreUpgradeYakuEvent -= OnPreUpgradeYaku;
+            EventBus.Unsubscribe<PlayerEvents.OnPreUpgradeYakuEvent>(player, OnPreUpgradeYaku);
         }
 
         private void OnPreUpgradeYaku(PlayerYakuEvent.Upgrade evt)

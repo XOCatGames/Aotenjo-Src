@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using static Aotenjo.Tile;
@@ -23,6 +24,8 @@ namespace Aotenjo
 
         public Func<Tile, Player, bool> canProcOn = (_, _) => true;
         public Predicate<Player> isAvailable = _ => true;
+        private Action<Tile, Player> tileGiftAction;
+        private int tileGiftCount;
         
         //TODO: 需要清理的技术债，远古时期使用函数来表达遗物是一个错误的决定
         public Action<Player, Permutation, Block, List<Effect>> onBlockEffect;
@@ -108,6 +111,23 @@ namespace Aotenjo
             return this;
         }
 
+        public Artifact SetMaterialGift(Func<TileMaterial> materialFactory, int count)
+        {
+            return SetTileGift((tile, player) => tile.SetMaterial(materialFactory(), player), count);
+        }
+
+        public Artifact SetFontGift(Func<TileFont> fontFactory, int count)
+        {
+            return SetTileGift((tile, player) => tile.SetFont(fontFactory(), player), count);
+        }
+
+        private Artifact SetTileGift(Action<Tile, Player> giftAction, int count)
+        {
+            tileGiftAction = giftAction;
+            tileGiftCount = count;
+            return this;
+        }
+
         public virtual bool CanBeSellByPlayer()
         {
             return true;
@@ -149,9 +169,28 @@ namespace Aotenjo
         {
         }
 
+        private bool inShop = false;
+        
         public virtual string GetDescription(Func<string, string> localizer)
         {
-            return localizer($"artifact_{name}_description");
+            string description;
+            if(inShop)
+            {
+                if(localizer($"artifact_{name}_description_inshop") != ($"artifact_{name}_description_inshop"))
+                    description = localizer($"artifact_{name}_description_inshop");
+                else
+                    description = localizer($"artifact_{name}_description");
+            }
+            else
+            {
+                description = localizer($"artifact_{name}_description");
+            }
+
+            if (tileGiftAction != null && tileGiftCount > 0)
+                return string.Format(localizer("artifact_tile_gift_description_format"), tileGiftCount,
+                    description);
+
+            return description;
         }
 
         public virtual string GetDescription(Player player, Func<string, string> localizer)
@@ -161,7 +200,10 @@ namespace Aotenjo
 
         public virtual string GetInShopDescription(Player player, Func<string, string> localizer)
         {
-            return GetDescription(player, localizer);
+            inShop = true;
+            string desc = GetDescription(player, localizer);
+            inShop = false;
+            return desc;
         }
 
         public string GetChanceMultiplier(Player player)
@@ -288,6 +330,12 @@ namespace Aotenjo
         public virtual void OnObtain(Player player)
         {
             SubscribeToPlayer(player);
+            if (tileGiftAction == null || tileGiftCount <= 0) return;
+
+            foreach (Tile tile in player.DrawPlainTilesFromPool(tileGiftCount))
+            {
+                tileGiftAction(tile, player);
+            }
         }
 
         public virtual void OnRemoved(Player player)
@@ -315,23 +363,258 @@ namespace Aotenjo
             return this;
         }
 
+        #region 事件订阅系统
+        
+        private readonly List<AutoSubscription> autoSubscriptions = new(); 
+
+        private sealed class AutoSubscription
+        {
+            public Type EventType; 
+            public MethodInfo Method; 
+            public Delegate Handler;
+        }
+
+        /// <summary>
+        /// 订阅 Artifact 自身所有带有 [SubscribeToEvent] 的方法。
+        ///
+        /// 子类重写此方法时，如果还想使用自动扫描，
+        /// 必须调用 base.SubscribeToPlayer(player)。
+        /// </summary>
         public virtual void SubscribeToPlayer(Player player)
         {
-            if (IsBroken) EventBus.Subscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
-            if (IsTemporary) EventBus.Subscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
+            // Scene changes can clear EventBus while this singleton retains its subscription records.
+            if (autoSubscriptions.Count > 0) UnsubscribeAttributeEvents();
+            SubscribeAttributeEvents();
         }
 
-
+        /// <summary>
+        /// 取消此 Artifact 通过 [SubscribeToEvent] 注册的所有事件。
+        ///
+        /// 子类重写此方法时，如果还想自动解绑，
+        /// 必须调用 base.UnsubscribeToPlayer(player)。
+        /// </summary>
         public virtual void UnsubscribeToPlayer(Player player)
         {
-            if (IsBroken) EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
-            if (IsTemporary) EventBus.Unsubscribe<PlayerRoundEvent.End.Pre>(RemoveFromPlayerInv);
+            UnsubscribeAttributeEvents();
         }
 
-        private void RemoveFromPlayerInv(PlayerEvent evt)
+        private void SubscribeAttributeEvents()
         {
-            evt.player.SellArtifact(this);
+            MethodInfo[] methods = GetType().GetMethods(
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic
+            );
+
+            foreach (MethodInfo method in methods)
+            {
+                if (!method.IsDefined(
+                        typeof(SubscribeToEventAttribute),
+                        inherit: true))
+                {
+                    continue;
+                }
+
+                if (!TryValidateEventHandler(method, out Type eventType))
+                {
+                    continue;
+                }
+
+                SubscribeEvent(eventType, method);
+            }
         }
+
+        private bool TryValidateEventHandler(
+            MethodInfo method,
+            out Type eventType)
+        {
+            eventType = null;
+
+            if (method.IsStatic)
+            {
+                Debug.LogError(
+                    $"[Artifact] {GetType().Name}.{method.Name} " +
+                    "带有 [SubscribeToEvent]，但事件处理方法不能是 static。"
+                );
+
+                return false;
+            }
+
+            if (method.ReturnType != typeof(void))
+            {
+                Debug.LogError(
+                    $"[Artifact] {GetType().Name}.{method.Name} " +
+                    "带有 [SubscribeToEvent]，但返回值必须是 void。"
+                );
+
+                return false;
+            }
+
+            ParameterInfo[] parameters = method.GetParameters();
+
+            if (parameters.Length != 1)
+            {
+                Debug.LogError(
+                    $"[Artifact] {GetType().Name}.{method.Name} " +
+                    "带有 [SubscribeToEvent]，但必须只有一个事件参数。"
+                );
+
+                return false;
+            }
+
+            eventType = parameters[0].ParameterType;
+
+            if (!typeof(PlayerEvent).IsAssignableFrom(eventType))
+            {
+                Debug.LogError(
+                    $"[Artifact] {GetType().Name}.{method.Name} 的参数类型 " +
+                    $"{eventType.Name} 没有继承 PlayerEvent。"
+                );
+
+                eventType = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SubscribeEvent(
+            Type eventType,
+            MethodInfo handlerMethod)
+        {
+            bool alreadySubscribed = autoSubscriptions.Any(subscription =>
+                subscription.EventType == eventType &&
+                subscription.Method == handlerMethod
+            );
+
+            if (alreadySubscribed)
+            {
+                return;
+            }
+
+            try
+            {
+                Type actionType = typeof(Action<>).MakeGenericType(eventType);
+
+                Delegate handler = Delegate.CreateDelegate(
+                    actionType,
+                    this,
+                    handlerMethod
+                );
+
+                MethodInfo subscribeMethod = GetEventBusSubscribeMethod()
+                    .MakeGenericMethod(eventType);
+
+                subscribeMethod.Invoke(
+                    null,
+                    new object[]
+                    {
+                        handler,
+                        0,
+                        false
+                    }
+                );
+
+                autoSubscriptions.Add(
+                    new AutoSubscription
+                    {
+                        EventType = eventType,
+                        Method = handlerMethod,
+                        Handler = handler
+                    }
+                );
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[Artifact] 自动订阅失败：{GetType().Name}.{handlerMethod.Name}\n" +
+                    $"{GetActualException(exception)}"
+                );
+            }
+        }
+
+        private void UnsubscribeAttributeEvents()
+        {
+            MethodInfo unsubscribeMethodDefinition =
+                GetEventBusUnsubscribeMethod();
+
+            foreach (AutoSubscription subscription in autoSubscriptions)
+            {
+                try
+                {
+                    MethodInfo unsubscribeMethod =
+                        unsubscribeMethodDefinition.MakeGenericMethod(
+                            subscription.EventType
+                        );
+
+                    unsubscribeMethod.Invoke(
+                        null,
+                        new object[]
+                        {
+                            subscription.Handler
+                        }
+                    );
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError(
+                        $"[Artifact] 自动取消订阅失败：" +
+                        $"{GetType().Name}.{subscription.Method.Name}\n" +
+                        $"{GetActualException(exception)}"
+                    );
+                }
+            }
+
+            autoSubscriptions.Clear();
+        }
+
+        private static MethodInfo GetEventBusSubscribeMethod()
+        {
+            return typeof(EventBus)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(method =>
+                    method.Name == nameof(EventBus.Subscribe) &&
+                    method.IsGenericMethodDefinition &&
+                    method.GetGenericArguments().Length == 1 &&
+                    method.GetParameters().Length == 3
+                );
+        }
+
+        private static MethodInfo GetEventBusUnsubscribeMethod()
+        {
+            return typeof(EventBus)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(method =>
+                    method.Name == nameof(EventBus.Unsubscribe) &&
+                    method.IsGenericMethodDefinition &&
+                    method.GetGenericArguments().Length == 1 &&
+                    method.GetParameters().Length == 1
+                );
+        }
+
+        private static Exception GetActualException(Exception exception)
+        {
+            return exception is TargetInvocationException invocationException &&
+                   invocationException.InnerException != null
+                ? invocationException.InnerException
+                : exception;
+        }
+
+        /// <summary>
+        /// 回合结束前移除损坏或临时 Artifact。
+        /// </summary>
+        [SubscribeToEvent]
+        protected void RemoveFromPlayerInv(PlayerRoundEvent.End.Pre eventData)
+        {
+            if (!IsBroken && !IsTemporary)
+            {
+                return;
+            }
+            eventData.player.SellArtifact(this);
+        }
+
+
+        #endregion
 
         public virtual void PreGameInitialized(Player player)
         {
@@ -389,7 +672,6 @@ namespace Aotenjo
             
             if (tags.Any())
             {
-                string tagsText = "";
                 Func<ArtifactTag, string> toTagName = t =>
                     GameLocalizationManager.GetLocalizedText($"artifact_tag_{t.ToString().ToLower()}");
                 subHeader = $"{string.Join(" ", tags.Select(toTagName))} {subHeader}";

@@ -17,7 +17,7 @@ namespace Aotenjo
         public Tile[] GetTiles()
         {
             int tilePolls = player.GetSelectionCount();
-            Tile[] tileDraws = player.DrawTilesFromPool(tilePolls, t => t.IsHonor(player) || t.IsNumbered()).ToArray();
+            Tile[] tileDraws = player.DrawTilesFromPool(tilePolls).ToArray();
             Array.Sort(tileDraws);
             return tileDraws;
         }
@@ -84,7 +84,10 @@ namespace Aotenjo
             TileProperties bluePrint = pack.bluePrint;
             foreach (Tile t in tiles)
             {
-                List<Tile> cands = player.GetAllTiles().Where(t2 => t2 != t && t2.CompatWith(t)).ToList();
+                List<Tile> cands = player.GetAllTiles().Where(t2 => t2 != t &&
+                    (t is FlowerTile
+                        ? t2 is FlowerTile && t2.GetCategory() == t.GetCategory() && t2.GetOrder() == t.GetOrder()
+                        : t2.CompatWith(t))).ToList();
                 List<Tile> prefCands = cands
                     .Where(t2 => t2.properties.material.GetRegName() == TileMaterial.PLAIN.GetRegName()).ToList();
                 if (prefCands.Count != 0) cands = prefCands;

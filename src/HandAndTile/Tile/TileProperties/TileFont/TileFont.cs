@@ -6,7 +6,9 @@ namespace Aotenjo
     [Serializable]
     public class TileFont : TileAttribute
     {
-        public TileFont(int fontID, string nameKey, Effect effect) : base(fontID, nameKey + "_font", effect)
+        public readonly Rarity rarity;
+        
+        public TileFont(int fontID, string nameKey, Effect effect, Rarity rarity = Rarity.COMMON) : base(fontID, nameKey + "_font", effect)
         {
         }
 
@@ -17,7 +19,7 @@ namespace Aotenjo
 
         public static readonly TileFont PLAIN = new(0, "plain", null);
 
-        public static readonly TileFont BLUE = new(1, "blue", ScoreEffect.MulFan(1.5, null));
+        public static readonly TileFont BLUE = new(1, "blue", ScoreEffect.MulFan(1.5, null), Rarity.RARE);
 
         public static readonly TileFont RED = new(2, "red", ScoreEffect.AddFan(3, null));
 
@@ -37,7 +39,14 @@ namespace Aotenjo
 
         protected override string GetSpriteSheetName()
         {
-            return "sheet1";
+            return Constants.FILE_TILE_FRONT_SHEET;
+        }
+        
+        public override string GetSubheader(Func<string, string> loc)
+        {
+            string rarityName = GetRarity().ToString().ToLower();
+            string rarityText = loc($"rarity_{rarityName}_name") + " " + loc("tile_font_name");
+            return rarityText;
         }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
+using UnityEngine;
 
 namespace Aotenjo
 {
+    [Serializable]
     public class FracturedMask : TileMask
     {
-        private bool played;
+        [SerializeField] private bool played;
 
         public FracturedMask(int id) : base(id, "fractured", null)
         {
@@ -25,13 +28,13 @@ namespace Aotenjo
         public override void SubscribeToPlayerEvents(Player player)
         {
             base.SubscribeToPlayerEvents(player);
-            player.PostSettlePermutationEvent += ScoringListener;
+            EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, ScoringListener);
             EventBus.Subscribe<PlayerRoundEvent.End.PostPre>(Vanish);
         }
 
         private void ScoringListener(PlayerPermutationEvent e)
         {
-            foreach (var tile in e.permutation.ToTiles()
+            foreach (var tile in e.player.GetScoringTiles(e.permutation)
                          .Union(e.player.GetRiverTiles()
                              .Where(t => t.properties.material is TileMaterialPaleWood w && w.queue.Count != 0))
                          .Where(t => t.properties.mask == this))
@@ -39,43 +42,23 @@ namespace Aotenjo
                 played = true;
             }
 
-            if (e.player is RainbowDeck.RainbowPlayer rainbowPlayer)
-            {
-                foreach (var item in rainbowPlayer.PlayedFlowerTiles.Where(t => t.properties.mask == this))
-                {
-                    played = true;
-                }
-            }
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
-            player.PostSettlePermutationEvent -= ScoringListener;
+            EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, ScoringListener);
             EventBus.Unsubscribe<PlayerRoundEvent.End.PostPre>(Vanish);
         }
 
         private void Vanish(PlayerEvent eventData)
         {
             Player player = eventData.player;
-            foreach (var tile in player.GetAllTiles().Where(t => (played && t.properties.mask == this)))
+            foreach (var tile in player.GetAllTiles().Where(t => played && t.properties.mask == this).ToList())
             {
-                bool res;
-                if (tile is FlowerTile f)
-                {
-                    if (player is RainbowDeck.RainbowPlayer rainbowPlayer)
-                    {
-                        res = rainbowPlayer.PlayedFlowerTiles.Remove(f);
-                        if (res)
-                            MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
-                    }
-                }
-                else
-                {
-                    res = player.RemoveTileFromDiscarded(tile, "fractured");
-                    if (res)
-                        MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
-                }
+                bool res = player.RemoveTileFromDiscarded(tile, "fractured");
+                if (res)
+                    MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
             }
         }
     }

@@ -23,11 +23,9 @@ namespace Aotenjo
             if (perm is null) return new List<Yaku>();
             
             var allYakus = perm.GetYakus(player).ToList();
-            return allYakus.Where(y =>
-            {
-                YakuTester.TestYaku(perm, y, player, out var relatedTiles);
-                return ((OraclePlayer)player).oracleBlock.Any(t => relatedTiles.Contains(t));
-            }).Select(type => type.GetYakuDefinition()).ToList();
+            return allYakus
+                .Where(y => ((OraclePlayer)player).IsYakuRelatedToOracle(perm, y))
+                .Select(type => type.GetYakuDefinition()).ToList();
         }
 
         public List<Yaku> DrawYakusToUpgrade(Player player)

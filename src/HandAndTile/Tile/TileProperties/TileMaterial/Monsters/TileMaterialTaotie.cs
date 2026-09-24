@@ -45,7 +45,7 @@ namespace Aotenjo
         public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
             base.AppendBonusEffects(player, perm, tile, effects);
-            if (player.Selecting(tile))
+            if (player.IsPlayingTile(tile))
             {
                 effects.Add(new FractureAndUpgradeEffect(this,
                     player.GetArtifacts().Any(a => a == Artifacts.EssencePot) ? Artifacts.EssencePot : null, tile));
@@ -84,17 +84,17 @@ namespace Aotenjo
 
             public override void Ingest(Player player)
             {
-                List<Tile> cands = player.GetSelectedTilesCopy().Where(t => t != taotieTile).ToList();
+                List<Tile> cands = player.GetPlayingTiles().Where(t => t != taotieTile).ToList();
 
                 if (taotieTile.properties.material != tileMaterialTaotie) return;
 
                 if (player.GetArtifacts().Contains(Artifacts.SilverDogLeash))
                 {
-                    cands = cands.Where(t => !taotieTile.CompatWithCategory(t.GetCategory())).ToList();
+                    cands = cands.Where(t => taotieTile.GetCategory() != t.GetCategory()).ToList();
                 }
                 else
                 {
-                    cands = cands.Where(t => taotieTile.CompatWithCategory(t.GetCategory())).ToList();
+                    cands = cands.Where(t => taotieTile.GetCategory() == t.GetCategory()).ToList();
                 }
 
                 if (cands.Count == 0) return;

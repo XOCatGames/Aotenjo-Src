@@ -134,21 +134,22 @@ namespace Aotenjo
             return BlockCombinator.Scarlet(data.unusedCategory);
         }
 
-        public override List<YakuPack> TryDrawYakuPack(int v, List<YakuPack> yakuPacks)
+        public override List<YakuPack> TryDrawYakuPack(int drawCount, List<YakuPack> globalYakuPacks)
         {
-            yakuPacks.RemoveAll(t => t.id == 0);
-            return base.TryDrawYakuPack(v, yakuPacks);
+            var filteredPacks = new List<YakuPack>(globalYakuPacks);
+            filteredPacks.RemoveAll(t => t.id % 4 == 0);
+            return base.TryDrawYakuPack(drawCount, filteredPacks);
         }
 
         public (Category, Category)[] GetNewSuitCombinations()
         {
-            Category[] AllCategories = { Category.Wan, Category.Suo, Category.Bing };
+            Category[] allCategories = { Category.Wan, Category.Suo, Category.Bing };
 
-            (Category, Category)[] AllPairs = AllCategories
-                .SelectMany(c1 => AllCategories.Where(c2 => c2 != c1).Select(c2 => (c1, c2))).ToArray();
+            (Category, Category)[] allPairs = allCategories
+                .SelectMany(c1 => allCategories.Where(c2 => c2 != c1).Select(c2 => (c1, c2))).ToArray();
 
-            var pair1 = AllPairs[GenerateRandomInt(AllPairs.Length)];
-            (Category, Category)[] lefts = AllPairs
+            var pair1 = allPairs[GenerateRandomInt(allPairs.Length)];
+            var lefts = allPairs
                 .Where(p => p.Item1 != pair1.Item1 && !(p.Item1 == pair1.Item2 && p.Item2 == pair1.Item1)).ToArray();
             var pair2 = lefts[GenerateRandomInt(lefts.Length)];
             return new[] { pair1, pair2 };

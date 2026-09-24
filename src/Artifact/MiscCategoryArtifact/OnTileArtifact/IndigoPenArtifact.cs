@@ -26,7 +26,7 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (tile.ContainsNoColor(player) && player.Selecting(tile))
+            if (tile.ContainsNoColor(player) && player.IsPlayingTile(tile))
             {
                 effects.Add(new TryDyeBlueEffect(tile, this));
             }

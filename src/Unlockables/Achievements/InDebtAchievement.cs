@@ -8,7 +8,7 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.SpendMoneyEvent += OnSpendMoney;
+            EventBus.Subscribe<PlayerEvents.SpendMoneyEvent>(player, OnSpendMoney);
         }
 
         private void OnSpendMoney(PlayerMoneyEvent evt)
@@ -21,7 +21,7 @@
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.SpendMoneyEvent -= OnSpendMoney;
+            EventBus.Unsubscribe<PlayerEvents.SpendMoneyEvent>(player, OnSpendMoney);
         }
     }
 }

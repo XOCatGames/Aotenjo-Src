@@ -8,21 +8,38 @@ using UnityEngine.Serialization;
 [Serializable]
 public class PlayerStats
 {
-    [SerializeField] public int maxLevel;
+    // Unscaled active play time, persisted with the run rather than the scene.
+    [SerializeField] public double playedSeconds;
 
+    /// <summary>
+    /// 游戏结束时关卡
+    /// </summary>
+    [SerializeField] public int maxLevel;
+    
+    /// <summary>
+    /// 最高分
+    /// </summary>
     [SerializeField] private double maxScore;
     
-    
+    [Obsolete("Use _yakuCountsMap instead")]
     [FormerlySerializedAs("yakuCounts")]
     [SerializeField] private SerializableMap<FixedYakuType, int> yakuCounts;
-
+    
+    [Obsolete("Use _maxYakuLevelMap instead")]
     [FormerlySerializedAs("maxYakuLevel")]
     [SerializeField] private SerializableMap<FixedYakuType, int> maxYakuLevel;
     
+    /// <summary>
+    /// 番种打出次数
+    /// </summary>
     [SerializeField] private SerializableMap<YakuType, int> _yakuCountsMap;
-    [SerializeField] private SerializableMap<YakuType, int> _maxYakuLevelMap;
     
-    private SerializableMap<YakuType, int> yakuCountsMap
+    /// <summary>
+    /// 游戏结束时番种等级
+    /// </summary>
+    [SerializeField] private SerializableMap<YakuType, int> _maxYakuLevelMap;
+
+    public SerializableMap<YakuType, int> yakuCountsMap
     {
         get
         {
@@ -38,8 +55,8 @@ public class PlayerStats
         }
         set { _yakuCountsMap = value; }
     }
-    
-    private SerializableMap<YakuType, int> maxYakuLevelMap
+
+    public SerializableMap<YakuType, int> maxYakuLevelMap
     {
         get
         {
@@ -56,22 +73,52 @@ public class PlayerStats
         set { _maxYakuLevelMap = value; }
     }
 
+    /// <summary>
+    /// 总金币收入
+    /// </summary>
     [SerializeField] private long moneyEarned;
 
-    [SerializeField] private long moneySpent;
+    /// <summary>
+    /// 总金币支出
+    /// </summary>
+    [SerializeField] public long moneySpent;
 
-    [SerializeField] private SerializableMap<string, int> tileMaterialObtainedCount;
+    /// <summary>
+    /// 牌体获得次数
+    /// </summary>
+    [SerializeField] public SerializableMap<string, int> tileMaterialObtainedCount;
 
-    [SerializeField] private SerializableMap<string, int> tileFontPlayedCount;
+    /// <summary>
+    /// 颜色获得次数
+    /// </summary>
+    [SerializeField] public SerializableMap<string, int> tileFontPlayedCount;
 
-    [SerializeField] private SerializableMap<string, int> tileMaskPlayedCount;
+    /// <summary>
+    /// 效果获得次数
+    /// </summary>
+    [SerializeField] public SerializableMap<string, int> tileMaskPlayedCount;
 
-    [SerializeField] private SerializableMap<string, int> categoryPlayedCount;
+    /// <summary>
+    /// 花色打出次数
+    /// </summary>
+    [SerializeField] public SerializableMap<string, int> categoryPlayedCount;
 
-    [SerializeField] private SerializableMap<int, int> artifactBoughtCount;
+    /// <summary>
+    /// 遗物获得次数
+    /// </summary>
+    [SerializeField] public SerializableMap<int, int> artifactBoughtCount;
 
-    [SerializeField] private SerializableMap<string, int> gadgetBoughtCount;
+    // Purchases in this run, separate from all obtained artifacts (including gifts).
+    [SerializeField] public SerializableMap<int, int> artifactPurchaseCount = new();
 
+    /// <summary>
+    /// 小道具获得次数
+    /// </summary>
+    [SerializeField] public SerializableMap<string, int> gadgetBoughtCount;
+
+    /// <summary>
+    /// RoundRecord（仅总Stats拥有此栏目）记录了每一轮的PlayerStats快照，以及该轮使用的牌组、进阶、是否胜利、使用的牌面套装、持有的遗物等信息。通过分析RoundRecord可以得到玩家在不同阶段的表现，以及不同牌组和策略的效果。
+    /// </summary>
     [SerializeField] private List<RoundRecord> roundRecords;
 
     /// <summary>
@@ -79,7 +126,23 @@ public class PlayerStats
     /// </summary>
     [SerializeField] private List<SettleRecord> playSequence;
 
-    [SerializeField] private SerializableMap<string, int> customStats;
+    /// <summary>
+    /// 遗物商店中实际展示给玩家的选项。新增字段保持为可选，并通过访问器延迟初始化，
+    /// 以兼容不包含该字段的旧存档。
+    /// </summary>
+    [SerializeField] private List<ArtifactShopOfferRecord> artifactShopOffers;
+
+    /// <summary>
+    /// 仅记录通过商店成功购买的遗物；artifactBoughtCount 仍保留原有“获得次数”语义。
+    /// </summary>
+    [SerializeField] private List<ArtifactShopPurchaseRecord> artifactShopPurchases;
+
+    /// <summary>
+    /// 每个 Level 结束时的轻量快照。逐手番种、得分和手牌继续由 playSequence 保存。
+    /// </summary>
+    [SerializeField] private List<LevelEndRecord> levelEndRecords;
+
+    [SerializeField] public SerializableMap<string, int> customStats;
 
     /// <summary>
     /// 上一次出牌记录 记录raw番数占比
@@ -106,6 +169,9 @@ public class PlayerStats
 
         roundRecords = new List<RoundRecord>();
         playSequence = new List<SettleRecord>();
+        artifactShopOffers = new List<ArtifactShopOfferRecord>();
+        artifactShopPurchases = new List<ArtifactShopPurchaseRecord>();
+        levelEndRecords = new List<LevelEndRecord>();
 
         bestSettleRecord = new SettleRecord();
         lastSettleRecord = new SettleRecord();
@@ -134,11 +200,14 @@ public class PlayerStats
     {
         return customStats.Get(key.ToString().ToLower());
     }
-    public void RecordRound(Player player, string explicitMatSetName)
+    public RoundRecord RecordRound(Player player, string explicitMatSetName)
     {
         PlayerStats roundStat = player.stats;
 
-        roundRecords.Add(new RoundRecord(roundStat,
+        bool modLoaded = ModManager.Instance != null && ModManager.Instance.LoadedMods.Length > 0;
+        bool isModified = player.usedConsoleCommand || modLoaded;
+
+        RoundRecord record = new RoundRecord(roundStat,
             player.deck.regName,
             player.GetAscensionLevel(),
             player.won,
@@ -146,10 +215,12 @@ public class PlayerStats
             player.GetArtifacts(),
             player.randomSeed,
             player.seededRun,
-            explicitMatSetName)
+            explicitMatSetName,
+            isModified);
+        roundRecords.Add(record
         );
 
-        if (player.seededRun) return;
+        if (player.seededRun) return record;
 
         maxLevel = Math.Max(maxLevel, roundStat.maxLevel);
         maxScore = Math.Max(maxScore, roundStat.maxScore);
@@ -166,7 +237,6 @@ public class PlayerStats
         foreach (var yaku in roundStat.yakuCountsMap.GetKeys())
         {
             yakuCountsMap.Add(yaku, yakuCountsMap.Get(yaku) + roundStat.yakuCountsMap.Get(yaku));
-            //Debug.Log($"{yaku.ToString()} : {yakuCounts.Get(yaku)}");
         }
 
         foreach (var tile in roundStat.tileMaterialObtainedCount.GetKeys())
@@ -207,6 +277,8 @@ public class PlayerStats
         {
             gadgetBoughtCount.Add(gadget, gadgetBoughtCount.Get(gadget) + roundStat.gadgetBoughtCount.Get(gadget));
         }
+
+        return record;
     }
 
     public int GetWonNumberByDeck(string deckName, int ascension = 0)
@@ -253,8 +325,9 @@ public class PlayerStats
         }
 
         playSequence.Add(new SettleRecord(player.Level, player.CurrentPlayingStage,
-            permutation.GetPermType(), permutation.ToTiles(), new(player.GetSelectedTilesCopy()), new(activatedYakus),
-            score));
+            permutation.GetPermType(), permutation.ToTiles().Select(t => new Tile(t)).ToList(),
+            player.GetSelectedTilesCopy().Select(t => new Tile(t)).ToList(), new(activatedYakus),
+            score, (player.CurrentLevel as BossLevel)?.Boss.name ?? "none"));
 
         foreach (Tile tile in permutation.ToTiles())
         {
@@ -271,7 +344,7 @@ public class PlayerStats
         }
         
         //特殊出牌记录
-        if (activatedYakus.Contains(FixedYakuType.WuMenQi) && player.Level == 16)
+        if (activatedYakus.Contains(FixedYakuType.WuMenQi) && player.CurrentLevel.IsRunCompletionLevel)
         {
             RecordCustomStats(PlayerStatsType.WUMENQI_WIN, 1);
         }
@@ -367,6 +440,63 @@ public class PlayerStats
         artifactBoughtCount.Add(artifact.GetNumberID(), artifactBoughtCount.Get(artifact.GetNumberID()) + 1);
     }
 
+    public void OnPurchaseArtifact(Artifact artifact)
+    {
+        artifactPurchaseCount ??= new SerializableMap<int, int>();
+        int id = artifact.GetNumberID();
+        artifactPurchaseCount.Add(id, artifactPurchaseCount.Get(id) + 1);
+    }
+
+    public void RecordArtifactShopOffer(Artifact artifact, int level, int price, int moneyAvailable)
+    {
+        if (artifact == null) return;
+
+        ArtifactShopOffers.Add(new ArtifactShopOfferRecord(
+            ArtifactShopOffers.Count,
+            artifact.GetRegName(),
+            level,
+            price,
+            moneyAvailable));
+    }
+
+    public void RecordArtifactShopPurchase(Artifact artifact, int level, int price, int moneyAvailable)
+    {
+        if (artifact == null) return;
+
+        ArtifactShopPurchases.Add(new ArtifactShopPurchaseRecord(
+            ArtifactShopPurchases.Count,
+            artifact.GetRegName(),
+            level,
+            price,
+            moneyAvailable));
+    }
+
+    public void RecordLevelEnd(Player player, bool passed)
+    {
+        if (player == null || LevelEndRecords.Any(record => record.level == player.Level)) return;
+
+        LevelEndRecords.Add(new LevelEndRecord(
+            player.Level,
+            passed,
+            player.CurrentAccumulatedScore,
+            player.GetArtifacts().Select(artifact => artifact.GetRegName()).ToList()));
+    }
+
+    public List<ArtifactShopOfferRecord> GetArtifactShopOffers()
+    {
+        return new List<ArtifactShopOfferRecord>(ArtifactShopOffers);
+    }
+
+    public List<ArtifactShopPurchaseRecord> GetArtifactShopPurchases()
+    {
+        return new List<ArtifactShopPurchaseRecord>(ArtifactShopPurchases);
+    }
+
+    public List<LevelEndRecord> GetLevelEndRecords()
+    {
+        return new List<LevelEndRecord>(LevelEndRecords);
+    }
+
     public void OnBoughtGadget(Gadget gadget)
     {
         gadgetBoughtCount.Add(gadget.regName, gadgetBoughtCount.Get(gadget.regName) + 1);
@@ -391,8 +521,17 @@ public class PlayerStats
 
     public List<SettleRecord> GetPlayedHands()
     {
-        return new(playSequence);
+        return new(playSequence ??= new List<SettleRecord>());
     }
+
+    private List<ArtifactShopOfferRecord> ArtifactShopOffers =>
+        artifactShopOffers ??= new List<ArtifactShopOfferRecord>();
+
+    private List<ArtifactShopPurchaseRecord> ArtifactShopPurchases =>
+        artifactShopPurchases ??= new List<ArtifactShopPurchaseRecord>();
+
+    private List<LevelEndRecord> LevelEndRecords =>
+        levelEndRecords ??= new List<LevelEndRecord>();
 
     public bool ObtainedMaterial(TileMaterial tileMaterial)
     {
@@ -430,7 +569,8 @@ public class PlayerStats
             perm.ToTiles().Select(t => new Tile(t)).ToList(),
             player.GetSelectedTilesCopy().Select(t => new Tile(t)).ToList(),
             yakuContributions.GetKeys().ToList(),
-            score);
+            score,
+            (player.CurrentLevel as BossLevel)?.Boss.name ?? "none");
 
         rec.YakuFanMap = yakuContributions;
 
@@ -457,5 +597,62 @@ public class PlayerStats
                || (i <= 5 && GetUnseededRunRecords().Any(r => r.won && r.acsensionLevel >= 5)) //通过和级解锁所有和级以下进阶
                || GetUnseededRunRecords()
                    .Any(r => r.deckName.Equals(deckName) && r.won && r.acsensionLevel == i - 1); //通过上一级解锁
+    }
+}
+
+[Serializable]
+public sealed class ArtifactShopOfferRecord
+{
+    [SerializeField] public int sequence;
+    [SerializeField] public string artifactId;
+    [SerializeField] public int level;
+    [SerializeField] public int price;
+    [SerializeField] public int moneyAvailable;
+    [SerializeField] public bool affordable;
+
+    public ArtifactShopOfferRecord(int sequence, string artifactId, int level, int price, int moneyAvailable)
+    {
+        this.sequence = sequence;
+        this.artifactId = artifactId;
+        this.level = level;
+        this.price = price;
+        this.moneyAvailable = moneyAvailable;
+        affordable = moneyAvailable >= price;
+    }
+}
+
+[Serializable]
+public sealed class ArtifactShopPurchaseRecord
+{
+    [SerializeField] public int sequence;
+    [SerializeField] public string artifactId;
+    [SerializeField] public int level;
+    [SerializeField] public int price;
+    [SerializeField] public int moneyAvailable;
+
+    public ArtifactShopPurchaseRecord(int sequence, string artifactId, int level, int price, int moneyAvailable)
+    {
+        this.sequence = sequence;
+        this.artifactId = artifactId;
+        this.level = level;
+        this.price = price;
+        this.moneyAvailable = moneyAvailable;
+    }
+}
+
+[Serializable]
+public sealed class LevelEndRecord
+{
+    [SerializeField] public int level;
+    [SerializeField] public bool passed;
+    [SerializeField] public double score;
+    [SerializeField] public List<string> artifactsHeld;
+
+    public LevelEndRecord(int level, bool passed, double score, List<string> artifactsHeld)
+    {
+        this.level = level;
+        this.passed = passed;
+        this.score = score;
+        this.artifactsHeld = artifactsHeld ?? new List<string>();
     }
 }

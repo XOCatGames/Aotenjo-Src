@@ -74,11 +74,17 @@ namespace Aotenjo
             double baseMul = base.GetYakuMultiplier(yakuType);
             Permutation permutation = GetCurrentSelectedPerm();
             if (permutation == null || !inRound) return baseMul;
-            
-            YakuTester.TestYaku(permutation, yakuType, this, out var relatedTiles);
-            
-            if(oracleBlock.Any(t => relatedTiles.Contains(t))) return baseMul * 2;
+
+            if (IsYakuRelatedToOracle(permutation, yakuType)) return baseMul * 2;
             return baseMul;
+        }
+
+        public bool IsYakuRelatedToOracle(Permutation permutation, YakuType yakuType)
+        {
+            if (permutation == null || oracleBlock == null) return false;
+
+            return YakuTester.TestYaku(permutation, yakuType, this, out var relatedTiles) &&
+                   oracleBlock.Any(relatedTiles.Contains);
         }
 
         public class PlayerSetOracleEvent : PlayerPermutationEvent

@@ -12,14 +12,14 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostSettlePermutationEvent += PostSettle;
-            player.PreAppendSettleScoringEffectsEvent += PreAppendPlayHand;
+            EventBus.Subscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
+            EventBus.Subscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendPlayHand);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostSettlePermutationEvent -= PostSettle;
-            player.PreAppendSettleScoringEffectsEvent -= PreAppendPlayHand;
+            EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
+            EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendPlayHand);
         }
 
         private void PreAppendPlayHand(PlayerPermutationEvent evt)

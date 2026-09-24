@@ -10,12 +10,12 @@ public class NumberlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += PostAddOnTileAnimation;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, PostAddOnTileAnimation);
     }
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= PostAddOnTileAnimation;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, PostAddOnTileAnimation);
     }
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)

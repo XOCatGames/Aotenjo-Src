@@ -44,13 +44,13 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.DetermineMaterialCompatibilityEvent += SuperCopper;
+            EventBus.Subscribe<PlayerEvents.DetermineMaterialCompatibilityEvent>(player, SuperCopper);
         }
 
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.DetermineMaterialCompatibilityEvent -= SuperCopper;
+            EventBus.Unsubscribe<PlayerEvents.DetermineMaterialCompatibilityEvent>(player, SuperCopper);
         }
 
         private static void SuperCopper(PlayerDetermineMaterialCompatibilityEvent eventData)

@@ -10,7 +10,7 @@ namespace Aotenjo
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.PostObtainArtifactEvent += OnObtainArtifact;
+            EventBus.Subscribe<PlayerEvents.PostObtainArtifactEvent>(player, OnObtainArtifact);
         }
 
         private void OnObtainArtifact(PlayerArtifactEvent evt)
@@ -28,7 +28,7 @@ namespace Aotenjo
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.PostObtainArtifactEvent -= OnObtainArtifact;
+            EventBus.Unsubscribe<PlayerEvents.PostObtainArtifactEvent>(player, OnObtainArtifact);
         }
     }
 }

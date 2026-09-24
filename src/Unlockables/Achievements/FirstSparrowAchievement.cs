@@ -8,17 +8,19 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.OnEndRunEvent += OnWonGame;
+            EventBus.Subscribe<RunStatusEvent.End>(OnWonGame);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.OnEndRunEvent -= OnWonGame;
+            EventBus.Unsubscribe<RunStatusEvent.End>(OnWonGame);
         }
 
-        private void OnWonGame(Player player, bool arg2)
+        private void OnWonGame(RunStatusEvent.End eventData)
         {
-            if (arg2)
+            var player = eventData.player;
+            var won = eventData.won;
+            if (won)
                 SetComplete();
         }
     }

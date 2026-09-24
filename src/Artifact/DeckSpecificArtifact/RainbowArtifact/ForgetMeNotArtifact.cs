@@ -27,7 +27,7 @@ namespace Aotenjo
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);
-            player.PostDiscardTileEvent += OnPostDiscardTileEvent;
+            EventBus.Subscribe<PlayerEvents.PostDiscardTileEvent>(player, OnPostDiscardTileEvent);
             EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
@@ -47,8 +47,8 @@ namespace Aotenjo
         public override void UnsubscribeToPlayer(Player player)
         {
             base.UnsubscribeToPlayer(player);
-            player.PostDiscardTileEvent -= OnPostDiscardTileEvent;
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
+            EventBus.Unsubscribe<PlayerEvents.PostDiscardTileEvent>(player, OnPostDiscardTileEvent);
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         }
 
         public double GetMul(Player player) => 1 + MUL * Level;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Aotenjo
 {
@@ -23,9 +24,35 @@ namespace Aotenjo
             return player;
         }
 
-        public class RainbowPlayer : Player
+        [Serializable]
+        public class RainbowPlayer : Player, ISerializationCallbackReceiver
         {
-            public List<FlowerTile> PlayedFlowerTiles;
+            // 保留旧版 JSON 的真实字段名；引用列表保存派生类型与跨列表引用关系。
+            [SerializeField] public List<FlowerTile> PlayedFlowerTiles;
+            [SerializeReference] private List<FlowerTile> playedFlowerTiles;
+            // JsonUtility 会把缺失的列表初始化为空，不能用 null 判断旧版存档。
+            [SerializeField] private bool hasPlayedFlowerTileReferences;
+            [SerializeReference] private List<FlowerTile> newPlayedFlowerTiles = new();
+
+            public void OnBeforeSerialize()
+            {
+                playedFlowerTiles = PlayedFlowerTiles;
+                hasPlayedFlowerTileReferences = true;
+            }
+
+            public void OnAfterDeserialize()
+            {
+                if (hasPlayedFlowerTileReferences)
+                {
+                    PlayedFlowerTiles = playedFlowerTiles ?? new List<FlowerTile>();
+                }
+                else
+                {
+                    // 保留旧 JSON 字段名，并按花色和序号恢复旧版按值保存的花牌类型。
+                    PlayedFlowerTiles = (PlayedFlowerTiles ?? new List<FlowerTile>())
+                        .Where(tile => tile != null).Select(tile => (FlowerTile)tile.Copy()).ToList();
+                }
+            }
 
             public delegate void PlayFlowerTileEvent(Player player, FlowerTile flowerTile);
 
@@ -46,11 +73,16 @@ namespace Aotenjo
             /// <returns>补充的手牌，如果牌库没有牌或是打出的牌不在手牌内则返回Null</returns>
             public Tile PlayFlowerTile(FlowerTile flower)
             {
+                if (!CanPlayFlowerTile(flower)) return null;
                 PrePlayFlowerTileEvent?.Invoke(this, flower);
+                if (!CanPlayFlowerTile(flower)) return null;
 
                 HandDeck.Remove(flower);
                 PlayedFlowerTiles.Add(flower);
-                flower.OnPlayed(this, GetAccumulatedPermutation());
+                newPlayedFlowerTiles ??= new List<FlowerTile>();
+                newPlayedFlowerTiles.Add(flower);
+                if (flower.properties.mask is not TileMaskSuppressed)
+                    flower.OnPlayed(this, GetAccumulatedPermutation());
                 int pos = DrawTileToHandDeck();
 
                 PostPlayFlowerTileEvent?.Invoke(this, flower);
@@ -61,12 +93,54 @@ namespace Aotenjo
 
             public bool CanPlayFlowerTile(FlowerTile tile)
             {
-                return PlayedFlowerTiles.Count < GetMaxFlowerTileCount() && HandDeck.Contains(tile);
+                return tile != null && PlayedFlowerTiles.Count < GetMaxFlowerTileCount() &&
+                       HandDeck.Contains(tile) && CanSelectTile(tile);
             }
 
             public override List<Tile> GetAllTiles()
             {
                 return base.GetAllTiles().Union(PlayedFlowerTiles).ToList();
+            }
+
+            public override List<Tile> GetScoringTiles(Permutation permutation)
+            {
+                return base.GetScoringTiles(permutation).Union(PlayedFlowerTiles).ToList();
+            }
+
+            public override List<Tile> GetPlayingTiles()
+            {
+                return base.GetPlayingTiles().Union((newPlayedFlowerTiles ?? new List<FlowerTile>())
+                    .Where(tile => PlayedFlowerTiles.Contains(tile))).ToList();
+            }
+
+            public override bool IsPlayingTile(Tile tile)
+            {
+                return tile is FlowerTile flower && PlayedFlowerTiles.Contains(flower)
+                    ? newPlayedFlowerTiles?.Contains(flower) == true
+                    : base.IsPlayingTile(tile);
+            }
+
+            public override void TriggerPostSettlePermutationEvent(Permutation permutation)
+            {
+                base.TriggerPostSettlePermutationEvent(permutation);
+                newPlayedFlowerTiles?.Clear();
+            }
+
+            public override bool RemoveTileFromDiscarded(Tile toRemove, string message = "")
+            {
+                if (toRemove is not FlowerTile flower || !PlayedFlowerTiles.Contains(flower))
+                    return base.RemoveTileFromDiscarded(toRemove, message);
+
+                PlayerEvents.PreRemoveTileEvent evt = new(this, flower) { message = message };
+                EventBus.Publish(evt);
+                if (evt.canceled) return false;
+
+                PlayedFlowerTiles.Remove(flower);
+                newPlayedFlowerTiles?.Remove(flower);
+                flower.UnsubscribeFromPlayer(this);
+                EventBus.Publish(new PlayerEvents.PostRemoveTileEvent(this, flower));
+                stats.RecordCustomStats("tile_destoryed", 1);
+                return true;
             }
 
             public int GetMaxFlowerTileCount()
@@ -79,37 +153,36 @@ namespace Aotenjo
                 base.ResetTilePool();
                 TilePool.AddRange(PlayedFlowerTiles);
                 PlayedFlowerTiles.Clear();
+                newPlayedFlowerTiles?.Clear();
             }
 
             protected override void AddExtraScoringEffects(List<IAnimationEffect> queue)
             {
-                Permutation perm = GetCurrentSelectedPerm();
+                Permutation perm = GetCurrentSelectedPerm() ?? GetAccumulatedPermutation();
                 foreach (FlowerTile flower in PlayedFlowerTiles)
                 {
-                    flower.AppendScoringEffect(queue, this, perm);
-                    List<Effect> artifactEffects = new();
-                    foreach (Artifact artifact in GetArtifacts())
-                    {
-                        artifact.AppendOnTileEffects(this, perm, flower, artifactEffects);
-                    }
-
-                    queue.AddRange(artifactEffects.Select(e => new OnTileAnimationEffect(flower, e)));
+                    queue.Add(new TileScoringEffectAppendEffect(this, flower, perm, playHandEffectStack));
+                    queue.Add(SimpleAppendEffect.Create(playHandEffectStack, () =>
+                        GetPostScoreEffectsFromTile(perm, flower).Select(effect => effect.OnTile(flower))
+                            .ToList<IAnimationEffect>()));
                 }
             }
 
-            protected override void AppendOnTileRoundEndEffect(List<IAnimationEffect> onRoundEndEffects)
+            public override void AppendAdditionalTileRoundEndEffects(List<IAnimationEffect> onRoundEndEffects, Permutation permutation)
             {
-                base.AppendOnTileRoundEndEffect(onRoundEndEffects);
+                base.AppendAdditionalTileRoundEndEffects(onRoundEndEffects, permutation);
                 foreach (FlowerTile flower in PlayedFlowerTiles)
                 {
-                    flower.AppendRoundEndEffect(onRoundEndEffects, this, GetCurrentSelectedPerm());
+                    flower.AppendOnRoundEndEffects(this, permutation, onRoundEndEffects);
+                    if (flower.properties.mask is not TileMaskSuppressed)
+                        flower.AppendRoundEndEffect(onRoundEndEffects, this, permutation);
                 }
             }
 
             public override List<Destination> GenerateDestinations()
             {
                 List<Destination> destinations = base.GenerateDestinations();
-                if (Level % 4 == 1 && Level < 16)
+                if (CurrentLevel.IsChapterStart && Level < GameLevel.StandardRunCompletionLevel)
                 {
                     if (GenerateRandomInt(3) <= 1)
                     {

@@ -5,6 +5,8 @@ using Aotenjo;
 [Serializable]
 public class MiniHammerGadget : Gadget
 {
+    protected override Gadget CreateCopy() => new MiniHammerGadget();
+
     public MiniHammerGadget() : base("mini_hammer", 6, 2, 4)
     {
     }
@@ -13,7 +15,10 @@ public class MiniHammerGadget : Gadget
     {
         MessageManager.Instance.OnSoundEvent("MiniHammer");
         tile.SetMask(TileMask.Fractured(), player);
-        var cands = player.GetHandDeckCopy().Where(t => t != tile && t.IsSameCategory(tile)
+        var cands = player.GetHandDeckCopy().Where(t => t != tile &&
+                                                                  (tile is FlowerTile
+                                                                      ? t is FlowerTile && t.GetCategory() == tile.GetCategory()
+                                                                      : t.IsSameCategory(tile))
                                                                   && !t.properties.mask.GetRegName()
                                                                       .Equals(TileMask.Fractured().GetRegName()))
             .ToList();
@@ -33,7 +38,7 @@ public class MiniHammerGadget : Gadget
         return 5;
     }
 
-    public override bool ShouldHighlightTile(Tile tile)
+    public override bool ShouldHighlightTile(Tile tile, Player player)
     {
         return true;
     }

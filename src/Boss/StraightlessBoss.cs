@@ -13,7 +13,7 @@ public class StraightlessBoss : Boss
 
     public override void SubscribeToPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent += CountTiles;
+        EventBus.Subscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, CountTiles);
         EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
         playedTile = new List<int>();
     }
@@ -25,7 +25,7 @@ public class StraightlessBoss : Boss
 
     public override void UnsubscribeFromPlayerEvents(Player player)
     {
-        player.OnPostAddOnTileAnimationEffectEvent -= CountTiles;
+        EventBus.Unsubscribe<PlayerEvents.OnPostAddOnTileAnimationEffectEvent>(player, CountTiles);
         EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
     }
 
@@ -49,7 +49,7 @@ public class StraightlessBoss : Boss
     }
 
     protected virtual OnTileAnimationEffect CreateFirstTimeNumberEffect(Tile tile)
-        => new(tile, new DiffTileIncreScoreEffect());
+        => new DiffTileIncreScoreEffect().OnTile(tile);
 
     private class DiffTileIncreScoreEffect : Effect
     {
@@ -115,7 +115,7 @@ public class StraightlessHarderBoss : StraightlessBoss
 
     protected override OnTileAnimationEffect CreateFirstTimeNumberEffect(Tile tile)
     {
-        return new OnTileAnimationEffect(tile, new SuppressTileEffect(tile, null));
+        return new SuppressTileEffect(tile, null).OnTile(tile);
     }
 
     public override Boss GetHarderBoss() => this;

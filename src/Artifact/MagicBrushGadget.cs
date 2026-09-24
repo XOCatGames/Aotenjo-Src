@@ -15,9 +15,9 @@ namespace Aotenjo
             this.category = category;
         }
 
-        public override Gadget Copy()
+        protected override Gadget CreateCopy()
         {
-            return new MagicBrushGadget(category).SetUses(uses);
+            return new MagicBrushGadget(category);
         }
 
         public override int GetStackLimit()
@@ -43,14 +43,15 @@ namespace Aotenjo
             return true;
         }
         
-        public override bool UseOnTiles(Player player, List<Tile> tiles)
+        public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
         {
-            if(!CanUseOnTiles(tiles)) return false;
+            if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
+            if(!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
             Block formedBlock = Block.FormValidBlock(tiles.ToArray(), player);
-            return UseOnBlock(player, formedBlock);
+            return GadgetUseResult.FromSuccess(UseOnBlock(player, formedBlock), tiles);
         }
 
-        public override int GetMaxOnUseNum()
+        public override int GetMaxOnUseNum(Player player)
         {
             return 4;
         }
@@ -60,15 +61,14 @@ namespace Aotenjo
             return false;
         }
         
-        public override bool CanUseOnTiles(List<Tile> tiles)
+        public override bool CanUseOnTiles(List<Tile> tiles, Player player)
         {
             if (tiles.Count < 3 || tiles.Any(t => !t.IsNumbered()) || uses <= 0) return false;
-            Player player = GameManager.Instance.player;
             Block formedBlock = Block.FormValidBlock(tiles.ToArray(), player);
             return formedBlock != null;
         }
 
-        public override bool ShouldHighlightTile(Tile tile)
+        public override bool ShouldHighlightTile(Tile tile, Player player)
         {
             return tile.IsNumbered();
         }

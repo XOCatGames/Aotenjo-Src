@@ -70,7 +70,7 @@ namespace Aotenjo
                 return 0;
             }
 
-            return perm.ToTiles().Where(t => t.CompatWithMaterial(TileMaterial.Agate(), player)).Count();
+            return player.GetScoringTiles(perm).Count(t => t.CompatWithMaterial(TileMaterial.Agate(), player));
         }
     }
 }

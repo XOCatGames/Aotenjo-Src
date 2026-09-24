@@ -8,16 +8,18 @@
 
         public override void SubscribeToPlayer(Player player)
         {
-            player.OnEndRunEvent += OnWonGame;
+            EventBus.Subscribe<RunStatusEvent.End>(OnWonGame);
         }
 
         public override void UnsubscribeFromPlayer(Player player)
         {
-            player.OnEndRunEvent -= OnWonGame;
+            EventBus.Unsubscribe<RunStatusEvent.End>(OnWonGame);
         }
 
-        private void OnWonGame(Player player, bool won)
+        private void OnWonGame(RunStatusEvent.End eventData)
         {
+            var player = eventData.player;
+            var won = eventData.won;
             if (won && player.Level <= 16)
             {
                 if (player.GetMoney() < 0)

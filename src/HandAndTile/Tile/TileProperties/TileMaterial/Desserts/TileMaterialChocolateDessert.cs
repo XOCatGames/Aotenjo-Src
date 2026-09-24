@@ -42,7 +42,7 @@ namespace Aotenjo
 
         public override TileMaterial Copy()
         {
-            return new TileMaterialChocolateDessert(materialID, usesLeft, totalUsesConsumed);
+            return new TileMaterialChocolateDessert(materialID, usesLeft, totalUsesConsumed) { maxUses = maxUses };
         }
 
         protected override string GetDescription(Func<string, string> localizer)

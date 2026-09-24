@@ -8,25 +8,13 @@ namespace Aotenjo
     {
         public RainbowCheeseArtifact() : base("rainbow_cheese", Rarity.RARE)
         {
-            
-            SetPrerequisite(p =>
-                p.GetAllTiles().Any(t => p.DetermineMaterialCompatibility(t, TileMaterial.GoldMouse())));
             SetHighlightRequirement((t, p) => p.DetermineMaterialCompatibility(t, TileMaterial.GoldMouse()));
         }
 
         public override string GetDescription(Player player, Func<string, string> localizer)
         {
             Permutation permutation = player.GetCurrentSelectedPerm();
-            List<Tile> tiles = new List<Tile>();
-            if (permutation != null)
-            {
-                tiles = new(permutation.ToTiles());
-            }
-
-            if (player is RainbowDeck.RainbowPlayer rainbowPlayer)
-            {
-                tiles = tiles.Union(rainbowPlayer.PlayedFlowerTiles).ToList();
-            }
+            List<Tile> tiles = player.GetScoringTiles(permutation);
 
             return string.Format(base.GetDescription(localizer), tiles.Select(t => t.GetCategory()).Distinct().Count());
         }
@@ -35,16 +23,12 @@ namespace Aotenjo
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
             base.AppendOnTileEffects(player, permutation, tile, effects);
-            if (!player.Selecting(tile)) return;
+            if (!player.IsPlayingTile(tile)) return;
             if (player.DetermineMaterialCompatibility(tile, TileMaterial.GoldMouse()))
             {
-                List<Tile> tiles = new List<Tile>(permutation.ToTiles());
-                if (player is RainbowDeck.RainbowPlayer rainbowPlayer)
-                {
-                    tiles = tiles.Union(rainbowPlayer.PlayedFlowerTiles).ToList();
-                }
+                List<Tile> tiles = player.GetScoringTiles(permutation);
 
-                effects.Add(new EarnMoneyEffect(tiles.Select(t => t.GetCategory()).Distinct().Count()));
+                effects.Add(new EarnMoneyEffect(tiles.Select(t => t.GetCategory()).Distinct().Count(), this));
             }
         }
     }
