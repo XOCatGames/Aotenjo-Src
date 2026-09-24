@@ -11,7 +11,9 @@ def archive(path, folders):
     # Stored entries avoid platform/zlib-version differences in committed archives.
     with ZipFile(path, 'w', compression=ZIP_STORED) as z:
         for folder in folders:
-            for file in sorted(folder.rglob('*')):
+            # pathlib ordering is case-insensitive on Windows, case-sensitive on
+            # Linux. Sort explicit archive names so README and images match.
+            for file in sorted(folder.rglob('*'), key=lambda p: p.relative_to(MODS).as_posix()):
                 if file.is_file():
                     name = file.relative_to(MODS).as_posix()
                     info = ZipInfo(name, (2026,9,24,0,0,0))
@@ -30,11 +32,11 @@ def archive(path, folders):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    folders = sorted(p for p in MODS.iterdir() if (p/'modinfo.json').is_file())
+    folders = sorted((p for p in MODS.iterdir() if (p/'modinfo.json').is_file()), key=lambda p: p.name)
     for folder in folders:
         archive(OUT/(folder.name+'.zip'), [folder])
     archive(OUT/'all-examples.zip', folders)
-    lines = [hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name for p in sorted(OUT.glob('*.zip'))]
+    lines = [hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name for p in sorted(OUT.glob('*.zip'), key=lambda p: p.name)]
     (OUT/'SHA256SUMS.txt').write_text('\n'.join(lines)+'\n', encoding='utf-8', newline='\n')
     print(f'PASS {len(folders)+1} deterministic ZIPs: integrity, install paths, and every file verified.')
 
