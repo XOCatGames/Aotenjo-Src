@@ -1,8 +1,9 @@
 {
-    "tile_example_mod_3:ruby_material_name" : "Ruby Tile",
-    "tile_example_mod_3:ruby_material_description" : "+20 Fu while scoring. +1$ on round ends.",
-    "tile_example_mod_3:sapphire_material_name" : "Sapphire Tile",
-    "tile_example_mod_3:sapphire_material_description" : "X2 Fan while scoring, add a ruby duplicate of this tile into The Wall when rounds end.",
-    "material_set_gemstone_name" : "Gemstone",
-    "effect_sapphire" : "Power of Blue!"
+  "tile_tutorial_gems:ruby_material_name": "Ruby Tile",
+  "tile_tutorial_gems:ruby_material_name_short": "Ruby",
+  "tile_tutorial_gems:ruby_material_description": "Add 20 Fu when scoring. Gain 2 coins when this tile receives its round-end effect.",
+  "tile_tutorial_gems:sapphire_material_name": "Sapphire Tile",
+  "tile_tutorial_gems:sapphire_material_name_short": "Sapphire",
+  "tile_tutorial_gems:sapphire_material_description": "Multiply Fan by 2 when scoring.",
+  "material_set_tutorial_gemstones_name": "Tutorial Gemstones"
 }

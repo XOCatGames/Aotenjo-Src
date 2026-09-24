@@ -1,4 +1,5 @@
 {
-    "yaku_custom_yaku:example_mod_ex2:all_twos_name" : "二一色",
-    "yaku_custom_yaku:example_mod_ex2:all_twos_description" : "全部由数字2组成的牌型"
+  "yaku_custom_yaku:tutorial_yaku:all_twos_name": "全二",
+  "yaku_custom_yaku:tutorial_yaku:all_twos_description": "组合中至少有一张牌，且所有牌都是数牌二。",
+  "yaku_custom_yaku:tutorial_yaku:all_twos_romaji_name": "Quan Er"
 }

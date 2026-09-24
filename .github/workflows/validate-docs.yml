@@ -1,0 +1,24 @@
+name: Validate modding handbook and examples
+on:
+  push:
+    paths: ['docs/**', 'example/**', 'reference/**', 'tools/**', 'downloads/**', 'README.md', '.gitattributes', '.github/workflows/validate-docs.yml']
+  pull_request:
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source contracts and complete packages
+        run: python tools/validate.py
+      - name: Install Lua scenario runner
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: Run Lua behavior scenarios with fake game objects
+        run: lua5.4 tools/tests/examples.lua
+      - name: Check reproducible examples and archives
+        run: |
+          python tools/build_examples.py
+          python tools/package_examples.py
+          git diff --exit-code -- example downloads

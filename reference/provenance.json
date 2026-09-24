@@ -1,0 +1,22 @@
+{
+  "source_commit": "406dba6623ad528224eac65f5d894269907681a8",
+  "upstream_commit": "c66f4500de0d2d19d627cc9d2455832ba7ff66c4",
+  "date": "2026-09-24",
+  "normalization": "CRLF to LF, SHA-256",
+  "working_tree_omissions": [
+    "Assets/LogicScripts/Utils/Constants.cs"
+  ],
+  "runtime_sources_reviewed": {
+    "Assets/Scripts/AotenjoModLoader/ModManager.cs": "292add05720c15febd157deef221af15fc3599f1569a7eaaa2371bb1257e9ab9",
+    "Assets/Scripts/AotenjoModLoader/ModLocalizationLoader.cs": "e699001541edc24a568844e09a8da2d26a0cdbfc1932646590e4e5541e842b1a",
+    "Assets/Scripts/Tile/TileFaceMaterialRegistry.cs": "92c064329a6395ec298b4b422774d33504cd0b721b8369613247d9748c703cf8",
+    "Assets/Scripts/Tile/SpriteManager.cs": "5680bbe0132a15dbf5df56e1271f99125c5ae6b4b0027a4ca8cae491ab99e14b",
+    "Assets/Scripts/Console/ArgumentParsers.cs": "13cfa5729f3fb4665cb88c50447e4b9540003ca14eb4d75762cbdefb1bed3791",
+    "Assets/Scripts/Console/AotenjoCommandSystem.cs": "b897af8d9f4b91d57a6ce7240e844bdc1a0188f8f3e6ffb87279718e3f1a1731",
+    "Assets/Scripts/UI/UIConsole.cs": "f18303a3bc7e579f59a66abe65caffebdd1ebb9cbc9e6db62c263585ebd5d7b8",
+    "Assets/Scripts/Integration/SteamWorkshopIntegration.cs": "0514c6e303f999b55020d8eedb4ef8e1a21b88767671a4e35309b2dc04804cca",
+    "Assets/Scripts/UI/MainMenu/ModManager/UIMainMenuModManager.cs": "264d6809a09392574c045a055c7300037bfc4881aa42a6e5b4a194a9438b754e",
+    "Assets/Resources/Config/YakuPacks.json": "3764b2609fb8dcb36d628cce3ad3ca7674ae8e6691f207d4a4466600b4f41a7a"
+  },
+  "source_files": 638
+}

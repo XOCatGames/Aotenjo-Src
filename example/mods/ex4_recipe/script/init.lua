@@ -1,0 +1,22 @@
+local A = CS.Aotenjo
+function init()
+    local copper = A.LuaArtifactBuilder.Create("tutorial_recipe:copper_token", A.Rarity.COMMON)
+        :OnSelfEffect(function(player, perm, effects, artifact)
+            effects:Add(A.ScoreEffect.AddFu(8, artifact))
+        end):BuildAndRegister()
+    local silver = A.LuaArtifactBuilder.Create("tutorial_recipe:silver_token", A.Rarity.RARE)
+        :OnSelfEffect(function(player, perm, effects, artifact)
+            effects:Add(A.ScoreEffect.AddFan(2, artifact))
+        end):BuildAndRegister()
+    local combined = A.LuaArtifactBuilder.Create("tutorial_recipe:double_token", A.Rarity.RARE)
+        :OnSelfEffect(function(player, perm, effects, artifact)
+            effects:Add(A.ScoreEffect.AddFan(5, artifact))
+        end):BuildAndRegisterCraftable()
+    -- A real C# List<Artifact>, not a Lua table. 真正的 C# List<Artifact>。
+    local inputs = CS.System.Collections.Generic.List(A.Artifact)()
+    inputs:Add(copper)
+    inputs:Add(silver)
+    local recipe = A.LuaArtifactRecipeBuilder.BuildAndRegister("tutorial_recipe:tokens", inputs, combined)
+    assert(recipe ~= nil, "tutorial_recipe: recipe registration failed")
+    A.Logger.Log("[tutorial_recipe] registered tokens recipe")
+end

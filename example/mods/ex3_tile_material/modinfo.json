@@ -1,7 +1,7 @@
 {
-    "modID":"example_mod_3",
-    "name":"Example Mod Ex2",
-    "author":"example_author",
-    "description":"This is an example mod of Aotenjo, Containing an example patterns, as well as its localization",
-    "version":"1.0.0"
+  "modID": "tutorial_gems",
+  "name": "Gemstones / 宝石牌体",
+  "version": "2.0.0",
+  "author": "Aotenjo tutorial",
+  "description": "Ruby +20 Fu and 2 coins at round end; sapphire x2 Fan. / 红宝石加20符、关末加2金币，蓝宝石乘2番。"
 }

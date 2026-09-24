@@ -1,0 +1,8 @@
+{
+  "artifact_tutorial_recipe:copper_token_name": "铜代币",
+  "artifact_tutorial_recipe:copper_token_description": "计分时加8符。与银代币合成。",
+  "artifact_tutorial_recipe:silver_token_name": "银代币",
+  "artifact_tutorial_recipe:silver_token_description": "计分时加2番。与铜代币合成。",
+  "artifact_tutorial_recipe:double_token_name": "双代币",
+  "artifact_tutorial_recipe:double_token_description": "计分时加5番。"
+}

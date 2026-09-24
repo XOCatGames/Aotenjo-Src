@@ -1,0 +1,7 @@
+{
+  "artifact_tutorial_artifact:coin_twos_name": "二号硬币",
+  "artifact_tutorial_artifact:coin_twos_description": "每张本次打出的二结算时获得2金币。",
+  "artifact_tutorial_artifact:practice_jade_name": "练习玉",
+  "artifact_tutorial_artifact:practice_jade_description": "计分时番数×%.1f；随后倍率增加0.1。",
+  "tutorial_artifact_grow": "熟能生巧！"
+}

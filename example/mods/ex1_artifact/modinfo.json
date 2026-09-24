@@ -1,7 +1,7 @@
 {
-    "modID":"example_mod_ex1",
-    "name":"Example Mod",
-    "author":"example_author",
-    "description":"This is an example mod of Aotenjo, Containing 2 example artifacts",
-    "version":"1.0.0"
+  "modID": "tutorial_artifact",
+  "name": "Artifacts / 藏品",
+  "version": "2.0.0",
+  "author": "Aotenjo tutorial",
+  "description": "Played twos earn 2 coins; a jade grows after scoring. / 打出的二获得2金币，练习玉在计分后成长。"
 }

@@ -1,0 +1,8 @@
+{
+  "artifact_tutorial_recipe:copper_token_name": "Copper Token",
+  "artifact_tutorial_recipe:copper_token_description": "Add 8 Fu when scoring. Combines with Silver Token.",
+  "artifact_tutorial_recipe:silver_token_name": "Silver Token",
+  "artifact_tutorial_recipe:silver_token_description": "Add 2 Fan when scoring. Combines with Copper Token.",
+  "artifact_tutorial_recipe:double_token_name": "Double Token",
+  "artifact_tutorial_recipe:double_token_description": "Add 5 Fan when scoring."
+}

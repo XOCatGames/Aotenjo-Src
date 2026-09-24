@@ -1,0 +1,137 @@
+# 事件目录 / Event directory
+
+[事件使用边界 / Event limitations](../docs/en/cookbook.md) · [中文说明](../docs/zh/cookbook.md)
+
+按精确发布类型订阅；字段可能来自基类，请沿源码继承关系查看。
+Subscribe to the exact published type. Payload fields may be inherited; follow the linked base classes.
+
+| 类型 / Type declaration | 源码 / Source |
+| --- | --- |
+| `FullScreenAnimationEffectEvent : PlayerEvent` | [FullScreenAnimationEffectEvent](../src/Event/ClientSideEvent/FullScreenAnimationEffectEvent.cs) |
+| `TileChangeAnimationEvent : PlayerEvent` | [TileAnimationFXEvent](../src/Event/ClientSideEvent/TileAnimationFXEvent.cs) |
+| `TileAnimationFXEvent : PlayerEvent` | [TileAnimationFXEvent](../src/Event/ClientSideEvent/TileAnimationFXEvent.cs) |
+| `DelayedTileAnimationFXEvent : TileAnimationFXEvent` | [TileAnimationFXEvent](../src/Event/ClientSideEvent/TileAnimationFXEvent.cs) |
+| `DrawArtifactInShopEvent : PlayerEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
+| `On : DrawArtifactInShopEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
+| `Post : DrawArtifactInShopEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
+| `MechanicalPartChangedEvent : PlayerTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
+| `MechanicalTileGrownEvent : PlayerTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
+| `PostKongTilesEvent : PlayerKongTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
+| `EventBus` | [EventBus](../src/Event/NewEventSystem/EventBus.cs) |
+| `SubscribeToEventAttribute : Attribute` | [SubscribeToEventAttribute](../src/Event/NewEventSystem/SubscribeToEventAttribute.cs) |
+| `OnIBookUpgradeYakuEvent : PlayerEvent` | [OnIBookUpgradeYakuEvent](../src/Event/OnIBookUpgradeYakuEvent.cs) |
+| `PirateChestEvent : PlayerEvent` | [PirateChestEvent](../src/Event/PirateChestEvent.cs) |
+| `PlayerArtifactEvent : PlayerEvent` | [PlayerArtifactEvent](../src/Event/PlayerArtifactEvent.cs) |
+| `DetermineGettability : PlayerArtifactEvent` | [PlayerArtifactEvent](../src/Event/PlayerArtifactEvent.cs) |
+| `PlayerChoosePathEvent : PlayerEvent` | [PlayerChoosePathEvent](../src/Event/PlayerChoosePathEvent.cs) |
+| `PlayerConsumeDessertEvent : PlayerEvent` | [PlayerConsumeDessertEvent](../src/Event/PlayerConsumeDessertEvent.cs) |
+| `PlayerDetermineScarletCoreCategoryEvent : PlayerEvent` | [PlayerDetermineScarletCoreCategoryEvent](../src/Event/PlayerDetermineScarletCoreCategoryEvent.cs) |
+| `PlayerDetermineShiftedPairEvent : PlayerEvent` | [PlayerDetermineShiftedPairEvent](../src/Event/PlayerDetermineShiftedPairEvent.cs) |
+| `PlayerEvent` | [PlayerEvent](../src/Event/PlayerEvent.cs) |
+| `PlayerEvents` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSettlePermutationEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreAppendSettleScoringEffectsEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostSettlePermutationEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PermutationAnimationEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPrePostAddOnTileAnimationEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPostAddOnTileAnimationEffectEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnAddSingleTileScoringEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostAddSingleTileAnimationEffectEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreAddScoringAnimationEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPostAddOnBlockAnimationEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPostAddScoringAnimationEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPostAddRoundEndAnimationEffectEvent : PermutationAnimationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnAddSingleAnimationEffectEvent : PlayerEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnAddSingleDiscardTileAnimationEffectEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostIngestEffectEvent : PlayerPermutationEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnPreUpgradeYakuEvent : PlayerYakuEvent.Upgrade` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `SpendMoneyEvent : PlayerMoneyEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `EarnMoneyEvent : PlayerMoneyEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreRemoveArtifactEvent : PlayerArtifactEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreAddTileEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostAddTileEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `ObtainYakuEvent : PlayerYakuEvent.Obtain` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `UpgradeYakuEvent : PlayerYakuEvent.Upgrade` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DeleteYakuEvent : PlayerYakuEvent.Delete` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `RetrieveYakuMultiplierEvent : PlayerYakuEvent.RetrieveMultiplier` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `ObtainGadgetEvent : PlayerGadgetEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreObtainArtifactEvent : PlayerArtifactEvent.DetermineGettability` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostObtainArtifactEvent : PlayerArtifactEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostUseGadgetEvent : PlayerGadgetEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetTransformEvent : PlayerSetTransformEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetMaterialEvent : PlayerSetAttributeEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetFontEvent : PlayerSetAttributeEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetMaskEvent : PlayerSetAttributeEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetPropertiesEvent : PlayerSetPropertiesEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreSetTilePropertiesEvent : PlayerSetPropertiesEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostSetTilePropertiesEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineTileSelectivityEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreKongTileEvent : PlayerKongTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineMaterialCompatibilityEvent : PlayerDetermineMaterialCompatibilityEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineFontCompatibilityEvent : PlayerDetermineFontCompatibilityEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineTileCompatibilityEvent : PlayerDetermineTileFaceCompatibilityEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineDiscardTileEvent : PlayerDiscardTileEvent.Determine` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineForceDiscardTileEvent : PlayerDiscardTileEvent.DetermineForce` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineSelectingTileEvent : DeterminePlayerSelectingTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreDiscardTileEvent : PlayerDiscardTileEvent.Pre` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostDiscardTileEvent : PlayerDiscardTileEvent.Post` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PreRemoveTileEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostRemoveTileEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineYaojiuTileEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DetermineShiftedPairEvent : PlayerDetermineShiftedPairEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostGenerateDestinationEvent : PlayerEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `ChoosePathEvent : PlayerChoosePathEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DeterminePlayerWindEvent : PlayerEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `DeterminePrevalentWindEvent : PlayerEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnDessertTileConsumedEvent : PlayerTileEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `OnDessertTileConsumeAttemptEvent : PlayerConsumeDessertEvent` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PostUpgradeYakuFromIBookEvent : PlayerYakuEvent.ReadBookResult` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `RetrieveEffectiveJadeStackEvent : PlayerJadeEvent.RetrieveEffectiveStack` | [PlayerEvents](../src/Event/PlayerEvents.cs) |
+| `PlayerGadgetEvent : PlayerTileEvent` | [PlayerGadgetEvent](../src/Event/PlayerGadgetEvent.cs) |
+| `PlayerSetTransformEvent : PlayerGadgetEvent` | [PlayerGadgetEvent](../src/Event/PlayerGadgetEvent.cs) |
+| `PlayerGetScarletCoreLevelEvent : PlayerEvent` | [PlayerGetScarletCoreLevelEvent](../src/Event/PlayerGetScarletCoreLevelEvent.cs) |
+| `PlayerModifyCarvedDesignEvent : PlayerTileEvent` | [PlayerModifyCarvedDesignEvent](../src/Event/PlayerModifyCarvedDesignEvent.cs) |
+| `Pre : PlayerModifyCarvedDesignEvent` | [PlayerModifyCarvedDesignEvent](../src/Event/PlayerModifyCarvedDesignEvent.cs) |
+| `Post : PlayerModifyCarvedDesignEvent` | [PlayerModifyCarvedDesignEvent](../src/Event/PlayerModifyCarvedDesignEvent.cs) |
+| `PlayerMoneyEvent : PlayerEvent` | [PlayerMoneyEvent](../src/Event/PlayerMoneyEvent.cs) |
+| `PlayerPermutationEvent : PlayerEvent` | [PlayerPermutationEvent](../src/Event/PlayerPermutationEvent.cs) |
+| `PlayerRoundEvent : PlayerEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Skip : PlayerRoundEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Pre : Skip` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Post : Skip` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Start : PlayerRoundEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Pre : Start` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Post : Start` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `End : PlayerRoundEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `PrePre : End` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Pre : End` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `PostPre : End` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Post : End` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `PlayerSetAttributeEvent : PlayerTileEvent` | [PlayerSetAttributeEvent](../src/Event/PlayerSetAttributeEvent.cs) |
+| `PlayerSetPropertiesEvent : PlayerTileEvent` | [PlayerSetAttributeEvent](../src/Event/PlayerSetAttributeEvent.cs) |
+| `PlayerDetermineDoraEvent : PlayerEvent` | [PlayerDetermineDoraEvent](../src/Event/PlayerTileEvent/PlayerDetermineDoraEvent.cs) |
+| `PlayerDetermineFontCompatibilityEvent : PlayerTileEvent` | [PlayerDetermineFontCompatibilityEvent](../src/Event/PlayerTileEvent/PlayerDetermineFontCompatibilityEvent.cs) |
+| `PlayerDetermineMaterialCompatibilityEvent : PlayerTileEvent` | [PlayerDetermineMaterialCompatibilityEvent](../src/Event/PlayerTileEvent/PlayerDetermineMaterialCompatibilityEvent.cs) |
+| `PlayerDetermineTileFaceCompatibilityEvent : PlayerTileEvent` | [PlayerDetermineTileFaceCompatibilityEvent](../src/Event/PlayerTileEvent/PlayerDetermineTileFaceCompatibilityEvent.cs) |
+| `PlayerTileEvent : PlayerEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `RetrieveBaseFu : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `DeterminePlayerSelectingTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `PlayerDrawTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `Pre : PlayerDrawTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `Post : PlayerDrawTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `PlayerDiscardTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `DetermineForce : PlayerDiscardTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `Determine : PlayerDiscardTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `Pre : PlayerDiscardTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `Post : PlayerDiscardTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `PlayerKongTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `PlayerYakuEvent : PlayerEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `Obtain : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `Upgrade : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `Delete : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `Reroll : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `RetrieveMultiplier : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `ReadBookResult : PlayerYakuEvent` | [PlayerYakuEvent](../src/Event/PlayerYakuEvent.cs) |
+| `RunStatusEvent : PlayerEvent` | [RunStatusEvent](../src/Event/RunStatusEvent.cs) |
+| `End : RunStatusEvent` | [RunStatusEvent](../src/Event/RunStatusEvent.cs) |
+| `Post : End` | [RunStatusEvent](../src/Event/RunStatusEvent.cs) |

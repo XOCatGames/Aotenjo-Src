@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "replacements": [
+    {
+      "target": "artifact:aotenjo:origami_bear",
+      "file": "texture_pack/origami_bear.png",
+      "filterMode": "Point",
+      "pixelsPerUnit": 100
+    }
+  ]
+}

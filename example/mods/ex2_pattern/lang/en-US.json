@@ -1,4 +1,5 @@
 {
-    "yaku_custom_yaku:example_mod_ex2:all_twos_name" : "All Twos",
-    "yaku_custom_yaku:example_mod_ex2:all_twos_description" : "A Hand made of all twos"
+  "yaku_custom_yaku:tutorial_yaku:all_twos_name": "All Twos",
+  "yaku_custom_yaku:tutorial_yaku:all_twos_description": "The combination contains at least one tile and every tile is a numbered two.",
+  "yaku_custom_yaku:tutorial_yaku:all_twos_romaji_name": "Quan Er"
 }

@@ -1,8 +1,9 @@
 {
-    "tile_example_mod_3:ruby_material_name" : "红宝石牌",
-    "tile_example_mod_3:ruby_material_description" : "计分时+20符, 小局结束时获得1$",
-    "tile_example_mod_3:sapphire_material_name" : "蓝宝石牌",
-    "tile_example_mod_3:sapphire_material_description" : "计分时X2番, 小局结束时将自身的一枚红宝石复制洗入牌山",
-    "material_set_gemstone_name" : "宝石",
-    "effect_sapphire" : "蓝之力!"
+  "tile_tutorial_gems:ruby_material_name": "红宝石牌",
+  "tile_tutorial_gems:ruby_material_name_short": "红宝石",
+  "tile_tutorial_gems:ruby_material_description": "计分时加20符；此牌参与关末效果时获得2金币。",
+  "tile_tutorial_gems:sapphire_material_name": "蓝宝石牌",
+  "tile_tutorial_gems:sapphire_material_name_short": "蓝宝石",
+  "tile_tutorial_gems:sapphire_material_description": "计分时番数乘2。",
+  "material_set_tutorial_gemstones_name": "教学宝石"
 }

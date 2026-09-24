@@ -1,0 +1,7 @@
+{
+  "artifact_tutorial_artifact:coin_twos_name": "Coin of Twos",
+  "artifact_tutorial_artifact:coin_twos_description": "Gain 2 coins whenever a newly played two scores.",
+  "artifact_tutorial_artifact:practice_jade_name": "Practice Jade",
+  "artifact_tutorial_artifact:practice_jade_description": "Multiply Fan by %.1f when scoring; then increase the multiplier by 0.1.",
+  "tutorial_artifact_grow": "Practice makes progress!"
+}

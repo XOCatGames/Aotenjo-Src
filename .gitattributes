@@ -1,0 +1,10 @@
+# Keep tutorial packages reproducible across Windows and Linux.
+# Leave mirrored C# source formatting under the original repository policy.
+*.md text eol=lf
+*.lua text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.txt text eol=lf
+*.png binary
+*.zip binary

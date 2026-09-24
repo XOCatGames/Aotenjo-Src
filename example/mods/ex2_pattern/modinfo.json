@@ -1,7 +1,7 @@
 {
-    "modID":"example_mod_ex2",
-    "name":"Example Mod Ex2",
-    "author":"example_author",
-    "description":"This is an example mod of Aotenjo, Containing an example patterns, as well as its localization",
-    "version":"1.0.0"
+  "modID": "tutorial_yaku",
+  "name": "All Twos / 全二",
+  "version": "2.0.0",
+  "author": "Aotenjo tutorial",
+  "description": "A custom yaku with a pure predicate. / 使用纯判定函数的自定义番种。"
 }

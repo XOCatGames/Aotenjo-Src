@@ -1,9 +1,6 @@
--- Dependent scripts needs to be included first
-local util = require("util")
-local artifact = require("artifact")
-
--- Mod Entry Function
+-- Prefix module names: all mods share package.loaded. 模块名必须带模组前缀。
+local artifacts = require("tutorial_artifact.artifacts")
 function init()
-    util.print("Hello World")
-    artifact.register() -- Call functions in other scripts
+    artifacts.register()
+    CS.Aotenjo.Logger.Log("[tutorial_artifact] registered 2 artifacts")
 end
