@@ -13,6 +13,10 @@ namespace Aotenjo
 
         // --- delegates ---
         private Func<TileMaterial, bool> isDebuff;
+        private Func<Player, TileMaterial, int> getSpriteID;
+        private Func<Player, TileMaterial, string> getSpriteNamespaceID;
+        private Func<Player, TileMaterial, int> getOrnamentSpriteID;
+        private Func<TileMaterial, int> getShadowID;
         private Action<Player, Permutation, Tile, List<Effect>, TileMaterial> onScoringEffects;
         private Action<Player, Permutation, List<Effect>, TileMaterial> onUnusedEffects;
         private Action<Player, Permutation, List<Effect>, Tile, Tile, TileMaterial> onDerivedTileUnusedEffects;
@@ -35,6 +39,13 @@ namespace Aotenjo
         public LuaTileMaterialBuilder WithData(string key, string value) { _data[key] = value; return this; }
         public LuaTileMaterialBuilder WithDebuff(Func<TileMaterial, bool> f) { isDebuff = f; return this; }
 
+        /// <summary>Chooses an index in TileMaterials. Player is null for GetSpriteID().</summary>
+        public LuaTileMaterialBuilder WithSpriteID(Func<Player, TileMaterial, int> f) { getSpriteID = f; return this; }
+        /// <summary>Chooses a full sprite key (tile_material:modID:spriteName), taking priority over the numeric ID. Return null to use the default.</summary>
+        public LuaTileMaterialBuilder WithSpriteNamespaceID(Func<Player, TileMaterial, string> f) { getSpriteNamespaceID = f; return this; }
+        public LuaTileMaterialBuilder WithOrnamentSpriteID(Func<Player, TileMaterial, int> f) { getOrnamentSpriteID = f; return this; }
+        public LuaTileMaterialBuilder WithShadowID(Func<TileMaterial, int> f) { getShadowID = f; return this; }
+
         public LuaTileMaterialBuilder OnScoringEffect(Action<Player, Permutation, Tile, List<Effect>, TileMaterial> f) { onScoringEffects = f; return this; }
         public LuaTileMaterialBuilder OnUnusedEffect(Action<Player, Permutation, List<Effect>, TileMaterial> f) { onUnusedEffects = f; return this; }
         public LuaTileMaterialBuilder OnDerivedTileUnusedEffect(Action<Player, Permutation, List<Effect>, Tile, Tile, TileMaterial> f) { onDerivedTileUnusedEffects = f; return this; }
@@ -54,6 +65,10 @@ namespace Aotenjo
                 data = _data.Clone(),
 
                 isDebuff = isDebuff,
+                getSpriteID = getSpriteID,
+                getSpriteNamespaceID = getSpriteNamespaceID,
+                getOrnamentSpriteID = getOrnamentSpriteID,
+                getShadowID = getShadowID,
 
                 onScoringEffects = onScoringEffects,
                 onUnusedEffects = onUnusedEffects,

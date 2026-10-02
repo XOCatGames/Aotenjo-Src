@@ -11,6 +11,11 @@ namespace Aotenjo
         public Rarity rarity;
         public Func<TileMaterial, bool> isDebuff;
 
+        [NonSerialized] public Func<Player, TileMaterial, int> getSpriteID;
+        [NonSerialized] public Func<Player, TileMaterial, string> getSpriteNamespaceID;
+        [NonSerialized] public Func<Player, TileMaterial, int> getOrnamentSpriteID;
+        [NonSerialized] public Func<TileMaterial, int> getShadowID;
+
         [NonSerialized] public Action<Player, Permutation, Tile, List<Effect>, TileMaterial> onScoringEffects;
         [NonSerialized] public Action<Player, Permutation, List<Effect>, TileMaterial> onUnusedEffects;
         [NonSerialized] public Action<Player, Permutation, List<Effect>, Tile, Tile, TileMaterial> onDerivedTileUnusedEffects;
@@ -37,9 +42,37 @@ namespace Aotenjo
             return rarity;
         }
 
+        public override int GetSpriteID()
+        {
+            return getSpriteID?.Invoke(null, this) ?? base.GetSpriteID();
+        }
+
+        public override int GetSpriteID(Player player)
+        {
+            return getSpriteID?.Invoke(player, this) ?? base.GetSpriteID(player);
+        }
+
         protected override string GetSpriteNamespaceID(Player player, string nmSpace = "aotenjo")
         {
+            string spriteNamespaceID = getSpriteNamespaceID?.Invoke(player, this);
+            if (spriteNamespaceID != null)
+                return spriteNamespaceID;
+
+            // Numeric sprite IDs use the built-in sheet instead of the default mod sprite.
+            if (getSpriteID != null)
+                return base.GetSpriteNamespaceID(player, nmSpace);
+
             return $"tile_material:{GetRegName().Replace("_material", "")}";
+        }
+
+        public override int GetOrnamentSpriteID(Player player)
+        {
+            return getOrnamentSpriteID?.Invoke(player, this) ?? base.GetOrnamentSpriteID(player);
+        }
+
+        public override int GetShadowID()
+        {
+            return getShadowID?.Invoke(this) ?? base.GetShadowID();
         }
 
         public override bool IsDebuff()

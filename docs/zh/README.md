@@ -24,6 +24,7 @@
 | 特定牌加分、赚钱、弃牌或关末触发、成长遗物 | `LuaArtifactBuilder` | 各回调参数不同，使用传入的 `player` |
 | 自定义番种条件、继承、加入已有番种包 | `CustomYakuBuilder` | 判定、可用范围、包索引、继承分别设置 |
 | 自定义牌材质效果、创建可选材质组 | `LuaTileMaterialBuilder`、`LuaMaterialSetBuilder` | 注册材质不等于给手牌应用它 |
+| 根据状态切换牌体图片、装饰和阴影 | [`LuaTileMaterialBuilder` 的四个外观回调](materials.md) | **`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` 仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持** |
 | 给描述添加可悬浮解释的术语 | [`LuaTermBuilder.Register`](terms.md) | **仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持** |
 | 将几件不同遗物合成新遗物 | `LuaArtifactRecipeBuilder` | 配方检查是否拥有所需物品，不计算同名物品的数量 |
 | 替换现有图片 | `texture-pack.json` | 只改外观；整张贴图尺寸必须匹配 |

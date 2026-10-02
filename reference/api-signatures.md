@@ -240,6 +240,10 @@ Namespace: `Aotenjo` · [源码 / source](../src/API/TileProperties/LuaTileMater
 ```csharp
 public override TileMaterial Copy();
 public override Rarity GetRarity();
+public override int GetSpriteID();
+public override int GetSpriteID(Player player);
+public override int GetOrnamentSpriteID(Player player);
+public override int GetShadowID();
 public override bool IsDebuff();
 public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects);
 public override void AppendUnusedEffects(Player player, Permutation perm, List<Effect> effects);
@@ -258,11 +262,18 @@ public void SetData(string key, string value);
 
 Namespace: `Aotenjo` · [源码 / source](../src/API/TileProperties/LuaTileMaterialBuilder.cs)
 
+**`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` 仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持这些新增接口。**
+**`WithSpriteID`, `WithSpriteNamespaceID`, `WithOrnamentSpriteID`, and `WithShadowID` are available only in 0.7.1.0 and later; these additions are not supported in 0.7.0.x.**
+
 ```csharp
 public static LuaTileMaterialBuilder Create(string nameKey);
 public LuaTileMaterialBuilder WithRarity(Rarity rarity);
 public LuaTileMaterialBuilder WithData(string key, string value);
 public LuaTileMaterialBuilder WithDebuff(Func<TileMaterial, bool> f);
+public LuaTileMaterialBuilder WithSpriteID(Func<Player, TileMaterial, int> f);
+public LuaTileMaterialBuilder WithSpriteNamespaceID(Func<Player, TileMaterial, string> f);
+public LuaTileMaterialBuilder WithOrnamentSpriteID(Func<Player, TileMaterial, int> f);
+public LuaTileMaterialBuilder WithShadowID(Func<TileMaterial, int> f);
 public LuaTileMaterialBuilder OnScoringEffect(Action<Player, Permutation, Tile, List<Effect>, TileMaterial> f);
 public LuaTileMaterialBuilder OnUnusedEffect(Action<Player, Permutation, List<Effect>, TileMaterial> f);
 public LuaTileMaterialBuilder OnDerivedTileUnusedEffect(Action<Player, Permutation, List<Effect>, Tile, Tile, TileMaterial> f);

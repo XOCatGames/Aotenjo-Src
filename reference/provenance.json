@@ -37,6 +37,23 @@
           "sha256": "9f11f7eefa80a7227c0205c68e1baad07f42bdbe29a2698ac044884a333b8aab"
         }
       }
+    },
+    {
+      "feature": "materials",
+      "minimum_game_version": "0.7.1.0",
+      "upstream_branch": "dev-0.7.1.0",
+      "upstream_commit": "69382c07ec20305bf283209d74eab180875c0ef7",
+      "date": "2026-10-03",
+      "files": {
+        "Assets/LogicScripts/API/TileProperties/LuaTileMaterialBuilder.cs": {
+          "public_path": "src/API/TileProperties/LuaTileMaterialBuilder.cs",
+          "sha256": "07dcf4bcd6772a0e963e6daa8182d96eed235874ac5145328a8edb5b06a090e2"
+        },
+        "Assets/LogicScripts/API/TileProperties/LuaTileMaterial.cs": {
+          "public_path": "src/API/TileProperties/LuaTileMaterial.cs",
+          "sha256": "e5d6d2560dba104dadaf71404e073c61df8cbbca68855defff4f3fe4e7dc658d"
+        }
+      }
     }
   ]
 }

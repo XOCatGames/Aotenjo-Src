@@ -27,6 +27,7 @@ Source: commit `69382c07ec20305bf283209d74eab180875c0ef7` on `Aotenjo-Unity/dev-
 | 接口 / API | 教程 / Guide | 同步的公开源码 / Public source supplement |
 | --- | --- | --- |
 | `LuaTermBuilder.Register` | [中文](zh/terms.md) / [English](en/terms.md) | `API/Terms/LuaTermBuilder.cs`、`API/Terms/link.xml` |
+| `LuaTileMaterialBuilder.WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` | [中文](zh/materials.md) / [English](en/materials.md) | `API/TileProperties/LuaTileMaterialBuilder.cs`、`API/TileProperties/LuaTileMaterial.cs` |
 
 这里只补充表中接口所需的源码，其他文件继续沿用上面的 2026-09-24 基准；没有执行整个开发分支的源码同步。
 Only the listed API sources are supplemented; other files retain the 2026-09-24 baseline. This is not a full export of the development branch.

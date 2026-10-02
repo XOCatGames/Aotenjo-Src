@@ -6,6 +6,8 @@
 
 这里的牌材质，也就是 `TileMaterial`，可以带有玩法效果。如果只是想给现有的牌或遗物换张图片，可以直接看[材质包教程](textures.md)。
 
+**版本要求：本页新增的 `WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` 四个动态牌体外观接口，仅在 0.7.1.0 及之后版本可用，0.7.0.x 不支持。** 下方原有的材质玩法和材质组接口不在这个新增版本限制内。
+
 ## 1. 给新材质取一个名字
 
 先打开宝石示例中的 `script/init.lua`。红宝石从 `LuaTileMaterialBuilder.Create("tutorial_gems:ruby")` 开始创建，其中 `tutorial_gems` 是模组前缀，`ruby` 是我们给材质取的名字。
@@ -38,6 +40,10 @@
 | `WithData` | `(key: string, value: string)` | 初始状态；每次 Build 复制数据容器 |
 | `WithDebuff` | `(m) → bool` | 是否视为减益 |
 | `WithDescription` | `(loc, p, m) → string` | 注意 localizer 在第一个参数 |
+| `WithSpriteID` | `(p, m) → int` | 动态牌体图片索引；**仅 0.7.1.0+** |
+| `WithSpriteNamespaceID` | `(p, m) → string` 或 `nil` | 动态完整图片键，非 `nil` 时优先于数字索引；**仅 0.7.1.0+** |
+| `WithOrnamentSpriteID` | `(p, m) → int` | 动态牌体装饰索引，`-1` 隐藏；**仅 0.7.1.0+** |
+| `WithShadowID` | `(m) → int` | 动态牌体阴影索引，没有玩家参数；**仅 0.7.1.0+** |
 | `OnScoringEffect` | `(p, perm, tile, E, m)` | 材质计分 |
 | `OnUnusedEffect` | `(p, perm, E, m)` | 未使用效果；没有 tile 参数 |
 | `OnDerivedTileUnusedEffect` | `(p, perm, E, scoringTile, onEffectTile, m)` | 关联的计分牌与持有效果牌 |
@@ -80,5 +86,62 @@
 以后想在自己的效果中给牌换材质，可以在收到 `tile` 和 `player` 的效果执行回调里，使用 `tile:SetMaterial(A.TileMaterial.GetMaterial("tutorial_gems:ruby"), player)`。通过 `SetMaterial` 设置，才能一起处理相关通知和订阅，不要直接改 `tile.properties.material`。
 
 完成后再试试复制牌、保存并退出续局，确认各张牌的数据和效果都正常。如果移除了宝石模组，就不要继续使用仍依赖这些材质的测试存档。
+
+## 5. 根据状态切换牌体外观（仅 0.7.1.0+）
+
+**这一节的四个外观回调只在 0.7.1.0 及之后版本可用。** 比如一张牌成长到5级后，我们想把普通牌体换成另一张图片，就可以在注册材质时添加回调，让游戏读取当前材质的数据，再决定显示什么。
+
+先准备一个 `modID` 为 `tutorial_dynamic` 的模组，目录结构可以照着宝石示例来做，并补齐该材质的名称和描述语言键。把两张牌体 PNG 放到 `texture/tile_material/base.png` 和 `texture/tile_material/grown.png`。它们的完整图片键分别是 `tile_material:tutorial_dynamic:base` 和 `tile_material:tutorial_dynamic:grown`，不是文件路径，也没有 `.png` 后缀。
+
+然后在 `script/init.lua` 中注册材质：
+
+```lua
+local A = CS.Aotenjo
+
+local function level(material)
+    return tonumber(material:GetDataOrDefault("level", "0")) or 0
+end
+
+function init()
+    A.LuaTileMaterialBuilder.Create("tutorial_dynamic:base")
+        :WithData("level", "0")
+        :WithSpriteNamespaceID(function(player, self)
+            if level(self) >= 5 then
+                return "tile_material:tutorial_dynamic:grown"
+            end
+            return "tile_material:tutorial_dynamic:base"
+        end)
+        :WithOrnamentSpriteID(function(player, self)
+            return level(self) >= 5 and 14 or -1
+        end)
+        :WithShadowID(function(self)
+            return level(self) >= 5 and 17 or 19
+        end)
+        :BuildAndRegister()
+end
+```
+
+这里的 `self` 是正在显示的那张牌的材质实例。读取它的数据，就能让每张牌独立切换外观；不要改成读取一个所有牌共用的材质变量。示例只演示外观判断，不会自动增加等级。成长机制应在自己的效果执行过程中调用当前材质的 `SetData("level", "5")` 等方法。
+
+已有模组如果定义了 `init()`，把注册链合并到原来的函数里，保留其他内容，不要再定义一个同名函数覆盖它。
+
+如果想直接使用原版 `TileMaterials` 图集里的图片，可以把上面的 `WithSpriteNamespaceID` 替换成下面这个回调，索引从0开始：
+
+```lua
+    :WithSpriteID(function(player, self)
+        local currentLevel = tonumber(self:GetDataOrDefault("level", "0")) or 0
+        return currentLevel >= 5 and 53 or 6
+    end)
+```
+
+这段是接在同一个 Builder 链上的写法，不是单独的 Lua 脚本。装饰和阴影也使用 `TileMaterials` 图集的索引；例子中的14、17、19可按需要替换，但必须是该图集内的有效索引。装饰可以返回 `-1` 表示不显示，阴影不能用 `-1` 来隐藏。未配置相应回调时，数字牌体索引默认为0、装饰为 `-1`、阴影为19，图片键则沿用材质原有的模组图片规则。
+
+同时设置两个牌体图片回调时，`WithSpriteNamespaceID` 返回的非 `nil` 完整键优先。如果返回 Lua 的 `nil`，已设置 `WithSpriteID` 时会走原版图片键/图集查找；未设置数字回调时，仍使用该材质默认的模组图片键。空字符串不是 `nil`，不能用来表达“沿用默认”。一个图片键找不到图片时，底层还会尝试数字图集索引，所以发布前要检查图片文件和完整键是否匹配，不能把缺图当成正确切换。
+
+这些回调用于读取外观，游戏可能多次调用；不要在里面加金币、增加等级或触发其他玩法效果。`player` 可能为 `nil`，尤其是不带玩家参数的图片索引查询；确实需要玩家信息时，先判断 `player ~= nil`。`WithShadowID` 只有 `self` 一个参数。修改 `SetData` 本身不会强制立即重画界面，新的外观在游戏下一次正常刷新牌显示、重新查询外观时生效。
+
+测试时，先确认游戏为 **0.7.1.0 或更新版本**。注册好之后用 `setMat 0 tutorial_dynamic:base` 给手牌应用材质，检查初始外观；再把 `WithData("level", "0")` 改为 `WithData("level", "5")`，重启游戏并在新测试局里重新应用材质，检查成长图片、装饰和阴影。实际成长效果另行检查状态改变后的显示刷新。`BuildAndRegister()` 只注册创建方法，不会直接改变已有牌。
+
+还要测试两张牌的状态互不影响、复制后的数据独立，以及退出游戏后续局的表现。外观回调本身不写入存档；复制材质时会通过已注册的工厂重建回调并复制数据，不能据此省略目标游戏版本的跨进程读档验收。牌体外观使用本节接口；牌面的颜色和渐变仍查阅[配色注册](textures.md)，对应 `TileFaceMaterialRegistry`。
 
 源码：[材质 Builder](../../src/API/TileProperties/LuaTileMaterialBuilder.cs)、[材质实例](../../src/API/TileProperties/LuaTileMaterial.cs)、[材质组 Builder](../../src/API/TileProperties/LuaMaterialSetBuilder.cs)。

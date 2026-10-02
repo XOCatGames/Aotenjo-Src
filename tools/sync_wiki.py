@@ -105,6 +105,9 @@ Start with basic Lua syntax and build custom artifacts, yakus, tile materials, c
 
 {navigation}
 
+**版本要求：术语注册和动态牌体的四个外观回调（`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID`）仅在 0.7.1.0 及之后版本可用，0.7.0.x 不支持。**
+**Version requirement: glossary registration and the four dynamic body callbacks (`WithSpriteID`, `WithSpriteNamespaceID`, `WithOrnamentSpriteID`, `WithShadowID`) require 0.7.1.0 or later; they are unavailable in 0.7.0.x.**
+
 ## 查询 / Reference
 
 - [API 签名与源码 / API signatures and source]({WEB}/blob/main/reference/api-signatures.md)
