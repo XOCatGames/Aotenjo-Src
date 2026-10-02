@@ -20,6 +20,7 @@ You need Lua variables, functions, conditions, loops, and tables. The seven exam
 | Tile scoring, money, discard/round-end effects, growing artifacts | `LuaArtifactBuilder` | Callback signatures differ; use the supplied player |
 | Custom yaku conditions, inheritance, membership in existing packs | `CustomYakuBuilder` | Conditions, ranges, pack indices, and inheritance are separate |
 | Tile material mechanics and selectable material sets | `LuaTileMaterialBuilder`, `LuaMaterialSetBuilder` | Registering a material does not apply it to a tile |
+| Add glossary terms with hover explanations | [`LuaTermBuilder.Register`](terms.md) | **Only in 0.7.1.0 and later; not supported in 0.7.0.x** |
 | Combine several distinct artifacts | `LuaArtifactRecipeBuilder` | Inputs represent item presence, not item quantities |
 | Replace existing images | `texture-pack.json` | Appearance only; whole textures require matching dimensions |
 | Recolor existing fonts, add gradients or depth | `TileFaceMaterialRegistry` | A visual style does not create a new font's gameplay rules |

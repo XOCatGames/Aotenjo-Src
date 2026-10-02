@@ -20,6 +20,7 @@ CHAPTERS = [
     ('8.-Assets-and-Localization-图片与本地化', 'assets', '图片与本地化 / Assets and localization'),
     ('9.-Cookbook-玩法食谱', 'cookbook', '更多玩法示例 / Gameplay cookbook'),
     ('10.-Testing-and-Publishing-测试与发布', 'testing', '测试与发布 / Testing and publishing'),
+    ('11.-Glossary-Terms-术语', 'terms', '术语（仅 0.7.1.0+） / Terms (0.7.1.0+ only)'),
 ]
 
 

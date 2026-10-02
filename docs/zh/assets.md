@@ -49,6 +49,7 @@ texture/tile_mask/
 | 材质组 | `material_set_<组regName>_name` |
 | 自定义番种 | `yaku_custom_yaku:<裸ID>_name`、`..._description`、`..._romaji_name` |
 | 自定义 TextEffect/SimpleEffect | 自己的唯一键，例如 `tutorial_artifact_grow` |
+| 自定义术语（仅 0.7.1.0+） | `tooltip_<术语ID>_header`、`tooltip_<术语ID>_content`；先按[术语教程](terms.md)注册样式 |
 
 ## 4. 让说明显示当前数值
 

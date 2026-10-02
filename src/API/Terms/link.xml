@@ -1,0 +1,11 @@
+<linker>
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="Aotenjo.LuaTermBuilder" preserve="all" />
+  </assembly>
+  <!-- Runtime registration uses TMP's internal constructor and serialized fields. -->
+  <assembly fullname="Unity.TextMeshPro">
+    <type fullname="TMPro.TMP_Style" preserve="all" />
+    <type fullname="TMPro.TMP_StyleSheet" preserve="all" />
+    <type fullname="TMPro.TMP_Settings" preserve="all" />
+  </assembly>
+</linker>

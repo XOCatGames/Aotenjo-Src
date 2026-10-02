@@ -8,6 +8,8 @@
   "API/Logger.cs": "532e8c406ba05361890f7bf9f080ae7cd24e0bd2b2204692387215c6106f4ab1",
   "API/MessageManager.cs": "a5d7f2df75ad35c2a106f1bffb329abec144db413e81f9acf6400206df2c5634",
   "API/Mod/Mod.cs": "3287770f6f42a03789b1a7ddf7f7a651ca0b4d173964a5534ca049c4e0c0dcd8",
+  "API/Terms/link.xml": "9f11f7eefa80a7227c0205c68e1baad07f42bdbe29a2698ac044884a333b8aab",
+  "API/Terms/LuaTermBuilder.cs": "e4d05ae2158804e8ca3655388c8947ca35326acbc6aa7e0e5cf5d7e615bc6b6d",
   "API/TileProperties/LuaMaterialSet.cs": "71a0af729bc3bcb38ba2e1afe42bcdacf81976858e3d4cb79e48d292dbe81bae",
   "API/TileProperties/LuaMaterialSetBuilder.cs": "4b157835a1ac30f0baff27e1af208208726e198e1e04cc3ed11ac307517d8a68",
   "API/TileProperties/LuaTileMaterial.cs": "df211e8ca93f40bfcc6714946cef69fada7a0dc6761dc0b649f455b9fe05eae3",

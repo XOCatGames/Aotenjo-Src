@@ -37,6 +37,7 @@ Each file merges into both GameTable and YakuInfo, overriding existing values wi
 | Material set | `material_set_<set regName>_name` |
 | Custom yaku | `yaku_custom_yaku:<raw ID>_name`, `..._description`, `..._romaji_name` |
 | Custom TextEffect/SimpleEffect | A unique key such as `tutorial_artifact_grow` |
+| Custom terms (0.7.1.0+ only) | `tooltip_<termID>_header`, `tooltip_<termID>_content`; register the style as shown in [Terms](terms.md) |
 
 `loc(key)` returns localized text. For dynamic descriptions use `string.format(loc(key), number)` with Lua placeholders such as `%.1f` or `%d`, not C# `{0}` placeholders. Prefer default name localization over `WithName`, which has no localizer argument.
 

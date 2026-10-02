@@ -52,9 +52,13 @@ def declarations(text):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--unity-root', type=Path, required=True)
+    parser.add_argument('--unity-root', type=Path)
+    parser.add_argument('--api-only', action='store_true',
+                        help='Refresh only the public source manifest and API signatures; preserve baseline provenance and resource catalogs.')
     args = parser.parse_args()
-    unity = args.unity_root.resolve()
+    if not args.api_only and args.unity_root is None:
+        parser.error('--unity-root is required unless --api-only is selected')
+    unity = args.unity_root.resolve() if args.unity_root else None
     REF.mkdir(exist_ok=True)
     public = ROOT / 'src'
     snapshot = {str(p.relative_to(public)).replace('\\', '/'): normalized_hash(p)
@@ -85,10 +89,20 @@ def main():
             path = hits[0]
         text = path.read_text(encoding='utf-8-sig')
         ns = re.search(r'namespace\s+([\w.]+)', text)
-        out += [f'## {path.stem}', '', f'Namespace: `{ns.group(1) if ns else "global / 全局"}` · [源码 / source](../src/{path.relative_to(public).as_posix()})', '', '```csharp']
+        out += [f'## {path.stem}', '', f'Namespace: `{ns.group(1) if ns else "global / 全局"}` · [源码 / source](../src/{path.relative_to(public).as_posix()})', '']
+        if path.stem == 'LuaTermBuilder':
+            out += ['**版本要求：仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持。**',
+                    '**Version requirement: available only in 0.7.1.0 and later; not supported in 0.7.0.x.**', '']
+        if path.stem == 'LuaTileMaterialBuilder' and 'WithSpriteNamespaceID' in text:
+            out += ['**`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` 仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持这些新增接口。**',
+                    '**`WithSpriteID`, `WithSpriteNamespaceID`, `WithOrnamentSpriteID`, and `WithShadowID` are available only in 0.7.1.0 and later; these additions are not supported in 0.7.0.x.**', '']
+        out += ['```csharp']
         out.extend(s + ';' for _, s in declarations(text))
         out += ['```', '']
     (REF / 'api-signatures.md').write_text('\n'.join(out), encoding='utf-8')
+    if args.api_only:
+        print(f'Indexed {len(snapshot)} public source files; refreshed API signatures only.')
+        return
 
     events = ['# 事件目录 / Event directory', '',
         '[事件使用边界 / Event limitations](../docs/en/cookbook.md) · [中文说明](../docs/zh/cookbook.md)', '',

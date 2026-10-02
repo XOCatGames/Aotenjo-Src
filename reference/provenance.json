@@ -18,5 +18,25 @@
     "Assets/Scripts/UI/MainMenu/ModManager/UIMainMenuModManager.cs": "264d6809a09392574c045a055c7300037bfc4881aa42a6e5b4a194a9438b754e",
     "Assets/Resources/Config/YakuPacks.json": "3764b2609fb8dcb36d628cce3ad3ca7674ae8e6691f207d4a4466600b4f41a7a"
   },
-  "source_files": 638
+  "source_files": 640,
+  "baseline_source_files": 638,
+  "feature_supplements": [
+    {
+      "feature": "terms",
+      "minimum_game_version": "0.7.1.0",
+      "upstream_branch": "dev-0.7.1.0",
+      "upstream_commit": "69382c07ec20305bf283209d74eab180875c0ef7",
+      "date": "2026-10-03",
+      "files": {
+        "Assets/LogicScripts/API/Terms/LuaTermBuilder.cs": {
+          "public_path": "src/API/Terms/LuaTermBuilder.cs",
+          "sha256": "e4d05ae2158804e8ca3655388c8947ca35326acbc6aa7e0e5cf5d7e615bc6b6d"
+        },
+        "Assets/LogicScripts/API/Terms/link.xml": {
+          "public_path": "src/API/Terms/link.xml",
+          "sha256": "9f11f7eefa80a7227c0205c68e1baad07f42bdbe29a2698ac044884a333b8aab"
+        }
+      }
+    }
+  ]
 }

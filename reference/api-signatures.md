@@ -194,6 +194,17 @@ public string GetRootDir();
 public static Mod LoadFromDirectory(string modDir);
 ```
 
+## LuaTermBuilder
+
+Namespace: `Aotenjo` · [源码 / source](../src/API/Terms/LuaTermBuilder.cs)
+
+**版本要求：仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持。**
+**Version requirement: available only in 0.7.1.0 and later; not supported in 0.7.0.x.**
+
+```csharp
+public static bool Register(string id, string color);
+```
+
 ## LuaMaterialSet
 
 Namespace: `Aotenjo` · [源码 / source](../src/API/TileProperties/LuaMaterialSet.cs)
