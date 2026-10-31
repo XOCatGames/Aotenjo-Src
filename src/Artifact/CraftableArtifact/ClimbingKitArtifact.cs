@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,13 +17,12 @@ namespace Aotenjo
             return false;
         }
 
-        public override List<Artifact> GetComponents()
+        public override List<string> GetComponentIds()
         {
             return ArtifactRecipes.recipes
                 .First(r => r.outputID.Contains(GetNameID()))
                 .inputID
-                .Select(i => Artifacts.ArtifactList.First(a => a.GetNameID() == i))
-                .Append(this)
+                .Append(GetRegName())
                 .ToList();
         }
 
@@ -79,7 +78,7 @@ namespace Aotenjo
             {
                 foreach (var (b1, b2) in GetPairsWithDiff(permutation, 1, player))
                 {
-                    player.playHandEffectStack.Push(ScoreEffect.AddFu(ADD_FU, this).OnMultipleTiles(b1.tiles.Union(b2.tiles).ToList(), b1.tiles[1]));
+                    QueuePairScoringEffect(player, ScoreEffect.AddFu(ADD_FU, this), b1, b2);
                 }
             }));
         }

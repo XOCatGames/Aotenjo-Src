@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Aotenjo
@@ -42,7 +42,7 @@ namespace Aotenjo
 
             foreach (Artifact a in player.GetArtifacts())
             {
-                if (a.GetNameKey().Contains("gold") || a == Artifacts.MobiusRing)
+                if (a.GetNameKey().Contains("gold") || a.GetRegName() == Artifacts.MobiusRing.Id)
                 {
                     effects.Add(ScoreEffect.AddFan(FAN, a));
                 }

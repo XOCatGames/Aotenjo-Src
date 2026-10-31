@@ -196,7 +196,7 @@ namespace Aotenjo
             if (list.Count == 0) return;
             Artifact tempArtifact = LotteryPool<Artifact>.DrawFromCollection(list, player.GenerateRandomInt);
             tempArtifact.IsTemporary = true;
-            player.ObtainArtifact(tempArtifact);
+            player.RequestArtifactReward(tempArtifact, this);
         }
 
         public override void UnsubscribeToPlayer(Player player)

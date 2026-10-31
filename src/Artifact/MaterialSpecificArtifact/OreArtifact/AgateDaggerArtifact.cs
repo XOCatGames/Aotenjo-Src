@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Aotenjo
 {
@@ -24,35 +23,8 @@ namespace Aotenjo
             base.AppendOnTileEffects(player, perm, tile, lst);
             if (tile.CompatWithMaterial(TileMaterial.Agate(), player))
             {
-                lst.Add(new AgateDaggerEffect(MUL_PER_AGATE, this));
-            }
-        }
-
-        private class AgateDaggerEffect : ScoreEffect
-        {
-            private float mul;
-            private Artifact artifact;
-
-            public AgateDaggerEffect(float mul, Artifact artifact)
-            {
-                this.mul = mul;
-                this.artifact = artifact;
-            }
-
-            public override string GetEffectDisplay(Player player, Func<string, string> func)
-            {
-                return string.Format(func("effect_mul_fan_format"), 1f + mul * AgateEffect.GetAgateCount(player));
-            }
-
-            public override Artifact GetEffectSource()
-            {
-                return artifact;
-            }
-
-            public override void Ingest(Player player)
-            {
-                int count = AgateEffect.GetAgateCount(player);
-                player.RoundAccumulatedScore = player.RoundAccumulatedScore.MultiplyFan(1f + mul * count);
+                // 显示与执行时都重新读取玛瑙数量，并沿用公共番符查询，避免独立结算绕过宿主词条。
+                lst.Add(ScoreEffect.MulFan(() => 1f + MUL_PER_AGATE * AgateEffect.GetAgateCount(player), this));
             }
         }
     }

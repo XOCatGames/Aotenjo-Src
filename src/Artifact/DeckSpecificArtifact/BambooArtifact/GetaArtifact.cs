@@ -22,6 +22,7 @@ public class GetaArtifact : BambooArtifact
     public override void UnsubscribeToPlayer(Player player)
     {
         base.UnsubscribeToPlayer(player);
-        EventBus.Unsubscribe<PlayerRoundEvent.Skip.Post>(OnSkipRound);
+        // 解绑与订阅保持相同的事件阶段，避免移除后仍执行效果。
+        EventBus.Unsubscribe<PlayerRoundEvent.Skip.Pre>(OnSkipRound);
     }
 }

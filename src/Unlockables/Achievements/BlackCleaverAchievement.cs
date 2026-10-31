@@ -1,4 +1,6 @@
-﻿namespace Aotenjo
+using System.Linq;
+
+namespace Aotenjo
 {
     public class BlackCleaverAchievement : Achievement
     {
@@ -13,7 +15,7 @@
 
         private void OnSettlePermutation(PlayerPermutationEvent permutationEvent)
         {
-            if (((FireAxeArtifact)Artifacts.FireAxe).Level >= 20)
+            if (permutationEvent.player.GetArtifacts().OfType<FireAxeArtifact>().Any(axe => axe.Level >= 20))
             {
                 SetComplete();
             }

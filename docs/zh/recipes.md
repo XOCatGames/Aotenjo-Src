@@ -18,17 +18,17 @@
 
 ```lua
 -- copper、silver、combined 是前面注册得到的 Artifact 对象。
-local inputs = CS.System.Collections.Generic.List(CS.Aotenjo.Artifact)()
-inputs:Add(copper)
-inputs:Add(silver)
+local inputs = CS.System.Collections.Generic.List(CS.System.String)()
+inputs:Add(copper:GetRegName())
+inputs:Add(silver:GetRegName())
 local recipe = CS.Aotenjo.LuaArtifactRecipeBuilder.BuildAndRegister(
-    "tutorial_recipe:tokens", inputs, combined)
+    "tutorial_recipe:tokens", inputs, combined:GetRegName())
 assert(recipe ~= nil, "Recipe registration failed")
 ```
 
-这里的 `inputs` 存放合成所需的铜代币和银代币，`combined` 是前面创建的双代币。`BuildAndRegister(...)` 会创建配方，并加入 `ArtifactRecipes.recipes`。成功时返回一个 `ArtifactRecipe`；如果配方冲突，就返回 nil 并记录错误，所以示例用 `assert` 检查了一下。
+这里的 `inputs` 存放合成所需的铜代币和银代币的 ID，`combined` 是前面创建的双代币。`BuildAndRegister(...)` 会创建配方，并加入 `ArtifactRecipes.recipes`。成功时返回一个 `ArtifactRecipe`；如果配方冲突，就返回 nil 并记录错误，所以示例用 `assert` 检查了一下。
 
-另一个方法 `Build(id, List<Artifact>, Artifact)` 只创建配方，不加入注册表。一般制作模组时，用示例中的 `BuildAndRegister(...)` 即可。
+另一个方法 `Build(id, List<string>, string)` 只创建配方，不加入注册表。一般制作模组时，用示例中的 `BuildAndRegister(...)` 即可。
 
 ## 3. 合成是怎样判断的
 

@@ -74,6 +74,8 @@ namespace Aotenjo
 
         public virtual string GetAscensionDescription(int ascensionIndex, Func<string, string> loc)
         {
+            // 零级没有附加难度规则，直接保持说明区域为空，避免依赖空格占位或触发本地化缺失回退。
+            if (ascensionIndex == 0) return string.Empty;
             return loc($"ascension_{ascensionIndex}_description");
         }
 

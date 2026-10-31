@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Aotenjo;
 
@@ -37,14 +37,27 @@ public class GreedlessBoss : Boss
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnTileEffectArtifact($"{this.name}_reversed", 
-            Rarity.COMMON,
-            (player, perm, tile, effects) =>
-            {
-                if (!player.IsPlayingTile(tile)) return;
-                effects.Add(new EarnMoneyEffect(GetAmount(player)));
-                effects.Add(new IncreaseTargetEffect(1 + DebtMultiplier, "Greedless_reversed"));
-            });
+        return new GreedlessReversedArtifact(this);
+    }
+
+    /// <summary>
+    /// 保留遭遇对象以读取其虚方法和难度参数，金额仍在每次打牌时按当前关卡计算；不在构造时冻结收益。
+    /// </summary>
+    private sealed class GreedlessReversedArtifact : Artifact
+    {
+        private readonly GreedlessBoss boss;
+
+        public GreedlessReversedArtifact(GreedlessBoss boss) : base($"{boss.name}_reversed", Rarity.COMMON)
+        {
+            this.boss = boss;
+        }
+
+        public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
+        {
+            if (!player.IsPlayingTile(tile)) return;
+            effects.Add(new EarnMoneyEffect(boss.GetAmount(player)));
+            effects.Add(new IncreaseTargetEffect(1 + boss.DebtMultiplier, "Greedless_reversed"));
+        }
     }
     
     protected class SnatchEffect : Effect

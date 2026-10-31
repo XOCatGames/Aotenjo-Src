@@ -10,11 +10,13 @@ public class MagnetGadget : Gadget
     {
     }
 
+    protected override TileTransform CreateTileTransform(Player player, Tile tile) => new TileTransformMagnet();
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (ShouldHighlightTile(tile, player))
         {
-            tile.AddTransform(new TileTransformMagnet(), player);
+            tile.AddTransform(CreateTileTransform(player, tile), player);
             MessageManager.Instance.OnSoundEvent("Magnet");
             return true;
         }

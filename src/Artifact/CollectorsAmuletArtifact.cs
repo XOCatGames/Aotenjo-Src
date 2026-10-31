@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +10,8 @@ namespace Aotenjo
         private const float MULTIPLIER_PER_COMMON = 0.25f;
         private const float MULTIPLIER_PER_EPIC = 0.5f;
 
-        public List<string> collectedMaterials;
+        // 构造即提供独立空集合；图鉴不运行开局重置，也必须能安全读取默认说明。
+        public List<string> collectedMaterials = new List<string>();
 
         public CollectorsAmuletArtifact() : base("collectors_amulet", Rarity.EPIC)
         {

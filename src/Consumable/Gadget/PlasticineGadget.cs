@@ -70,6 +70,11 @@ public class PlasticineGadget : ReusableGadget
         return GetCopiedGadget(player)?.CanUseOnTiles(tiles, player) ?? false;
     }
 
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        return GetCopiedGadget(player)?.GetPreview(player, targets) ?? Array.Empty<GadgetTilePreview>();
+    }
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         return GetCopiedGadget(player)?.UseOnTile(player, tile) ?? false;

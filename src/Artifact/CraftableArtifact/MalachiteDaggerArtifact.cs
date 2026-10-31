@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,8 +33,8 @@ namespace Aotenjo
 
             foreach (Artifact a in player.GetArtifacts())
             {
-                if (a.GetNameKey().Contains("copper") || a.GetNameKey().Contains("bronze") || a == Artifacts.WindVane ||
-                    a == Artifacts.Censer)
+                if (a.GetNameKey().Contains("copper") || a.GetNameKey().Contains("bronze") || a.GetRegName() == Artifacts.WindVane.Id ||
+                    a.GetRegName() == Artifacts.Censer.Id)
                 {
                     effects.Add(ScoreEffect.AddFu(FU, a));
                 }

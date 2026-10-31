@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using static Aotenjo.Tile;
@@ -27,21 +26,12 @@ namespace Aotenjo
         private Action<Tile, Player> tileGiftAction;
         private int tileGiftCount;
         
-        //TODO: 需要清理的技术债，远古时期使用函数来表达遗物是一个错误的决定
-        public Action<Player, Permutation, Block, List<Effect>> onBlockEffect;
-        public Action<Player, Permutation, Tile, List<Effect>> onTileEffect;
-        public Action<Player, Permutation, List<Effect>> selfEffect;
-
-        public Artifact(string name, Rarity rarity,
-            Action<Player, Permutation, Tile, List<Effect>> onTileEffect,
-            Action<Player, Permutation, Block, List<Effect>> onBlockEffect,
-            Action<Player, Permutation, List<Effect>> selfEffect)
+        // 内置遗物通过各自子类覆写计分入口，基类只初始化身份与独立配置容器。
+        // Lua 遗物的动态回调由 LuaArtifact/LuaCraftableArtifact 自己持有，避免基类再保存另一套行为。
+        public Artifact(string name, Rarity rarity)
         {
             this.name = name;
             this.rarity = rarity;
-            this.onTileEffect = onTileEffect;
-            this.onBlockEffect = onBlockEffect;
-            this.selfEffect = selfEffect;
 
             deckIn = new List<string>();
             deckBlocked = new List<string>();
@@ -49,11 +39,6 @@ namespace Aotenjo
             setBlocked = new List<string>();
             materialRequired = new List<string>();
             tags = new List<ArtifactTag>();
-        }
-
-        public Artifact(string name, Rarity rarity) : this(name, rarity, (_, _, _, _) => { }, (_, _, _, _) => { },
-            (_, _, _) => { })
-        {
         }
 
         public int Price => GetBasePrice();
@@ -133,6 +118,10 @@ namespace Aotenjo
             return true;
         }
 
+        public virtual bool CanBeSold(Player player) => CanBeSellByPlayer();
+
+        public virtual void OnSold(Player player) { }
+
         public override string ToString()
         {
             return GetNameKey();
@@ -151,12 +140,13 @@ namespace Aotenjo
         public virtual bool CanBeBoughtWithoutSlotLimit(Player player)
         {
             return ArtifactRecipes.recipes.Any(r =>
-                r.inputID.All(id => player.GetArtifacts().Any(a => a.GetNameID() == id) || GetNameID() == id));
+                r != null && r.HasValidStructure && r.inputID.Contains(GetNameID()) &&
+                player.CanCraftWithArtifactAffixes(r, true, this));
         }
 
-        public virtual List<Artifact> GetComponents()
+        public virtual List<string> GetComponentIds()
         {
-            return new List<Artifact> { this };
+            return new List<string> { GetRegName() };
         }
 
         public virtual void ResetArtifactState(Player player)
@@ -201,9 +191,8 @@ namespace Aotenjo
         public virtual string GetInShopDescription(Player player, Func<string, string> localizer)
         {
             inShop = true;
-            string desc = GetDescription(player, localizer);
-            inShop = false;
-            return desc;
+            try { return GetDescription(player, localizer); }
+            finally { inShop = false; }
         }
 
         public string GetChanceMultiplier(Player player)
@@ -300,16 +289,16 @@ namespace Aotenjo
 
         public virtual int GetNumberID()
         {
-            Artifacts.ARTIFACT_SPRITE_ID_MAP.TryGetValue(this, out int value);
+            Artifacts.LEGACY_NUMBER_ID_MAP.TryGetValue(GetRegName(), out int value);
             return value;
         }
 
         protected virtual int GetSpriteID()
         {
-            return GetNumberID();
+            return Artifacts.ARTIFACT_SPRITE_ID_MAP.TryGetValue(GetRegName(), out int value) ? value : 0;
         }
         
-        public Sprite GetSprite(Player player)
+        public virtual Sprite GetSprite(Player player)
         {
             Sprite sprite = SpriteManager.Instance.GetSingleSprite(GetSpriteNamespaceID(player));
             if (sprite == null)
@@ -342,9 +331,11 @@ namespace Aotenjo
         {
             UnsubscribeToPlayer(player);
             IsBroken = false;
-            if (IsTemporary) player.SetArtifactLimit(player.GetArtifactLimit() - 1);
+            if (IsTemporary && !status.temporaryOccupiesSlot)
+                player.ChangeArtifactLimit(-1);
             IsTemporary = false;
-            IsDebuffed = false;
+            status.temporaryOccupiesSlot = false;
+            IsSuppressed = false;
         }
 
         /// <summary>
@@ -365,239 +356,33 @@ namespace Aotenjo
 
         #region 事件订阅系统
         
-        private readonly List<AutoSubscription> autoSubscriptions = new(); 
-
-        private sealed class AutoSubscription
-        {
-            public Type EventType; 
-            public MethodInfo Method; 
-            public Delegate Handler;
-        }
+        [NonSerialized] private AttributeEventSubscriptions attributeSubscriptions;
 
         /// <summary>
-        /// 订阅 Artifact 自身所有带有 [SubscribeToEvent] 的方法。
-        ///
-        /// 子类重写此方法时，如果还想使用自动扫描，
-        /// 必须调用 base.SubscribeToPlayer(player)。
+        /// 订阅 Artifact 自身所有带有 [SubscribeToEvent] 的方法，保留全局事件范围。
+        /// 子类重写时，必须调用 base.SubscribeToPlayer(player) 才会自动扫描。
         /// </summary>
         public virtual void SubscribeToPlayer(Player player)
         {
-            // Scene changes can clear EventBus while this singleton retains its subscription records.
-            if (autoSubscriptions.Count > 0) UnsubscribeAttributeEvents();
-            SubscribeAttributeEvents();
+            // 先校验运行实例归属，并在绑定前登记；中途失败时沿用玩家的统一清理流程。
+            // 共享订阅器负责清理旧委托、扫描继承链及清空总线后的重绑，宿主仍保持原有全局范围。
+            // 词条在宿主事件之后绑定，避免改变现有库存顺序与词条生命周期。
+            if (IsPreview || (RuntimeOwner != null &&
+                (!ReferenceEquals(RuntimeOwner, player) || !RuntimeOwner.HoldsArtifact(this))))
+                throw new InvalidOperationException("只有持有的运行遗物可以订阅事件。");
+            RuntimeOwner?.TrackArtifactSubscription(this);
+            (attributeSubscriptions ??= new AttributeEventSubscriptions()).Subscribe(this, throwOnFailure: true);
+            Affix?.SubscribeToPlayer(player);
         }
 
         /// <summary>
-        /// 取消此 Artifact 通过 [SubscribeToEvent] 注册的所有事件。
-        ///
-        /// 子类重写此方法时，如果还想自动解绑，
-        /// 必须调用 base.UnsubscribeToPlayer(player)。
+        /// 取消自动注册的事件。子类重写时必须调用 base.UnsubscribeToPlayer(player)。
         /// </summary>
         public virtual void UnsubscribeToPlayer(Player player)
         {
-            UnsubscribeAttributeEvents();
-        }
-
-        private void SubscribeAttributeEvents()
-        {
-            MethodInfo[] methods = GetType().GetMethods(
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.NonPublic
-            );
-
-            foreach (MethodInfo method in methods)
-            {
-                if (!method.IsDefined(
-                        typeof(SubscribeToEventAttribute),
-                        inherit: true))
-                {
-                    continue;
-                }
-
-                if (!TryValidateEventHandler(method, out Type eventType))
-                {
-                    continue;
-                }
-
-                SubscribeEvent(eventType, method);
-            }
-        }
-
-        private bool TryValidateEventHandler(
-            MethodInfo method,
-            out Type eventType)
-        {
-            eventType = null;
-
-            if (method.IsStatic)
-            {
-                Debug.LogError(
-                    $"[Artifact] {GetType().Name}.{method.Name} " +
-                    "带有 [SubscribeToEvent]，但事件处理方法不能是 static。"
-                );
-
-                return false;
-            }
-
-            if (method.ReturnType != typeof(void))
-            {
-                Debug.LogError(
-                    $"[Artifact] {GetType().Name}.{method.Name} " +
-                    "带有 [SubscribeToEvent]，但返回值必须是 void。"
-                );
-
-                return false;
-            }
-
-            ParameterInfo[] parameters = method.GetParameters();
-
-            if (parameters.Length != 1)
-            {
-                Debug.LogError(
-                    $"[Artifact] {GetType().Name}.{method.Name} " +
-                    "带有 [SubscribeToEvent]，但必须只有一个事件参数。"
-                );
-
-                return false;
-            }
-
-            eventType = parameters[0].ParameterType;
-
-            if (!typeof(PlayerEvent).IsAssignableFrom(eventType))
-            {
-                Debug.LogError(
-                    $"[Artifact] {GetType().Name}.{method.Name} 的参数类型 " +
-                    $"{eventType.Name} 没有继承 PlayerEvent。"
-                );
-
-                eventType = null;
-                return false;
-            }
-
-            return true;
-        }
-
-        private void SubscribeEvent(
-            Type eventType,
-            MethodInfo handlerMethod)
-        {
-            bool alreadySubscribed = autoSubscriptions.Any(subscription =>
-                subscription.EventType == eventType &&
-                subscription.Method == handlerMethod
-            );
-
-            if (alreadySubscribed)
-            {
-                return;
-            }
-
-            try
-            {
-                Type actionType = typeof(Action<>).MakeGenericType(eventType);
-
-                Delegate handler = Delegate.CreateDelegate(
-                    actionType,
-                    this,
-                    handlerMethod
-                );
-
-                MethodInfo subscribeMethod = GetEventBusSubscribeMethod()
-                    .MakeGenericMethod(eventType);
-
-                subscribeMethod.Invoke(
-                    null,
-                    new object[]
-                    {
-                        handler,
-                        0,
-                        false
-                    }
-                );
-
-                autoSubscriptions.Add(
-                    new AutoSubscription
-                    {
-                        EventType = eventType,
-                        Method = handlerMethod,
-                        Handler = handler
-                    }
-                );
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError(
-                    $"[Artifact] 自动订阅失败：{GetType().Name}.{handlerMethod.Name}\n" +
-                    $"{GetActualException(exception)}"
-                );
-            }
-        }
-
-        private void UnsubscribeAttributeEvents()
-        {
-            MethodInfo unsubscribeMethodDefinition =
-                GetEventBusUnsubscribeMethod();
-
-            foreach (AutoSubscription subscription in autoSubscriptions)
-            {
-                try
-                {
-                    MethodInfo unsubscribeMethod =
-                        unsubscribeMethodDefinition.MakeGenericMethod(
-                            subscription.EventType
-                        );
-
-                    unsubscribeMethod.Invoke(
-                        null,
-                        new object[]
-                        {
-                            subscription.Handler
-                        }
-                    );
-                }
-                catch (Exception exception)
-                {
-                    Debug.LogError(
-                        $"[Artifact] 自动取消订阅失败：" +
-                        $"{GetType().Name}.{subscription.Method.Name}\n" +
-                        $"{GetActualException(exception)}"
-                    );
-                }
-            }
-
-            autoSubscriptions.Clear();
-        }
-
-        private static MethodInfo GetEventBusSubscribeMethod()
-        {
-            return typeof(EventBus)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Single(method =>
-                    method.Name == nameof(EventBus.Subscribe) &&
-                    method.IsGenericMethodDefinition &&
-                    method.GetGenericArguments().Length == 1 &&
-                    method.GetParameters().Length == 3
-                );
-        }
-
-        private static MethodInfo GetEventBusUnsubscribeMethod()
-        {
-            return typeof(EventBus)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Single(method =>
-                    method.Name == nameof(EventBus.Unsubscribe) &&
-                    method.IsGenericMethodDefinition &&
-                    method.GetGenericArguments().Length == 1 &&
-                    method.GetParameters().Length == 1
-                );
-        }
-
-        private static Exception GetActualException(Exception exception)
-        {
-            return exception is TargetInvocationException invocationException &&
-                   invocationException.InnerException != null
-                ? invocationException.InnerException
-                : exception;
+            Affix?.UnsubscribeFromPlayer();
+            attributeSubscriptions?.Unsubscribe();
+            if (ReferenceEquals(RuntimeOwner, player)) player.ForgetArtifactSubscription(this);
         }
 
         /// <summary>
@@ -610,7 +395,8 @@ namespace Aotenjo
             {
                 return;
             }
-            eventData.player.SellArtifact(this);
+            // 临时遗物到期只执行移除，不能触发主动出售回调。
+            eventData.player.RemoveArtifact(this, true);
         }
 
 
@@ -625,7 +411,7 @@ namespace Aotenjo
             return name;
         }
 
-        public string GetStory(Func<string, string> loc)
+        public virtual string GetStory(Func<string, string> loc)
         {
             return loc($"artifact_{name}_story");
         }
@@ -638,7 +424,7 @@ namespace Aotenjo
         public UnlockRequirement GetUnlockRequirement()
         {
             if (Constants.DEBUG_MODE) return UnlockRequirement.UnlockedByDefault();
-            return ArtifactUnlockRequirements.artifactRequirementMap.GetValueOrDefault(this,
+            return ArtifactUnlockRequirements.artifactRequirementMap.GetValueOrDefault(GetRegName(),
                 UnlockRequirement.UnlockedByDefault());
         }
 
@@ -652,7 +438,7 @@ namespace Aotenjo
             return ArtifactRecipes.recipes.Any(r =>
                 r.inputID.Contains(GetNameID()) && (player == null ||
                                                     r.inputID.All(i =>
-                                                        Artifacts.GetArtifact(i).IsAvailableGlobally(player))));
+                                                        player.GetRunArtifact(i).IsAvailableGlobally(player))));
         }
 
         public bool IsCraftResult(Player player)
@@ -660,7 +446,7 @@ namespace Aotenjo
             return ArtifactRecipes.recipes.Any(r =>
                 r.outputID.Contains(GetNameID()) && (player == null ||
                                                      r.inputID.All(i =>
-                                                         Artifacts.GetArtifact(i).IsAvailableGlobally(player))));
+                                                         player.GetRunArtifact(i).IsAvailableGlobally(player))));
         }
 
         public virtual string GetSubHeader(Player player, Func<string, string> loc)
@@ -694,8 +480,40 @@ namespace Aotenjo
 
             [SerializeField] public bool isTemporary;
 
+            // 旧式临时遗物额外提供栏位；占用现有栏位的奖励必须单独记录。
+            [SerializeField] public bool temporaryOccupiesSlot;
+
             [SerializeField] public bool isDebuffed;
         }
+
+        private ArtifactAffixState runtimeAffix = new ArtifactAffixState();
+        public ArtifactAffixInstance Affix { get; private set; }
+        public ArtifactAffixState AffixState => runtimeAffix.Copy();
+        internal ArtifactAffixState RuntimeAffix
+        {
+            get => runtimeAffix;
+            set
+            {
+                // 旧实例先退订，替换后发布快照中的旧委托也会立即失效。
+                // 此处只替换属性；已激活对象由赋予入口按库存顺序重绑一次，读档和候选对象不订阅。
+                Affix?.UnsubscribeFromPlayer();
+                runtimeAffix = value ?? new ArtifactAffixState();
+                Affix = ArtifactAffixInstance.Create(this, runtimeAffix);
+            }
+        }
+
+        internal T Query<T>(T evt, ArtifactAffixState candidate = null) where T : ArtifactQueryEvent
+        {
+            // 候选词条只存在于本次查询范围内，既不覆盖宿主状态，也不进入实局订阅表。
+            var affix = candidate == null ? Affix : ArtifactAffixInstance.Create(this, candidate);
+            affix?.PublishQuery(evt);
+            return evt;
+        }
+
+        internal Player RuntimeOwner { get; set; }
+        /// <summary>对局内稳定的实例编号；类型 ID 仍由 GetRegName 返回，预览不可用于获取。</summary>
+        public int InstanceId { get; internal set; }
+        public bool IsPreview { get; internal set; }
 
         public ArtifactStatus status = new();
 
@@ -711,7 +529,7 @@ namespace Aotenjo
             set => status.isTemporary = value;
         }
 
-        public bool IsDebuffed
+        public bool IsSuppressed
         {
             get => status.isDebuffed;
             set => status.isDebuffed = value;
@@ -750,9 +568,34 @@ namespace Aotenjo
 
         #region 默认计分行为
 
+        // 非虚入口统一先收集本体、再发布宿主事件；原有虚方法仍供内置遗物与 Lua 实现本体效果。
+        // Player 兼容入口和延迟动画沿用同一管线，避免子类漏调 base 导致词条未执行或顺序颠倒。
+        public void CollectSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        {
+            AppendOnSelfEffects(player, permutation, effects);
+            EventBus.PublishRequired(new ArtifactEffectEvent.Self(player, this, permutation, effects));
+        }
+
+        public void CollectTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
+        {
+            AppendOnTileEffects(player, permutation, tile, effects);
+            EventBus.PublishRequired(new ArtifactEffectEvent.Tile(player, this, permutation, tile, effects));
+        }
+
+        public void CollectBlockEffects(Player player, Permutation permutation, Block block, List<Effect> effects)
+        {
+            AddOnBlockEffects(player, permutation, block, effects);
+            EventBus.PublishRequired(new ArtifactEffectEvent.Block(player, this, permutation, block, effects));
+        }
+
+        public void CollectRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
+        {
+            AddOnRoundEndEffects(player, permutation, effects);
+            EventBus.PublishRequired(new ArtifactEffectEvent.RoundEnd(player, this, permutation, effects));
+        }
+
         public virtual void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
         {
-            onTileEffect?.Invoke(player, permutation, tile, effects);
         }
 
         public virtual void AddOnTileEffectsPostEvents(Player player, Permutation permutation, Tile tile,
@@ -763,7 +606,6 @@ namespace Aotenjo
         public virtual void AddOnBlockEffects(Player player, Permutation permutation, Block block,
             List<Effect> effects)
         {
-            onBlockEffect?.Invoke(player, permutation, block, effects);
         }
 
         public virtual void AppendPostBlockAnimationEffects(Player player, Permutation permutation, Block block,
@@ -773,7 +615,6 @@ namespace Aotenjo
 
         public virtual void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
-            selfEffect?.Invoke(player, permutation, effects);
         }
 
         public virtual void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
@@ -782,28 +623,6 @@ namespace Aotenjo
 
         public virtual void AppendOnUnusedTileEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
-        }
-
-        #endregion
-
-        #region 工厂方法
-
-        public static Artifact CreateOnTileEffectArtifact(string name, Rarity rarity,
-            Action<Player, Permutation, Tile, List<Effect>> action)
-        {
-            return new Artifact(name, rarity, action, (_, _, _, _) => { }, (_, _, _) => { });
-        }
-
-        public static Artifact CreateOnBlockEffectArtifact(string name, Rarity rarity,
-            Action<Player, Permutation, Block, List<Effect>> action)
-        {
-            return new Artifact(name, rarity, (_, _, _, _) => { }, action, (_, _, _) => { });
-        }
-
-        public static Artifact CreateOnSelfEffectArtifact(string name, Rarity rarity,
-            Action<Player, Permutation, List<Effect>> action)
-        {
-            return new Artifact(name, rarity, (_, _, _, _) => { }, (_, _, _, _) => { }, action);
         }
 
         #endregion

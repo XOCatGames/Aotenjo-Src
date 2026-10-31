@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Aotenjo
@@ -12,47 +12,27 @@ namespace Aotenjo
         private ArtifactRecipe(string name, List<string> inputID, List<string> outputID)
         {
             this.name = name;
-            this.inputID = inputID;
-            this.outputID = outputID;
+            // 模组调用者可以复用和清空传入列表，配方必须保有自己的材料与产物快照。
+            this.inputID = inputID == null ? new List<string>() : new List<string>(inputID);
+            this.outputID = outputID == null ? new List<string>() : new List<string>(outputID);
         }
+
+        // 兼容公开列表的旧 API，同时在执行边界拦截被直接改坏的配方，避免空材料自动合成。
+        public bool HasValidStructure => inputID != null && outputID != null && inputID.Count > 0 && outputID.Count > 0 &&
+            !inputID.Any(string.IsNullOrWhiteSpace) && !outputID.Any(string.IsNullOrWhiteSpace) &&
+            !inputID.Intersect(outputID).Any();
 
         public virtual bool CheckFulfillRecipeRequirement(Player player)
         {
-            return inputID.All(s => player.GetArtifacts().Any(a => a.GetNameID() == s));
+            return HasValidStructure && player.CanCraftWithArtifactAffixes(this);
         }
 
         public virtual void OnFulfillRecipeResult(Player player)
         {
-            int flag = 2; //Temp
-            foreach (Artifact artifact in player.GetArtifacts())
-            {
-                if (artifact.IsBroken && flag > 1)
-                {
-                    flag = 1;
-                }
-
-                if (!artifact.IsBroken && !artifact.IsTemporary && flag > 0)
-                {
-                    flag = 0;
-                }
-
-                if (inputID.Contains(artifact.GetNameID()))
-                {
-                    player.RemoveArtifact(artifact, true, false);
-                }
-            }
-
-            foreach (string id in outputID)
-            {
-                Artifact artifact = Artifacts.GetArtifact(id);
-                if (artifact != null)
-                {
-                    artifact.IsBroken = flag == 1;
-                    artifact.IsTemporary = flag == 2;
-                    player.ObtainArtifact(artifact);
-                }
-            }
+            TryFulfillRecipeResult(player);
         }
+
+        public bool TryFulfillRecipeResult(Player player) => player.TryCraftArtifactRecipe(this);
 
         public static ArtifactRecipe Create(string name, List<string> inputID, string outputID)
         {

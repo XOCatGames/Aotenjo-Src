@@ -32,7 +32,8 @@ namespace Aotenjo
 
         public virtual bool IsRunCompletionLevel => Number == StandardRunCompletionLevel;
 
-        public virtual int BaseBonusMoney => 4;
+        // 沿用 RoundStatus 的轮转规则，基础奖励每十六关按 4、5、6、7 循环。
+        public virtual int BaseBonusMoney => 3 + new RoundStatus(Number).RoundWind;
 
         public virtual LevelExtraInfo ExtraInfo => null;
 

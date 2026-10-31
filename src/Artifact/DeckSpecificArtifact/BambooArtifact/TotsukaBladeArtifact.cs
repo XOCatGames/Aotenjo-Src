@@ -44,7 +44,7 @@ public class TotsukaBladeArtifact : BambooArtifact
             base.Ingest(player);
             foreach (Tile item in toGrow)
             {
-                item.addonFu += FU;
+                item.AddFu(FU, player);
             }
         }
     }

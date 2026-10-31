@@ -10,12 +10,14 @@ public class RedMarkerGadget : ReusableGadget
     {
     }
 
+    protected override TileTransform CreateTileTransform(Player player, Tile tile) => new TileTransformRedMarker();
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (uses <= 0) return false;
         if (ShouldHighlightTile(tile, player))
         {
-            tile.AddTransform(new TileTransformRedMarker(), player);
+            tile.AddTransform(CreateTileTransform(player, tile), player);
             MessageManager.Instance.OnSoundEvent("RedMarker");
             return true;
         }

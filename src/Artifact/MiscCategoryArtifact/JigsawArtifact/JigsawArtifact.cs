@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -40,17 +41,17 @@ namespace Aotenjo
 
                 string redFormat = "<style=\"yellow\">{0}</style>";
 
-                if (player.GetArtifacts().Contains(Artifacts.Jigsaw20) && Artifacts.Jigsaw20.Level == 0)
+                if (HasCompleted(player, Artifacts.Jigsaw20.Id))
                 {
                     fu = string.Format(redFormat, fu);
                 }
 
-                if (player.GetArtifacts().Contains(Artifacts.Jigsaw12) && Artifacts.Jigsaw12.Level == 0)
+                if (HasCompleted(player, Artifacts.Jigsaw12.Id))
                 {
                     fan = string.Format(redFormat, fan);
                 }
 
-                if (player.GetArtifacts().Contains(Artifacts.Jigsaw2) && Artifacts.Jigsaw2.Level == 0)
+                if (HasCompleted(player, Artifacts.Jigsaw2.Id))
                 {
                     mul = string.Format(redFormat, mul);
                 }
@@ -64,16 +65,19 @@ namespace Aotenjo
         protected abstract bool EligibleToDowngrade(Block block, Block.Jiang jiang);
         protected abstract Effect GetPlainEffect();
 
+        private static bool HasCompleted(Player player, string id) => player.GetArtifacts()
+            .OfType<JigsawArtifact>().Any(a => a.GetRegName() == id && a.Level == 0);
+
         public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
         {
             base.AppendOnSelfEffects(player, permutation, effects);
             if (Level != 0) return;
-            if (player.GetArtifacts().Contains(Artifacts.Jigsaw12) && Artifacts.Jigsaw12.Level == 0)
+            if (HasCompleted(player, Artifacts.Jigsaw12.Id))
             {
                 effects.Add(ScoreEffect.AddFan(FAN, this));
             }
 
-            if (player.GetArtifacts().Contains(Artifacts.Jigsaw2) && Artifacts.Jigsaw2.Level == 0)
+            if (HasCompleted(player, Artifacts.Jigsaw2.Id))
             {
                 effects.Add(ScoreEffect.MulFan(MUL, this));
             }
@@ -82,7 +86,7 @@ namespace Aotenjo
         public override void AddOnBlockEffects(Player player, Permutation permutation, Block block,
             List<Effect> effects)
         {
-            if (Level == 0 && player.GetArtifacts().Contains(Artifacts.Jigsaw20) && Artifacts.Jigsaw20.Level == 0)
+            if (Level == 0 && HasCompleted(player, Artifacts.Jigsaw20.Id))
             {
                 effects.Add(ScoreEffect.AddFu(FU, this));
                 return;

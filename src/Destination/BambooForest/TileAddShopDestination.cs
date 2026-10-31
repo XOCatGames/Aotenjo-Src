@@ -88,6 +88,8 @@ namespace Aotenjo
 
     public class Corrupted : TileAddShopDestination
     {
+        public override string GetEventName() => "corrupted";
+
         public Corrupted(Player player, bool onSale) : base(player, onSale)
         {
         }
@@ -126,6 +128,8 @@ namespace Aotenjo
 
     public class Wild : TileAddShopDestination
     {
+        public override string GetEventName() => "wild";
+
         public Wild(Player player, bool onSale) : base(player, onSale)
         {
         }
@@ -157,6 +161,8 @@ namespace Aotenjo
 
     public class Psionic : TileAddShopDestination
     {
+        public override string GetEventName() => "psionic";
+
         private Tile.Category cat;
 
         public override bool IsOnEvent()
@@ -183,6 +189,8 @@ namespace Aotenjo
 
     public class Overgrown : TileAddShopDestination
     {
+        public override string GetEventName() => "overgrown";
+
         public Overgrown(Player player, bool onSale) : base(player, onSale)
         {
         }

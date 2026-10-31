@@ -43,7 +43,9 @@ public partial class MaterialSet { SET_METHODS }
     (stage/'Bases.cs').write_text(generated, encoding='utf-8')
     sources = list((unity/'Assets/XLua/Src').glob('*.cs'))
     sources += list((unity/'Assets/XLua/Src/TemplateEngine').glob('*.cs'))
-    sources += list((base/'Artifact').glob('*.cs')) + list((base/'TileProperties').glob('*.cs'))
+    # 此探针只覆盖教程中的基本遗物；自定义词条由真实 ModSmoke 场景验证。
+    sources += [p for p in (base/'Artifact').glob('*.cs') if p.name != 'LuaArtifactAffixBuilder.cs']
+    sources += list((base/'TileProperties').glob('*.cs'))
     sources += [base/'Yaku/CustomYakuBuilder.cs', ROOT/'src/ArtifactRecipe/ArtifactRecipe.cs',
                 ROOT/'src/HandAndTile/Yaku/YakuType.cs', ROOT/'src/HandAndTile/Yaku/FixedYakuType.cs',
                 ROOT/'src/Utils/Rarity.cs', ROOT/'tools/tests/BridgeProbe.cs', stage/'Bases.cs']

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Aotenjo
@@ -13,8 +14,11 @@ namespace Aotenjo
         {
         }
 
-        protected override void RewardActivatedYakus(Player player, YakuType[] activated) =>
-            UpgradeYakus(player, activated);
+        public override void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects)
+        {
+            base.AddOnRoundEndEffects(player, permutation, effects);
+            AddUpgradeEffect(effects, GetActivatedCommonYakus(player, permutation));
+        }
 
         public override string GetDescription(Func<string, string> localizer) =>
             string.Format(CultureInfo.InvariantCulture, base.GetDescription(localizer), FAN_MULTIPLIER, UPGRADE_LEVELS);

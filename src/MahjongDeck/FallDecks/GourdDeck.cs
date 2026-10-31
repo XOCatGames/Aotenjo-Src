@@ -12,7 +12,7 @@ namespace Aotenjo
         public override Player CreateNewPlayer(string seed, MaterialSet set, int asensionLevel)
         {
             Player player = new GourdPlayer(Hand.PlainFullHand().tiles, seed, this, set, asensionLevel);
-            player.ObtainArtifact(Artifacts.PurpleGourd);
+            player.ObtainArtifact(player.GetRunArtifact(Artifacts.PurpleGourd.Id));
             return player;
         }
 

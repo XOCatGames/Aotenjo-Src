@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Collections.Generic;
 using Aotenjo;
 
 public class SnakesEyeGadget : Gadget
@@ -7,6 +8,14 @@ public class SnakesEyeGadget : Gadget
 
     public SnakesEyeGadget() : base("snakes_eye", 17, 2, 5)
     {
+    }
+
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        Tile target = targets[0];
+        Block block = player.GetAccumulatedPermutation().blocks.First(b => b.tiles.Contains(target));
+        return block.tiles.Where(t => t != target)
+            .Select(t => GadgetTilePreview.WithTransform(t, new TileTransformSnakesEye(target))).ToArray();
     }
 
     public override bool UseOnTile(Player player, Tile tile)

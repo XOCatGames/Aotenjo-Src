@@ -25,6 +25,10 @@ namespace Aotenjo
             return 5;
         }
 
+        protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets) =>
+            targets.Select(t => GadgetTilePreview.WithTransform(t,
+                new TileTransformMiniBrushed(category, t.GetOrder()))).ToArray();
+
         public override bool UseOnBlock(Player player, Block block)
         {
             if (uses == 0 || !block.IsNumbered()) return false;

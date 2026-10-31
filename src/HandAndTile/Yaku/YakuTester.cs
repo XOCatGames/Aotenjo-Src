@@ -15,31 +15,27 @@ namespace Aotenjo
         {
             RelatedTiles = permutation?.ToTiles() ?? new List<Tile>();
             YAKUS_PREDICATE_MAP.TryGetValue(yaku, out var predicate);
-            if (predicate != null)
-            {
-                bool testYaku = predicate.Invoke(permutation, status);
-                relatedTiles = new (RelatedTiles);
-                return testYaku;
-            }
-            relatedTiles = new (RelatedTiles);
-            return false;
-        }
-        public static bool TestYakuForHighlight(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
-        {
-            RelatedTiles = permutation?.ToTiles() ?? new List<Tile>();
-            YAKUS_PREDICATE_MAP.TryGetValue(yaku, out var predicate);
+            bool testYaku = false;
             if (predicate != null)
             {
                 try
                 {
-                    bool testYaku = predicate.Invoke(permutation, status);
+                    testYaku = predicate.Invoke(permutation, status);
                 }
                 catch (Exception e)
                 {
-                    System.Console.WriteLine(e);
+                    // A failed predicate must not expose partially collected highlight tiles.
+                    RelatedTiles = new List<Tile>();
+                    System.Console.WriteLine($"Yaku predicate failed for '{yaku}'; treating it as inactive.\n{e}");
                 }
             }
             relatedTiles = new (RelatedTiles);
+            return testYaku;
+        }
+
+        public static bool TestYakuForHighlight(Permutation permutation, YakuType yaku, Player status, out List<Tile> relatedTiles)
+        {
+            TestYaku(permutation, yaku, status, out relatedTiles);
             return false;
         }
         public static bool IncludeYaku(YakuType a, YakuType b)

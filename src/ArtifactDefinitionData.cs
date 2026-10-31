@@ -10,7 +10,7 @@ namespace Aotenjo
     {
         [HorizontalGroup("基础"), PreviewField(100), HideLabel] 
         [ShowInInspector]
-        public Sprite icon => SpriteManager.GetSpritesOrLoad("Artifacts")[Artifacts.ARTIFACT_SPRITE_ID_MAP[Artifacts.GetArtifact(regName)]];
+        public Sprite icon => SpriteManager.GetSpritesOrLoad("Artifacts")[Artifacts.ARTIFACT_SPRITE_ID_MAP[regName]];
         
         [VerticalGroup("基础/信息")] [LabelText("ID")] public string regName;
 
@@ -35,23 +35,6 @@ namespace Aotenjo
 
         [HorizontalGroup("标签信息")] [LabelText("遗物标签")] public List<ArtifactTag> tags;
         
-        public void SyncToArtifact(Artifact artifact)
-        {
-            if (artifact == null) return;
-
-            if (artifact.GetNameID() != regName)
-            {
-                Debug.LogError("WRONG ARTIFACT NAME ID: " + artifact.GetNameID() + " != " + regName);
-                return;
-            }
-            
-            artifact.rarity = this.baseRarity;
-            artifact.deckIn = this.deckIn;
-            artifact.deckBlocked = this.deckBlocked;
-            artifact.setIn = this.setIn;
-            artifact.setBlocked = this.setBlocked;
-            artifact.materialRequired = this.materialRequired;
-            artifact.tags = this.tags;
-        }
+        public void ApplyToRegistration() => ArtifactRegistry.ApplyDefinition(this);
     }
 }

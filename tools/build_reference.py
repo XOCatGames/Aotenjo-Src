@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 REF = ROOT / 'reference'
@@ -62,12 +63,18 @@ def main():
     REF.mkdir(exist_ok=True)
     public = ROOT / 'src'
     snapshot = {str(p.relative_to(public)).replace('\\', '/'): normalized_hash(p)
-                for p in sorted(public.rglob('*')) if p.is_file()}
+                for p in sorted(public.rglob('*'), key=lambda p: p.relative_to(public).as_posix()) if p.is_file()}
     (REF / 'source-manifest.json').write_text(json.dumps(snapshot, indent=2) + '\n', encoding='utf-8')
 
     selected = list((public / 'API').rglob('*.cs'))
     selected += [public / s for s in [
         'Player/Player.cs', 'Player/SkillSet.cs', 'Artifact/Artifact.cs',
+        'Player/Player.ArtifactRuntime.cs', 'Player/Player.ArtifactAffixes.cs', 'Player/Player.CustomArtifactAffixes.cs',
+        'Player/Player.ArtifactQueries.cs', 'Player/Player.ArtifactRecipes.cs',
+        'Event/ArtifactEffectEvent.cs', 'Event/ArtifactQueryEvent.cs', 'Event/ArtifactScoreValueEvent.cs', 'Event/PlayerRoundEvent.cs',
+        'Artifact/ArtifactRegistration.cs', 'Artifact/ArtifactRegistry.cs', 'Artifact/ArtifactAffixState.cs',
+        'Artifact/ArtifactAffix.cs', 'Artifact/ArtifactAffixInstance.cs', 'Artifact/CustomArtifactAffixes.cs',
+        'Consumable/YakuPack/YakuPack.cs',
         'Artifact/Artifacts.cs', 'ArtifactRecipe/ArtifactRecipe.cs',
         'HandAndTile/Tile/Tile.cs', 'HandAndTile/Hand/Block/Block.cs',
         'HandAndTile/Hand/Permutation/Permutation.cs', 'HandAndTile/Yaku/YakuType.cs',
@@ -80,7 +87,7 @@ def main():
         '自动提取公开声明，用于精确查参数；构造函数也在其中。不是所有声明都有跨平台 Lua/AOT 绑定保证。',
         'Extracted public declarations, including constructors. This is a parameter lookup index, not a guarantee of Lua/AOT binding for every member.', '',
         'C# notation: `Action<A,B>` means a callback `(a,b)` with no return; `Func<A,B,R>` means `(a,b)` returning R. `List<T>` uses Count, arrays use Length; both start at 0.', '']
-    for path in sorted(set(selected)):
+    for path in sorted(set(selected), key=lambda p: p.relative_to(public).as_posix()):
         if not path.exists():
             # Block location has changed between source versions.
             hits = list(public.rglob(path.name))
@@ -109,7 +116,7 @@ def main():
         '按精确发布类型订阅；字段可能来自基类，请沿源码继承关系查看。',
         'Subscribe to the exact published type. Payload fields may be inherited; follow the linked base classes.', '',
         '| 类型 / Type declaration | 源码 / Source |', '| --- | --- |']
-    for p in sorted((public / 'Event').rglob('*.cs')):
+    for p in sorted((public / 'Event').rglob('*.cs'), key=lambda p: p.relative_to(public).as_posix()):
         for m in re.finditer(r'^\s*public\s+(?:(?:sealed|abstract|static)\s+)*class\s+([^\n{]+)', p.read_text(encoding='utf-8-sig'), re.M):
             events.append(f'| `{m.group(1).strip()}` | [{p.stem}](../src/{p.relative_to(public).as_posix()}) |')
     (REF / 'events.md').write_text('\n'.join(events) + '\n', encoding='utf-8')
@@ -140,8 +147,9 @@ def main():
         writer = csv.writer(f)
         writer.writerow(['resource_path', 'texture_name', 'source_width', 'source_height'])
         resource_root = unity / 'Assets/Resources'
-        for p in sorted(resource_root.rglob('*.png')):
-            data = p.read_bytes()[:24]
+        for p in sorted(resource_root.rglob('*.png'), key=lambda p: p.relative_to(resource_root).as_posix()):
+            with p.open('rb') as image:
+                data = image.read(24)
             if data[:8] != b'\x89PNG\r\n\x1a\n':
                 raise ValueError(f'Invalid PNG: {p}')
             w, h = struct.unpack('>II', data[16:24])
@@ -149,15 +157,23 @@ def main():
 
     runtime_files = ['Assets/Scripts/AotenjoModLoader/ModManager.cs',
         'Assets/Scripts/AotenjoModLoader/ModLocalizationLoader.cs',
+        'Assets/LocalizationConfig/Scripts/LocaleManager.cs',
         'Assets/Scripts/Tile/TileFaceMaterialRegistry.cs', 'Assets/Scripts/Tile/SpriteManager.cs',
         'Assets/Scripts/Console/ArgumentParsers.cs', 'Assets/Scripts/Console/AotenjoCommandSystem.cs',
         'Assets/Scripts/UI/UIConsole.cs', 'Assets/Scripts/Integration/SteamWorkshopIntegration.cs',
         'Assets/Scripts/UI/MainMenu/ModManager/UIMainMenuModManager.cs',
         'Assets/Resources/Config/YakuPacks.json']
-    provenance = {'source_commit': '406dba6623ad528224eac65f5d894269907681a8',
-        'upstream_commit': 'c66f4500de0d2d19d627cc9d2455832ba7ff66c4',
-        'date': '2026-09-24', 'normalization': 'CRLF to LF, SHA-256',
-        'working_tree_omissions': ['Assets/LogicScripts/Utils/Constants.cs'],
+    def git(*arguments):
+        return subprocess.check_output(['git', '-C', str(unity), *arguments], text=True).strip()
+    config = json.loads((unity / 'Assets/Resources/Config/config.json').read_text(encoding='utf-8-sig'))
+    provenance = {'upstream_repository': 'XOCatGames/Aotenjo-Unity',
+        'upstream_commit': git('rev-parse', 'HEAD'),
+        'commit_date': git('show', '-s', '--format=%cI', 'HEAD'),
+        'upstream_worktree_dirty': bool(git('status', '--porcelain', '--untracked-files=normal')),
+        'game_version': config['version'],
+        'normalization': 'CRLF to LF, SHA-256',
+        'source_directory': 'Assets/LogicScripts',
+        'handbook_directory': 'Docs/Modding/Handbook',
         'runtime_sources_reviewed': {s: normalized_hash(unity / s) for s in runtime_files},
         'source_files': len(snapshot)}
     (REF / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n', encoding='utf-8')

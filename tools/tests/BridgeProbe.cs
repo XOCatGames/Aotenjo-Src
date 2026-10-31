@@ -29,6 +29,9 @@ namespace Aotenjo {
     }
     public class Player {
         public int Money;
+        private readonly Dictionary<string, Artifact> artifacts = ArtifactRegistry.Entries.ToDictionary(e => e.Id, e => e.Factory());
+        public Artifact GetRunArtifact(string id) => artifacts[id];
+        public bool CanCraftWithArtifactAffixes(ArtifactRecipe recipe) => true;
         public bool Selecting(Tile tile) => tile.Selected;
         public List<Artifact> GetArtifacts() => new();
         public bool RemoveArtifact(Artifact a, bool reset, bool shuffle) => true;
@@ -60,7 +63,18 @@ namespace Aotenjo {
         public string GetNameID()=>name;
     }
     public class CraftableArtifact : Artifact { public CraftableArtifact(string name,Rarity rarity):base(name,rarity) { } }
-    public static class Artifacts { public static List<Artifact> ArtifactList=new(); public static Artifact GetArtifact(string id)=>ArtifactList.First(a=>a.GetRegName()==id); }
+    // 桥接探针只替换注册目录的外壳，工厂和实际回调使用导出的实现。
+    public sealed class ArtifactRegistration {
+        public string Id; public Func<Artifact> Factory;
+        public string GetRegName() => Id;
+    }
+    public static class ArtifactRegistry {
+        public static List<ArtifactRegistration> Entries = new();
+        public static ArtifactRegistration Register(string id, Func<Artifact> factory) {
+            var entry = new ArtifactRegistration { Id = id, Factory = factory };
+            Entries.Add(entry); return entry;
+        }
+    }
     public static class ArtifactRecipes { public static List<ArtifactRecipe> recipes=new(); }
     public partial class TileMaterial {
         private string name;
@@ -139,12 +153,12 @@ public static class BridgeProbe {
                 checks++;
             }
             var p=new Player(); var tile=new Tile{Number=2,Selected=true};
-            var coin=Artifacts.GetArtifact("tutorial_artifact:coin_twos");
+            var coin=p.GetRunArtifact("tutorial_artifact:coin_twos");
             var e=new List<Effect>(); coin.AppendOnTileEffects(p,null,tile,e);
             Check(e.Count==1 && e[0].Value==2,"typed tile callback");
             e[0].Ingest(p); Check(p.Money==2,"queued money");
             e.Clear();tile.Selected=false;coin.AppendOnTileEffects(p,null,tile,e);Check(e.Count==0,"selection negative");
-            var jade=(LuaArtifact)Artifacts.GetArtifact("tutorial_artifact:practice_jade");
+            var jade=(LuaArtifact)p.GetRunArtifact("tutorial_artifact:practice_jade");
             jade.ResetArtifactState(p);e.Clear();jade.AppendOnSelfEffects(p,null,e);
             Check(e.Count==2 && e[0].Value==1,"typed self callback");e[1].Ingest(p);
             Check(jade.GetDataOrDefault("plays","0")=="1","typed nested Action<Player>");
@@ -160,7 +174,7 @@ public static class BridgeProbe {
             Check(ruby.GetDataOrDefault("test","")=="first","real material Copy isolates data");
             var ae=new List<IAnimationEffect>();ruby.AppendToListRoundEndEffect(p,null,ae,tile);
             Check(ae.Count==1 && ((AnimationEffect)ae[0]).Effect.Value==2,"typed round-end material callback");
-            Check(ArtifactRecipes.recipes.Count==1 && ArtifactRecipes.recipes[0].inputID.Count==2,"real recipe builder and generic List<Artifact>");
+            Check(ArtifactRecipes.recipes.Count==1 && ArtifactRecipes.recipes[0].inputID.Count==2,"real recipe builder and generic List<string>");
             Console.WriteLine($"PASS {checks} real xLua/C# bridge checks with exported API implementations and stub game base types.");
             // Registry delegates intentionally live until this short-lived process exits.
             GC.KeepAlive(lua);

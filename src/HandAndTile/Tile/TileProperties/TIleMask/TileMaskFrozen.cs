@@ -27,7 +27,7 @@ namespace Aotenjo
 
         public void RemoveFrozenTiles(PlayerTileEvent evt)
         {
-            if (evt.tile?.properties?.mask == this && !evt.player.GetArtifacts().Contains(Artifacts.MeteoriteKnife))
+            if (evt.tile?.properties?.mask == this && !evt.player.HasArtifact(Artifacts.MeteoriteKnife.Id))
             {
                 evt.canceled = true;
             }

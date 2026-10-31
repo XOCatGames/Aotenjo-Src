@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Aotenjo;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -43,14 +44,17 @@ public class PlayerStats
     {
         get
         {
+#pragma warning disable CS0618 //兼容旧存档，需要读取并清理历史字段
             if (yakuCounts != null && !yakuCounts.IsEmpty() && _yakuCountsMap.IsEmpty())
             {
                 foreach (var key in yakuCounts.GetKeys())
                 {
                     _yakuCountsMap.Add(new YakuType(key), yakuCounts.Get(key));
                 }
+
                 yakuCounts = new SerializableMap<FixedYakuType, int>();
             }
+#pragma warning restore CS0618
             return _yakuCountsMap;
         }
         set { _yakuCountsMap = value; }
@@ -60,6 +64,7 @@ public class PlayerStats
     {
         get
         {
+#pragma warning disable CS0618 //兼容旧存档，需要读取并清理历史字段
             if (maxYakuLevel != null && !maxYakuLevel.IsEmpty() && _maxYakuLevelMap.IsEmpty())
             {
                 foreach (var key in maxYakuLevel.GetKeys())
@@ -68,6 +73,7 @@ public class PlayerStats
                 }
                 maxYakuLevel = new SerializableMap<FixedYakuType, int>();
             }
+#pragma warning restore CS0618
             return _maxYakuLevelMap;
         }
         set { _maxYakuLevelMap = value; }
@@ -125,6 +131,15 @@ public class PlayerStats
     /// 常规出牌记录不记录分数占比
     /// </summary>
     [SerializeField] private List<SettleRecord> playSequence;
+
+    // Archived objects stay outside Unity's live serialization graph. Accessors
+    // combine the cached historical view with newly recorded runs and hands.
+    [NonSerialized] private Lazy<List<RoundRecord>> archivedRecords;
+    [NonSerialized] private Lazy<List<SettleRecord>> archivedHands;
+    [NonSerialized] private Func<YakuType, bool, int> archivedYakuCount;
+    internal bool HasArchivedHistory => archivedRecords != null;
+    internal List<RoundRecord> UnarchivedRecords => roundRecords ??= new List<RoundRecord>();
+    internal List<SettleRecord> UnarchivedHands => playSequence ??= new List<SettleRecord>();
 
     /// <summary>
     /// 遗物商店中实际展示给玩家的选项。新增字段保持为可选，并通过访问器延迟初始化，
@@ -189,7 +204,17 @@ public class PlayerStats
     
     public void RecordCustomStats(PlayerStatsType key, int count)
     {
-        RecordCustomStats(key.ToString().ToLower(), count);
+        RecordCustomStats(key.ToString().ToLowerInvariant(), count);
+    }
+
+    public void UpdateMaxCustomStats(string key, int count)
+    {
+        customStats.Add(key, Math.Max(customStats.Get(key), count));
+    }
+
+    public void UpdateMaxCustomStats(PlayerStatsType key, int count)
+    {
+        UpdateMaxCustomStats(key.ToString().ToLowerInvariant(), count);
     }
 
     public int GetCustomStats(string key)
@@ -198,7 +223,7 @@ public class PlayerStats
     }
     public int GetCustomStats(PlayerStatsType key)
     {
-        return customStats.Get(key.ToString().ToLower());
+        return customStats.Get(key.ToString().ToLowerInvariant());
     }
     public RoundRecord RecordRound(Player player, string explicitMatSetName)
     {
@@ -217,6 +242,7 @@ public class PlayerStats
             player.seededRun,
             explicitMatSetName,
             isModified);
+        record.history = RunHistorySnapshot.Capture(player);
         roundRecords.Add(record
         );
 
@@ -229,10 +255,14 @@ public class PlayerStats
 
         playSequence.AddRange(roundStat.playSequence);
 
+        string maxScoringCountKey = PlayerStatsType.MAX_SCORING_COUNT.ToString().ToLowerInvariant();
         foreach (var key in roundStat.customStats.GetKeys())
         {
-            customStats.Add(key, customStats.Get(key) + roundStat.customStats.Get(key));
+            if (key == maxScoringCountKey) continue;
+            RecordCustomStats(key, roundStat.customStats.Get(key));
         }
+        UpdateMaxCustomStats(PlayerStatsType.MAX_SCORING_COUNT,
+            roundStat.GetCustomStats(PlayerStatsType.MAX_SCORING_COUNT));
 
         foreach (var yaku in roundStat.yakuCountsMap.GetKeys())
         {
@@ -283,18 +313,53 @@ public class PlayerStats
 
     public int GetWonNumberByDeck(string deckName, int ascension = 0)
     {
-        return roundRecords.Count(rec => !rec.seeded && (rec.won || rec.roundStats.maxLevel > 16) && rec.deckName.Equals(deckName) &&
+        return GetRunRecords().Count(rec => !rec.seeded && (rec.won || rec.MaxLevel > 16) && rec.deckName == deckName &&
                                          rec.acsensionLevel >= ascension);
     }
 
     public List<RoundRecord> GetRunRecords()
     {
-        return new List<RoundRecord>(roundRecords);
+        return archivedRecords == null ? new List<RoundRecord>(UnarchivedRecords) :
+            archivedRecords.Value.Concat(UnarchivedRecords).ToList();
+    }
+
+    // Copy live entries on the caller thread; only archived JSON headers load on the worker.
+    public Task<List<RoundRecord>> GetRunRecordsAsync()
+    {
+        var live = new List<RoundRecord>(UnarchivedRecords);
+        var archive = archivedRecords;
+        if (archive == null) return Task.FromResult(live);
+        if (archive.IsValueCreated) return Task.FromResult(archive.Value.Concat(live).ToList());
+        return Task.Run(() => archive.Value.Concat(live).ToList());
+    }
+
+    public void RestoreHistory(List<RoundRecord> records, List<SettleRecord> hands)
+    {
+        archivedRecords = null;
+        archivedHands = null;
+        archivedYakuCount = null;
+        roundRecords = records ?? new List<RoundRecord>();
+        playSequence = hands ?? new List<SettleRecord>();
+    }
+
+    internal void RestoreArchivedHistory(Func<List<RoundRecord>> records, Func<List<SettleRecord>> hands,
+        Func<YakuType, bool, int> yakuCount)
+    {
+        RestoreHistory(null, null);
+        archivedRecords = new Lazy<List<RoundRecord>>(records);
+        archivedHands = new Lazy<List<SettleRecord>>(hands);
+        archivedYakuCount = yakuCount;
+    }
+
+    public int GetPlayedYakuCount(YakuType type, bool fourteenTiles)
+    {
+        return (archivedYakuCount?.Invoke(type, fourteenTiles) ?? 0) + UnarchivedHands.Count(hand =>
+            hand.ActivatedYakuTypes.Contains(type) && (!fourteenTiles || hand.AllTiles.Count == 14));
     }
 
     public List<RoundRecord> GetUnseededRunRecords()
     {
-        return new List<RoundRecord>(roundRecords.Where(r => !r.seeded));
+        return GetRunRecords().Where(r => !r.seeded).ToList();
     }
 
     public void SyncPlayer(Player player)
@@ -502,6 +567,9 @@ public class PlayerStats
         gadgetBoughtCount.Add(gadget.regName, gadgetBoughtCount.Get(gadget.regName) + 1);
     }
 
+    public bool ArtifactOwned(ArtifactRegistration definition) => Constants.DEBUG_MODE || ArtifactBought(definition);
+    public bool ArtifactBought(ArtifactRegistration definition) => artifactBoughtCount.Get(definition.GetNumberID()) > 0;
+
     public bool ArtifactOwned(Artifact artifact)
     {
         if (Constants.DEBUG_MODE) return true;
@@ -521,7 +589,8 @@ public class PlayerStats
 
     public List<SettleRecord> GetPlayedHands()
     {
-        return new(playSequence ??= new List<SettleRecord>());
+        return archivedHands == null ? new List<SettleRecord>(UnarchivedHands) :
+            archivedHands.Value.Concat(UnarchivedHands).ToList();
     }
 
     private List<ArtifactShopOfferRecord> ArtifactShopOffers =>

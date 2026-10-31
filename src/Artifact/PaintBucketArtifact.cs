@@ -48,7 +48,7 @@ namespace Aotenjo
                     new SimpleEffect(
                         "effect_paint_bucket", 
                         this, 
-                        p => p.AddGadget(new MagicBrushGadget(mostPlayedCategory)),
+                        p => p.RequestGadgetReward(new MagicBrushGadget(mostPlayedCategory), source: this),
                         "WaterSplash"
                     ));
             }

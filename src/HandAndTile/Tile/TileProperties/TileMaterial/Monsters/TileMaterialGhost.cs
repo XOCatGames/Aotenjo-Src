@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -74,8 +74,8 @@ namespace Aotenjo
                 fromTile.SetMaterial(PLAIN, player, true);
 
                 //TODO: 更改实现,通过事件告知
-                if (player.GetArtifacts().Contains(Artifacts.MiniTomb))
-                    fromTile.addonFu += 5;
+                if (player.HasArtifact(Artifacts.MiniTomb.Id))
+                    fromTile.AddFu(5, player);
 
                 target.SetMaterial(tileMaterialGhost, player);
             }

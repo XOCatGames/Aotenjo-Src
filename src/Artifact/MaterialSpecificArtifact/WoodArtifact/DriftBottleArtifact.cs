@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,6 +32,7 @@ namespace Aotenjo
 
         public override string GetDescription(Player player, Func<string, string> loc)
         {
+            if (IsPreview) return string.Format(base.GetDescription(player, loc), loc("ui_artifact_preview_preset"));
             string cat_key = cat switch
             {
                 Tile.Category.Suo => "ui_suozipai",

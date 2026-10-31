@@ -25,13 +25,13 @@ namespace Aotenjo
         public override void OnObtain(Player player)
         {
             base.OnObtain(player);
-            player.SetGadgetLimit(player.GetGadgetLimit() - 1);
+            player.ChangeGadgetLimit(-1);
         }
 
         public override void OnRemoved(Player player)
         {
             base.OnRemoved(player);
-            player.SetGadgetLimit(player.GetGadgetLimit() + 1);
+            player.ChangeGadgetLimit(1);
         }
     }
 }

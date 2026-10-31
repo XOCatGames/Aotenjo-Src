@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
@@ -34,9 +34,9 @@ public abstract class InstrumentArtifact : CountingArtifact
     protected bool IsTuned(Player player)
     {
         List<Artifact> playerInventory = player.GetArtifacts();
-        if (!playerInventory.Contains(Artifacts.TuningBianzhong)) return false;
+        if (!playerInventory.Any(a => a.GetRegName() == Artifacts.TuningBianzhong.Id)) return false;
         int selfIndex = playerInventory.IndexOf(this);
-        int bianzhongIndex = playerInventory.IndexOf(Artifacts.TuningBianzhong);
+        int bianzhongIndex = playerInventory.FindIndex(a => a.GetRegName() == Artifacts.TuningBianzhong.Id);
         bool res = Math.Abs(selfIndex - bianzhongIndex) == 1;
         if (res)
         {

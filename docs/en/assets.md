@@ -6,7 +6,7 @@
 
 Provide five strings: `modID`, `name`, `version`, `author`, and `description`. Use a unique ASCII prefix such as `alice_lucky_tiles`. The modID participates in sprite namespaces; when changing it, update Lua IDs and localization keys too. The folder name does not automatically become the modID. Keep version numbers out of stable content IDs.
 
-`workshopId` is an optional string for updating your existing Workshop item; omit it on first upload. `modDir`, `isFromWorkshop`, and `itemUrl` are runtime data. There is no manifest dependency resolver, version constraint, or enable switch. Document and check dependencies explicitly rather than inventing a `dependencies` feature.
+`workshopId` is an optional string for updating your existing Workshop item; omit it on first upload. `modDir`, `isFromWorkshop`, and `itemUrl` are runtime data. There is still no dependency resolver; document and check dependencies explicitly rather than inventing a `dependencies` feature.
 
 ## Custom icons
 
@@ -25,9 +25,9 @@ Do not share modIDs between mods. Change the object ID, image path, and translat
 
 ## Language files
 
-`lang/zh-CN.json` and `lang/en-US.json` are flat key-to-string dictionaries, not nested objects. Save UTF-8 JSON without comments or trailing commas. The loader currently recognizes `zh-CN`, `en-US`, `zh-TW`, `ja-JP`, `ko-KR`, `de-DE`, `fr-FR`, `es-ES`, and `ru-RU`. Do not rename the Chinese file to `zh-Hans.json`.
+`lang/zh-CN.json` and `lang/en-US.json` are flat key-to-string dictionaries, not nested objects. Save UTF-8 JSON without comments or trailing commas. See [Add a language](localization.md) for the steps. Both `zh-CN` and `zh-Hans` map to Simplified Chinese.
 
-Each file merges into both GameTable and YakuInfo, overriding existing values with matching keys. Prefix all custom keys. Translating existing built-in locales is the reliable path; adding a file for a new locale does not establish language-selection UI support.
+Each file merges into `GameTable`, `YakuInfo`, `UIMainMenuTable`, `BossInfo` and `TutorialTable`, overriding matching keys. New languages appear automatically in the selector. Prefix custom content keys; use original keys to translate existing text.
 
 | Content | Default keys |
 | --- | --- |
@@ -41,4 +41,4 @@ Each file merges into both GameTable and YakuInfo, overriding existing values wi
 
 `loc(key)` returns localized text. For dynamic descriptions use `string.format(loc(key), number)` with Lua placeholders such as `%.1f` or `%d`, not C# `{0}` placeholders. Prefer default name localization over `WithName`, which has no localizer argument.
 
-Start with the Chinese and English files. An untranslated active language may fall back or show the key; do not assume automatic English fallback. Actually switch between Simplified Chinese and English and check matching meaning, values, and punctuation. Fully restart after language-file edits.
+Start with Chinese and English, switch between them, and check matching meaning, values and punctuation. Newly registered mod languages use English fallback, including English supplied by other mods; keys absent from English may still be missing. Keep English text and follow the [steps for adding a language](localization.md). Fully restart after edits.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
@@ -16,13 +16,12 @@ public class GoldenLoudspeakerArtifact : LoudspeakerArtifact
         return false;
     }
 
-    public override List<Artifact> GetComponents()
+    public override List<string> GetComponentIds()
     {
         return ArtifactRecipes.recipes
             .First(r => r.outputID.Contains(GetNameID()))
             .inputID
-            .Select(i => Artifacts.ArtifactList.First(a => a.GetNameID() == i))
-            .Append(this)
+            .Append(GetRegName())
             .ToList();
     }
 

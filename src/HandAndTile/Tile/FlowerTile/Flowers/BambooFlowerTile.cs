@@ -67,7 +67,7 @@ public class BambooFlowerTile : OneTimeUseFlowerTile
         {
             tile.level++;
             // Music copies the growth ability, not Bamboo's intrinsic base fu.
-            if (!ReferenceEquals(scoringTile, tile)) scoringTile.addonFu += FU_PER_LEVEL;
+            if (!ReferenceEquals(scoringTile, tile)) scoringTile.AddFu(FU_PER_LEVEL, player);
         }
 
         public override string GetSoundEffectName() => "AddExtraFu";

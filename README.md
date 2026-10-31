@@ -8,16 +8,22 @@ Start with basic Lua syntax, install a working mod, then create your own rules a
 | 我想做 / I want to… | 中文 | English | 可安装示例 / Installable example |
 | --- | --- | --- | --- |
 | 从零开始 / Start from scratch | [快速上手](docs/zh/quickstart.md) | [Quick start](docs/en/quickstart.md) | [Hello](example/mods/00_hello) |
+| 填写兼容版本号 / Declare supported versions | [版本兼容](docs/zh/compatibility.md) | [Version compatibility](docs/en/compatibility.md) | `modinfo.json` 中的 / field `supportedGameVersions` |
 | 创建遗物、添加成长效果 / Add artifacts and persistent growth | [自定义遗物](docs/zh/artifacts.md) | [Artifacts](docs/en/artifacts.md) | [Artifacts](example/mods/ex1_artifact) |
+| 自定义遗物附魔 / Custom artifact enchantments | [遗物词条（开发中）](docs/zh/artifact-affixes.md) | [Artifact affixes (in development)](docs/en/artifact-affixes.md) | 在已有模组中注册并赋予 / Register and apply in an existing mod |
 | 判断新番种 / Recognize a new yaku | [番种](docs/zh/yakus.md) | [Yakus](docs/en/yakus.md) | [All Twos](example/mods/ex2_pattern) |
 | 添加有机制的牌体 / Add tile materials with mechanics | [牌材质](docs/zh/materials.md) | [Materials](docs/en/materials.md) | [Gemstones](example/mods/ex3_tile_material) |
 | 按状态切换牌体图片、装饰和阴影 / Change body sprites, ornaments, and shadows by state | [动态牌体（仅 0.7.1.0+）](docs/zh/materials.md) | [Dynamic bodies (0.7.1.0+ only)](docs/en/materials.md) | 在已有模组中添加 / Add to an existing mod |
 | 注册可悬浮解释的术语 / Register hoverable glossary terms | [术语（仅 0.7.1.0+）](docs/zh/terms.md) | [Terms (0.7.1.0+ only)](docs/en/terms.md) | 在已有模组中添加 / Add to an existing mod |
 | 合成遗物 / Combine artifacts | [合成配方](docs/zh/recipes.md) | [Recipes](docs/en/recipes.md) | [Tokens](example/mods/ex4_recipe) |
 | 替换图片、调整牌面颜色 / Replace textures and recolor faces | [材质包](docs/zh/textures.md) | [Texture packs](docs/en/textures.md) | [Texture pack](example/mods/ex5_texture_pack), [colors](example/mods/ex6_face_colors) |
+| 添加新的可选语言 / Add a selectable language | [添加语言](docs/zh/localization.md) | [Add a language](docs/en/localization.md) | 纯 JSON 模板 / JSON-only template in the guide |
 | 调试、翻译、发布 / Debug, translate, publish | [测试与发布](docs/zh/testing.md) | [Testing and publishing](docs/en/testing.md) | [验收步骤 / Acceptance](docs/VALIDATION.md) |
 
-源码快照 / Source snapshot: [`406dba6`](https://github.com/XOCatGames/Aotenjo-Src/commit/406dba6623ad528224eac65f5d894269907681a8), synchronized on 2026-09-24. See [provenance](docs/SOURCE.md).
+当前同步来源 / Current publication provenance: [源码范围与历史](docs/SOURCE.md) · [提交与内容散列 / Commit and content hashes](reference/provenance.json).
+
+维护源位于 Aotenjo-Unity 的 `Docs/Modding/Handbook`；源码与手册在 `[Sync]` 时一起发布。详见[维护方式 / Maintaining this handbook](docs/MAINTAINING.md)。
+The authoring source is `Docs/Modding/Handbook` in Aotenjo-Unity. Source and handbook are published together on `[Sync]`.
 
 **新接口版本要求：术语注册和四个动态牌体外观回调（`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID`）仅在 0.7.1.0 及之后版本可用，0.7.0.x 不支持。** 这些接口按 `dev-0.7.1.0` 补充，来源范围见上面的说明。
 **New API version requirement: glossary registration and the four dynamic body appearance callbacks (`WithSpriteID`, `WithSpriteNamespaceID`, `WithOrnamentSpriteID`, `WithShadowID`) are available only in 0.7.1.0 and later, not in 0.7.0.x.** These supplements come from `dev-0.7.1.0`; see the provenance scope above.

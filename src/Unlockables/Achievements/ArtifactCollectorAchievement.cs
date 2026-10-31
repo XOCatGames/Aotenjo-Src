@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -20,7 +20,7 @@ namespace Aotenjo
 
         private void PostRunEnd(RunStatusEvent.End.Post eventData)
         {
-            if (Artifacts.ArtifactList.All(eventData.stats.ArtifactOwned))
+            if (ArtifactRegistry.OrderedEntries.All(a => eventData.stats.ArtifactOwned(a)))
                 SetComplete();
         }
     }

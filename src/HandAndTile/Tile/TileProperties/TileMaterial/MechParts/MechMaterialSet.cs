@@ -21,14 +21,14 @@ namespace Aotenjo
         {
             base.SubscribeToPlayerEvents(player);
             EventBus.Subscribe<PlayerEvents.PreSetTilePropertiesEvent>(player, InstallIncomingPart, int.MinValue);
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(player, RemoveTemporaryParts);
+            EventBus.Subscribe<PlayerRoundEvent.End.Post>(player, ResetRoundState);
         }
 
         public override void UnsubscribeToPlayerEvents(Player player)
         {
             base.UnsubscribeToPlayerEvents(player);
             EventBus.Unsubscribe<PlayerEvents.PreSetTilePropertiesEvent>(player, InstallIncomingPart);
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(player, RemoveTemporaryParts);
+            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(player, ResetRoundState);
         }
 
         public static void InstallIncomingPart(PlayerSetPropertiesEvent evt)
@@ -36,11 +36,12 @@ namespace Aotenjo
             TileMaterialMechPart.ResolveIncomingMaterial(evt.tile.properties, evt.propertiesToChange);
         }
 
-        private static void RemoveTemporaryParts(PlayerRoundEvent.End.Post evt)
+        private static void ResetRoundState(PlayerRoundEvent.End.Post evt)
         {
             foreach (Tile tile in evt.player.GetAllTiles())
             {
                 if (tile?.properties?.material is not TileMaterialMechPart material) continue;
+                material.ResetReactorActivation();
                 int removed = material.RemoveTemporaryParts();
                 if (removed > 0)
                 {

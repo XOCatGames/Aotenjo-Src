@@ -5,6 +5,8 @@ using Aotenjo;
 
 public class AddFlowerTileDestination : Destination
 {
+    public override string GetEventName() => "flower";
+
     public AddFlowerTileDestination(Player player) : base("add_flower_tile_shop", false, player)
     {
     }

@@ -11,6 +11,12 @@ public class MaterialSetUnlockRequirements
         { MaterialSet.Monsters, UnlockRequirement.UnlockByPlayYaku(FixedYakuType.QuanDaiYao, 72) },
         { MaterialSet.Wood, UnlockRequirement.UnlockByLevel(2, 16) },
         { MaterialSet.Dessert, UnlockRequirement.UnlockByCustomStats("eat_food", 10) },
-        { MaterialSet.Mech, UnlockRequirement.UnlockedByDefault() }
+        {
+            MaterialSet.Mech,
+            UnlockRequirement.UnlockByCustomStats("max_scoring_count", 14*3 + 6)
+                .Or(UnlockRequirement.UnlockByLevel(6, 16))
+                // Preserve access for legacy players without displaying a circular unlock requirement.
+                .Or(UnlockRequirement.UnlockByLevel(0, 2, null, MaterialSet.Mech), hideDescription: true)
+        }
     };
 }

@@ -27,7 +27,7 @@ namespace Aotenjo
         {
             if (!evt.isCopy)
             {
-                evt.tile.addonFu += ADDON_FU_AMOUNT;
+                evt.tile.AddFu(ADDON_FU_AMOUNT, evt.player);
             }
         }
 
@@ -41,14 +41,14 @@ namespace Aotenjo
 
         private void OnModifyFace(PlayerModifyCarvedDesignEvent.Post evt)
         {
-            evt.tile.addonFu += ADDON_FU_AMOUNT;
+            evt.tile.AddFu(ADDON_FU_AMOUNT, evt.player);
         }
 
         private void OnSetTransform(PlayerSetTransformEvent evt)
         {
             if (evt.transform != null)
             {
-                evt.tile.addonFu += ADDON_FU_AMOUNT;
+                evt.tile.AddFu(ADDON_FU_AMOUNT, evt.player);
             }
         }
     }

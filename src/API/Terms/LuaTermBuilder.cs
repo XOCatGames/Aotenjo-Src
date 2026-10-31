@@ -37,8 +37,9 @@ namespace Aotenjo
                 return Reject("ID must start with a letter and contain only ASCII letters, digits or underscores (max 128 characters).");
             if (color != "yellow" && color != "purple" && color != "green" && color != "blue" && color != "red")
                 return Reject($"Unsupported color '{color}' for '{id}'.");
-            // These links take specialized paths instead of the generic tooltip lookup.
+            // 这些前缀由专用悬停规则解析，模组术语不能占用，否则会显示错误类型的说明。
             if (id.StartsWith("pattern_", StringComparison.Ordinal) ||
+                id.StartsWith("gadget_", StringComparison.Ordinal) ||
                 id.StartsWith("tilemat_", StringComparison.Ordinal) ||
                 id.StartsWith("tilefont_", StringComparison.Ordinal) ||
                 id.StartsWith("boss_reversed_effect_", StringComparison.Ordinal) || id == "jixiepai")

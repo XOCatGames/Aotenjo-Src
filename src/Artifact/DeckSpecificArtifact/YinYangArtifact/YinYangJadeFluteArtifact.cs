@@ -63,7 +63,7 @@ namespace Aotenjo
                     {
                         int count = rg.maxUseCount;
                         //TODO: 需要换实现，这个实现耦合太高了
-                        if (player.GetArtifacts().Contains(Artifacts.SpringArm)) count++;
+                        if (player.HasArtifact(Artifacts.SpringArm.Id)) count++;
                         
                         if(g.uses < count)
                             g.uses = Math.Min(g.uses + 1, count);

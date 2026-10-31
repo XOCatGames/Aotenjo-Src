@@ -43,7 +43,7 @@ namespace Aotenjo
                 }
                 else
                 {
-                    tile.addonFu += 3;
+                    tile.AddFu(3, player);
                 }
 
                 tile.SetMask(NONE, player, true);

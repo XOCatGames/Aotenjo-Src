@@ -43,6 +43,23 @@ public override void SubscribeToPlayer(Player player);
 public override void UnsubscribeToPlayer(Player player);
 ```
 
+## LuaArtifactAffixBuilder
+
+Namespace: `Aotenjo` · [源码 / source](../src/API/Artifact/LuaArtifactAffixBuilder.cs)
+
+```csharp
+public static LuaArtifactAffixBuilder Create(string id);
+public LuaArtifactAffixBuilder WithNameKey(string key);
+public LuaArtifactAffixBuilder WithDescriptionKey(string key);
+public LuaArtifactAffixBuilder WithDescription(Func<Player, Func<string, string>, Artifact, string> callback);
+public LuaArtifactAffixBuilder WithCanApply(Func<Player, Artifact, bool> callback);
+public LuaArtifactAffixBuilder OnSelfEffect(Action<Player, Permutation, List<Effect>, Artifact> callback);
+public LuaArtifactAffixBuilder OnTileEffect(Action<Player, Permutation, Tile, List<Effect>, Artifact> callback);
+public LuaArtifactAffixBuilder OnBlockEffect(Action<Player, Permutation, Block, List<Effect>, Artifact> callback);
+public LuaArtifactAffixBuilder OnRoundEndEffect(Action<Player, Permutation, List<IAnimationEffect>, Artifact> callback);
+public bool BuildAndRegister();
+```
+
 ## LuaArtifactBuilder
 
 Namespace: `Aotenjo` · [源码 / source](../src/API/Artifact/LuaArtifactBuilder.cs)
@@ -79,8 +96,8 @@ public LuaArtifactBuilder WithSetBlocked(string[] ids);
 public LuaArtifactBuilder WithMaterialRequired(string[] ids);
 public LuaArtifact Build();
 public LuaCraftableArtifact BuildCraftable();
-public LuaCraftableArtifact BuildAndRegisterCraftable();
-public LuaArtifact BuildAndRegister();
+public ArtifactRegistration BuildAndRegisterCraftable();
+public ArtifactRegistration BuildAndRegister();
 ```
 
 ## LuaArtifactRecipeBuilder
@@ -88,8 +105,8 @@ public LuaArtifact BuildAndRegister();
 Namespace: `Aotenjo` · [源码 / source](../src/API/Artifact/LuaArtifactRecipeBuilder.cs)
 
 ```csharp
-public static ArtifactRecipe Build(string id, List<Artifact> materials, Artifact result);
-public static ArtifactRecipe BuildAndRegister(string id, List<Artifact> materials, Artifact result);
+public static ArtifactRecipe Build(string id, List<string> materials, string result);
+public static ArtifactRecipe BuildAndRegister(string id, List<string> materials, string result);
 ```
 
 ## LuaCraftableArtifact
@@ -183,15 +200,55 @@ public void OnChangeTileMask(Tile tile, string mask);
 public void OnArtifactEarnMoney(int money, Artifact artifact);
 ```
 
+## GameVersion
+
+Namespace: `Aotenjo` · [源码 / source](../src/API/Mod/GameVersion.cs)
+
+```csharp
+public static bool TryParse(string text, out GameVersion result);
+public int CompareTo(GameVersion other);
+public bool TryContains(GameVersion version, out bool contains);
+public override string ToString();
+```
+
 ## Mod
 
 Namespace: `Aotenjo` · [源码 / source](../src/API/Mod/Mod.cs)
 
 ```csharp
+public Mod();
 public Mod(string name, string version, string author, string description);
 public string GetModInfo();
 public string GetRootDir();
 public static Mod LoadFromDirectory(string modDir);
+```
+
+## ModCatalog
+
+Namespace: `Aotenjo` · [源码 / source](../src/API/Mod/ModCatalog.cs)
+
+```csharp
+public static Mod Discover(string directory, bool workshop = false, string itemUrl = "");
+public static void Evaluate(IReadOnlyList<Mod> mods, ModSettingsStore settings, string currentVersion);
+public ModSettingsStore(string path);
+public bool IsEnabled(string id);
+public void SetEnabled(string id, bool enabled);
+```
+
+## ModContentRegistry
+
+Namespace: `Aotenjo` · [源码 / source](../src/API/Mod/ModContentRegistry.cs)
+
+```csharp
+public static void BeginSession();
+public static Dictionary<string, object> Capture();
+public static void CompleteMod(string modId, Dictionary<string, object> before);
+public static void RollbackMod(Dictionary<string, object> before);
+public static string OwnerOf(string kind, string id);
+public static bool IsModLoaded(string id);
+public static bool IsAvailable(string kind, string id, string expectedOwner = null);
+public static RunEnvironment Capture();
+public static RunEnvironment Legacy();
 ```
 
 ## LuaTermBuilder
@@ -300,7 +357,6 @@ public static void AddInheritanceRelation(string nativeYakuTypeID, YakuType[] in
 Namespace: `Aotenjo` · [源码 / source](../src/Artifact/Artifact.cs)
 
 ```csharp
-public Artifact(string name, Rarity rarity, Action<Player, Permutation, Tile, List<Effect>> onTileEffect, Action<Player, Permutation, Block, List<Effect>> onBlockEffect, Action<Player, Permutation, List<Effect>> selfEffect);
 public Artifact(string name, Rarity rarity);
 public virtual bool ShouldHighlightTile(Tile tile, Player player);
 public bool IsUnlocked(PlayerStats stats);
@@ -314,11 +370,13 @@ public Artifact SetPrerequisite(Predicate<Player> pred);
 public Artifact SetMaterialGift(Func<TileMaterial> materialFactory, int count);
 public Artifact SetFontGift(Func<TileFont> fontFactory, int count);
 public virtual bool CanBeSellByPlayer();
+public virtual bool CanBeSold(Player player);
+public virtual void OnSold(Player player);
 public override string ToString();
 public bool IsCrafted();
 public virtual bool IsUnique();
 public virtual bool CanBeBoughtWithoutSlotLimit(Player player);
-public virtual List<Artifact> GetComponents();
+public virtual List<string> GetComponentIds();
 public virtual void ResetArtifactState(Player player);
 public virtual void ResetArtifactState();
 public virtual string GetDescription(Func<string, string> localizer);
@@ -337,7 +395,7 @@ public virtual string GetNameWithColor(Func<string, string> localizer);
 public virtual string GetName(Func<string, string> localizer);
 public virtual string GetNameKey();
 public virtual int GetNumberID();
-public Sprite GetSprite(Player player);
+public virtual Sprite GetSprite(Player player);
 public virtual Rarity GetRarity();
 public virtual bool CanObtainBy(Player player);
 public virtual void OnObtain(Player player);
@@ -348,7 +406,7 @@ public virtual void SubscribeToPlayer(Player player);
 public virtual void UnsubscribeToPlayer(Player player);
 public virtual void PreGameInitialized(Player player);
 public string GetNameID();
-public string GetStory(Func<string, string> loc);
+public virtual string GetStory(Func<string, string> loc);
 public string GetUnlockRequirementDescription(Func<string, string> loc);
 public UnlockRequirement GetUnlockRequirement();
 public virtual void AppendDiscardTileEffects(Player player, Tile tile, List<IAnimationEffect> onDiscardTileEffects, bool withForce, bool isClone);
@@ -357,6 +415,10 @@ public bool IsCraftResult(Player player);
 public virtual string GetSubHeader(Player player, Func<string, string> loc);
 public virtual string Serialize();
 public virtual void Deserialize(string data);
+public void CollectSelfEffects(Player player, Permutation permutation, List<Effect> effects);
+public void CollectTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects);
+public void CollectBlockEffects(Player player, Permutation permutation, Block block, List<Effect> effects);
+public void CollectRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects);
 public virtual void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects);
 public virtual void AddOnTileEffectsPostEvents(Player player, Permutation permutation, Tile tile, List<Effect> effects);
 public virtual void AddOnBlockEffects(Player player, Permutation permutation, Block block, List<Effect> effects);
@@ -364,9 +426,73 @@ public virtual void AppendPostBlockAnimationEffects(Player player, Permutation p
 public virtual void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects);
 public virtual void AddOnRoundEndEffects(Player player, Permutation permutation, List<IAnimationEffect> effects);
 public virtual void AppendOnUnusedTileEffects(Player player, Permutation perm, Tile tile, List<Effect> effects);
-public static Artifact CreateOnTileEffectArtifact(string name, Rarity rarity, Action<Player, Permutation, Tile, List<Effect>> action);
-public static Artifact CreateOnBlockEffectArtifact(string name, Rarity rarity, Action<Player, Permutation, Block, List<Effect>> action);
-public static Artifact CreateOnSelfEffectArtifact(string name, Rarity rarity, Action<Player, Permutation, List<Effect>> action);
+```
+
+## ArtifactAffix
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/ArtifactAffix.cs)
+
+```csharp
+public static bool IsKnown(ArtifactAffix affix);
+public static string Name(ArtifactAffix affix, Func<string, string> loc);
+public static string Description(ArtifactAffix affix, Func<string, string> loc);
+public static string DecorateName(string name, ArtifactAffix affix, Func<string, string> loc);
+public static string DecorateDescription(string description, ArtifactAffix affix, Func<string, string> loc);
+public static string DecorateName(string name, Player player, Artifact artifact, Func<string, string> loc);
+public static string DecorateDescription(string description, Player player, Artifact artifact, Func<string, string> loc);
+public static bool TryParse(string value, out ArtifactAffix affix);
+public static int[] AdjustRarityWeights(int[] weights, int luckyCount);
+```
+
+## ArtifactAffixInstance
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/ArtifactAffixInstance.cs)
+
+```csharp
+public virtual string GetName(Func<string, string> loc);
+public virtual string GetDescription(Func<string, string> loc);
+public virtual string GetData(string key, string fallback = "");
+public override string GetName(Func<string, string> loc);
+public override string GetDescription(Func<string, string> loc);
+public override string GetData(string key, string fallback = "");
+```
+
+## ArtifactAffixState
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/ArtifactAffixState.cs)
+
+```csharp
+public ArtifactAffixState();
+public ArtifactAffixState Copy();
+```
+
+## ArtifactRegistration
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/ArtifactRegistration.cs)
+
+```csharp
+public string GetRegName();
+public string GetNameID();
+public string GetNameKey();
+public int GetNumberID();
+public Rarity GetRarity();
+public UnlockRequirement GetUnlockRequirement();
+public bool IsUnlocked(PlayerStats stats);
+```
+
+## ArtifactRegistry
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/ArtifactRegistry.cs)
+
+```csharp
+public static ArtifactRegistration GetDefinition(string id);
+public static bool TryGetDefinition(string id, out ArtifactRegistration definition);
+public static ArtifactRegistration FindLegacyDefinition(int number);
+public static void ApplyDefinition(ArtifactDefinitionData data);
+public static ArtifactRegistration Register(string id, Func<Artifact> factory, string ownerId = "");
+public static void Freeze();
+public static void BeginSession();
+public static Artifact CreatePreview(string id);
 ```
 
 ## Artifacts
@@ -374,7 +500,13 @@ public static Artifact CreateOnSelfEffectArtifact(string name, Rarity rarity, Ac
 Namespace: `Aotenjo` · [源码 / source](../src/Artifact/Artifacts.cs)
 
 ```csharp
-public static Artifact GetArtifact(string name);
+```
+
+## CustomArtifactAffixes
+
+Namespace: `Aotenjo` · [源码 / source](../src/Artifact/CustomArtifactAffixes.cs)
+
+```csharp
 ```
 
 ## ArtifactRecipe
@@ -384,8 +516,25 @@ Namespace: `Aotenjo` · [源码 / source](../src/ArtifactRecipe/ArtifactRecipe.c
 ```csharp
 public virtual bool CheckFulfillRecipeRequirement(Player player);
 public virtual void OnFulfillRecipeResult(Player player);
+public bool TryFulfillRecipeResult(Player player);
 public static ArtifactRecipe Create(string name, List<string> inputID, string outputID);
 public static ArtifactRecipe Create(string name, List<Artifact> inputID, Artifact outputID);
+```
+
+## YakuPack
+
+Namespace: `Aotenjo` · [源码 / source](../src/Consumable/YakuPack/YakuPack.cs)
+
+```csharp
+public string GetNameKey();
+public string GetDescriptionKey();
+public bool ContainsYaku(Yaku yaku);
+public DrawYakuResult Draw(Func<int, int> rng, List<YakuType> includedYakus, int stage, int minimumRarity = 0, Func<int[], int[]> adjustWeights = null);
+public bool TryDraw(Func<int, int> rng, List<YakuType> includedYakus, int stage, out DrawYakuResult result, int minimumRarity = 0, Func<int[], int[]> adjustWeights = null);
+public string GetRegName();
+public List<Yaku> GetYakuPool(Player player);
+public List<Yaku> DrawYakusToUpgrade(Player player);
+public DrawYakuResult(YakuType yaku, Rarity rarity);
 ```
 
 ## ArtifactEffect
@@ -570,6 +719,16 @@ public Effect GetEffect();
 public virtual void TriggerPostSyncEffect();
 ```
 
+## IncreDiscardEffect
+
+Namespace: `Aotenjo` · [源码 / source](../src/Effects/IncreDiscardEffect.cs)
+
+```csharp
+public IncreDiscardEffect(string name, Artifact artifact, int num, Tile sourceTile = null);
+public override string GetEffectDisplay(Func<string, string> func);
+public override void Ingest(Player player);
+```
+
 ## IncreaseTargetEffect
 
 Namespace: `global / 全局` · [源码 / source](../src/Effects/IncreaseTargetEffect.cs)
@@ -578,16 +737,6 @@ Namespace: `global / 全局` · [源码 / source](../src/Effects/IncreaseTargetE
 public IncreaseTargetEffect(double v1, string v2, Artifact artifact = null);
 public override string GetEffectDisplay(Func<string, string> func);
 public override Artifact GetEffectSource();
-public override void Ingest(Player player);
-```
-
-## IncreDiscardEffect
-
-Namespace: `Aotenjo` · [源码 / source](../src/Effects/IncreDiscardEffect.cs)
-
-```csharp
-public IncreDiscardEffect(string name, Artifact artifact, int num);
-public override string GetEffectDisplay(Func<string, string> func);
 public override void Ingest(Player player);
 ```
 
@@ -620,6 +769,7 @@ public override bool WillTrigger();
 public override bool NoDefaultSound();
 public override string GetSoundEffectName();
 public override string GetEffectDisplay(Func<string, string> func);
+public override string GetEffectDisplay(Player player, Func<string, string> func);
 public override void Ingest(Player player);
 public override Artifact GetEffectSource();
 public static ScoreEffect AddFu(double val, Artifact source);
@@ -739,6 +889,39 @@ public override Artifact GetEffectSource();
 public override void Ingest(Player player);
 ```
 
+## ArtifactEffectEvent
+
+Namespace: `Aotenjo` · [源码 / source](../src/Event/ArtifactEffectEvent.cs)
+
+```csharp
+public Self(Player player, Artifact artifact, Permutation permutation, List<Effect> effects);
+public Tile(Player player, Artifact artifact, Permutation permutation, Aotenjo.Tile target, List<Effect> effects);
+public Block(Player player, Artifact artifact, Permutation permutation, Aotenjo.Block target, List<Effect> effects);
+public RoundEnd(Player player, Artifact artifact, Permutation permutation, List<IAnimationEffect> effects);
+```
+
+## ArtifactQueryEvent
+
+Namespace: `Aotenjo` · [源码 / source](../src/Event/ArtifactQueryEvent.cs)
+
+```csharp
+public Capacity(Player player, Artifact artifact);
+public Sale(Player player, Artifact artifact);
+public ApplyAffix(Player player, Artifact artifact);
+public Transfer(Player player, Artifact artifact);
+public RarityWeightsEvent(Player player, int[] weights, bool inShop);
+public void AddModifier(string id, Func<int[], int, int[]> apply);
+public int[] Resolve();
+```
+
+## ArtifactScoreValueEvent
+
+Namespace: `Aotenjo` · [源码 / source](../src/Event/ArtifactScoreValueEvent.cs)
+
+```csharp
+public ArtifactScoreValueEvent(Player player, Artifact artifact, ScoreEffect.EffectType type, double value);
+```
+
 ## EventBus
 
 Namespace: `Aotenjo` · [源码 / source](../src/Event/NewEventSystem/EventBus.cs)
@@ -768,7 +951,29 @@ public static void Unsubscribe<T>(Player player, Action<Player, Gadget> handler)
 public static void Unsubscribe<T>(Player player, Action<Player, List<Destination>> handler);
 public static void Unsubscribe<T>(Player player, Action<Player, Tile, TileMaterialDessert> handler);
 public static void Publish<T>(T evt);
+public static void PublishRequired<T>(T evt);
 public static void ClearAll();
+public static void ClearForPlayer(Player player);
+```
+
+## PlayerRoundEvent
+
+Namespace: `Aotenjo` · [源码 / source](../src/Event/PlayerRoundEvent.cs)
+
+```csharp
+public PlayerRoundEvent(Player player);
+public Skip(Player player);
+public Pre(Player player);
+public Post(Player player);
+public Start(Player player);
+public Prepare(Player player);
+public Pre(Player player);
+public Post(Player player);
+public End(Player player);
+public PrePre(Player player);
+public Pre(Player player);
+public PostPre(Player player);
+public Post(Player player);
 ```
 
 ## Block
@@ -853,6 +1058,7 @@ public Permutation Sort();
 Namespace: `Aotenjo` · [源码 / source](../src/HandAndTile/Tile/Tile.cs)
 
 ```csharp
+public void AddFu(double amount, Player player);
 public Tile(Tile tile);
 public virtual Tile Copy();
 public Tile(Category category, int order);
@@ -909,6 +1115,7 @@ public void Suppress(Player player);
 public bool CompatWithMaterial(TileMaterial mat, Player player);
 public void AppendToListUnusedEffect(Player player, Permutation perm, List<Effect> effects);
 public void AppendToListOnTileUnusedEffect(Player player, Permutation perm, List<Effect> effects, Tile onTile);
+public Tile CopyWithPermanentFace();
 public void AddTransformForced(TileTransform transform);
 public void ClearTransform(Player player);
 public List<TileTransform> GetTransforms();
@@ -1002,6 +1209,77 @@ public override void WriteJson(JsonWriter writer, YakuType value, JsonSerializer
 public override YakuType ReadJson(JsonReader reader, Type objectType, YakuType existingValue, bool hasExistingValue, JsonSerializer serializer);
 ```
 
+## Player.ArtifactAffixes
+
+Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.ArtifactAffixes.cs)
+
+```csharp
+public ArtifactAffix GetArtifactAffix(Artifact artifact);
+public bool ObtainArtifactWithAffix(Artifact artifact, ArtifactAffix affix, bool forced = false);
+public bool CanApplyArtifactAffix(Artifact artifact, ArtifactAffix affix);
+public bool SetArtifactAffix(Artifact artifact, ArtifactAffix affix);
+public string DebugSetArtifactAffix(Artifact artifact, [AotenjoCommandCompletion(typeof(ArtifactAffix))] string name);
+```
+
+## Player.ArtifactQueries
+
+Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.ArtifactQueries.cs)
+
+```csharp
+public int[] QueryRarityWeights(int[] weights, bool inShop);
+public void PrepareRoundStart();
+```
+
+## Player.ArtifactRecipes
+
+Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.ArtifactRecipes.cs)
+
+```csharp
+public bool CanCraftWithArtifactAffixes(ArtifactRecipe recipe, bool requireEveryChoice = false, Artifact incoming = null);
+```
+
+## Player.ArtifactRuntime
+
+Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.ArtifactRuntime.cs)
+
+```csharp
+public void InitializeArtifactRuntime();
+public Artifact CreateArtifactInstance(string id);
+public Artifact GetArtifactInstance(int instanceId);
+public Artifact GetRunArtifact(string id);
+public bool TryGetRunArtifact(string id, out Artifact artifact);
+public IReadOnlyList<Artifact> GetRunArtifacts();
+public bool HasArtifact(string id);
+public bool TryGetHeldArtifact(string id, out Artifact artifact);
+public bool TryGetHeldArtifact<T>(string id, out T artifact);
+public bool OwnsArtifactInstance(Artifact artifact);
+public bool HoldsArtifact(Artifact artifact);
+public virtual List<Artifact> GetArtifacts();
+public List<string> GetSavedArtifactIds();
+public IEnumerable<string> GetMissingSavedArtifactIds();
+public void ValidateArtifactRuntime();
+public void CaptureArtifactState(out SerializableMap<string, string> data, out SerializableMap<string, string> statuses);
+public void RestoreArtifactRuntime(Round round);
+public void ActivateArtifactRuntime();
+public void DeactivateArtifactRuntime();
+public void ReleaseArtifactRuntime();
+```
+
+## Player.CustomArtifactAffixes
+
+Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.CustomArtifactAffixes.cs)
+
+```csharp
+public string GetArtifactAffixId(Artifact artifact);
+public bool SetCustomArtifactAffix(Artifact artifact, string id);
+public bool ClearArtifactAffix(Artifact artifact);
+public string GetArtifactAffixData(Artifact artifact, string key, string fallback = "");
+public bool SetArtifactAffixData(Artifact artifact, string key, string value);
+public string GetArtifactAffixName(Artifact artifact, Func<string, string> loc);
+public string GetArtifactAffixDescription(Artifact artifact, Func<string, string> loc);
+public IEnumerable<string> GetMissingSavedArtifactAffixIds();
+```
+
 ## Player
 
 Namespace: `Aotenjo` · [源码 / source](../src/Player/Player.cs)
@@ -1011,7 +1289,6 @@ public void SetArtifactLimit(int n);
 public void SetHandLimit(int n);
 public Permutation GetAccumulatedPermutation();
 public void SetCurrentAccumulatedBlock(Permutation perm);
-public virtual List<Artifact> GetArtifacts();
 public virtual List<Tile> GetTilePool();
 public virtual String GetArtifactText();
 public Player(List<Tile> tilePool, string randomSeed, MahjongDeck deck, MaterialSet set, int ascensionLevel = 0);
@@ -1019,7 +1296,7 @@ public void InitPointers();
 public SkillSet GetSkillSet();
 public YakuType[] GetLearntYakus();
 public YakuType[] GetNonNativeYaku();
-public YakuPackConsumeResult ConsumeYakuPack(YakuPack pack);
+public YakuPackConsumeResult ConsumeYakuPack(YakuPack pack, bool inShop = false);
 public YakuPackConsumeResult BuyAndConsumeYakuPack(YakuPack pack, int price);
 public int GetHandLimit();
 public int GetDiscardLimit();
@@ -1071,7 +1348,7 @@ public bool OnRoundEndButtonPressed();
 public bool OnRoundEnd();
 public virtual void ResetTilePool();
 public void EncounterNextBoss(Boss nextB);
-public void SetCurrentBoss(Boss boss);
+public void SetCurrentBoss(Boss boss, bool forceHard = false);
 public void RestoreCurrentLevel();
 public void SetCurrentLevel(GameLevel level);
 public void RestartCurrentLevel();
@@ -1083,8 +1360,12 @@ public Permutation GetCurrentSelectedPerm();
 public void ClearCachedSelectedPerm();
 public bool TrySetPair(Tile t1, Tile t2);
 public List<Artifact> TryDrawRandomArtifact(int n);
-public int BuyArtifact(Artifact artifact, bool reduced, int price);
+public int BuyArtifact(Artifact artifact, bool reduced, int price, ArtifactAffix affix = ArtifactAffix.None);
+public void ChangeArtifactLimit(int delta);
+public void ChangeGadgetLimit(int delta);
+public bool CanSellArtifact(Artifact artifact);
 public bool ObtainArtifact(Artifact artifact, bool forced = false);
+public bool GrantArtifact(Artifact artifact, Artifact source, bool forced = false);
 public List<Tile> GetRiverTiles();
 public bool SellArtifact(Artifact artifact);
 public bool RemoveArtifact(Artifact artifact, bool resetArtifactState, bool reshuffleIntoPool = true);
@@ -1230,7 +1511,7 @@ public static SkillSet ExtendedSkillSet();
 public static SkillSet ScarletSkillSet();
 public static SkillSet RainbowSkillSet();
 public static SkillSet ShortenedSkillSet();
-public YakuPackConsumeResult Consume(YakuPack pack, Player p);
+public YakuPackConsumeResult Consume(YakuPack pack, Player p, bool inShop = false);
 public void SetLevel(YakuType yaku, int level);
 public void AddLevel(YakuType yaku, int level);
 public void IncreaseLevel(YakuType yaku);

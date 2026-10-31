@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using static Aotenjo.Block;
 
@@ -29,6 +29,11 @@ namespace Aotenjo
         public virtual bool ASuccB(Block blockSucc, Block blockPred, bool categorySensitive = true, int step = 1)
         {
             if((blockSucc is PairBlock && blockPred is not PairBlock) || (blockSucc is not PairBlock && blockPred is PairBlock))
+            {
+                return false;
+            }
+            
+            if((blockSucc is ThirteenOrphansBlock && blockPred is not ThirteenOrphansBlock) || (blockSucc is not ThirteenOrphansBlock && blockPred is ThirteenOrphansBlock))
             {
                 return false;
             }
@@ -94,7 +99,7 @@ namespace Aotenjo
         public virtual void CombineBlock(Tile t1, Tile t2, Tile t3, List<Tile> tiles, List<Permutation> perms,
             List<Block> formedBlocks, Jiang jiang, Player player)
         {
-            if (player.GetArtifacts().Contains(Artifacts.Nunchaku))
+            if (player.HasArtifact(Artifacts.Nunchaku.Id))
             {
                 if (t1.IsNumbered() && t1.GetOrder() == 4 && t2.IsNumbered() && t2.GetOrder() == 5 && t3.IsNumbered() &&
                     t3.GetOrder() == 6)

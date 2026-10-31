@@ -87,7 +87,7 @@ A.CustomYakuBuilder={RegisterCustomYaku=function(id,base,growth,level,predicate,
 end}
 A.LuaArtifactRecipeBuilder={BuildAndRegister=function(id,inputs,result)
     check(inputs.Count==2, 'recipe uses C# style list with two inputs')
-    check(result.craftable, 'recipe output must be craftable')
+    check(type(result) == "string" and registered[result].craftable, 'recipe output must be craftable')
     local r={id=id, inputs=inputs, result=result}; recipes[id]=r; return r
 end}
 A.TileFaceMaterialRegistry={
@@ -162,9 +162,9 @@ check(e.Count==1 and e[0].animation and e[0].tile==t, 'round-end uses target ani
 check(e[0].effect.kind=='money' and e[0].effect.value==2,'round-end reward matches translations')
 check(#sets.tutorial_gemstones.items==4,'set has all four materials')
 local r=recipes['tutorial_recipe:tokens']
-check(r.inputs[0].id=='tutorial_recipe:copper_token' and r.inputs[1].id=='tutorial_recipe:silver_token', 'recipe exact inputs')
-check(r.result.id=='tutorial_recipe:double_token','recipe exact output')
-e=list(); r.result.callbacks.OnSelfEffect(player,nil,e,r.result)
+check(r.inputs[0]=='tutorial_recipe:copper_token' and r.inputs[1]=='tutorial_recipe:silver_token', 'recipe exact inputs')
+check(r.result=='tutorial_recipe:double_token','recipe exact output')
+e=list(); registered[r.result].callbacks.OnSelfEffect(player,nil,e,registered[r.result])
 check(e.Count==1 and e[0].kind=='fan' and e[0].value==5,'crafted output adds 5 Fan')
 check(styles.plain=='#24CFA6' and styles.blue=='rainbow','face style targets and values')
 print('PASS '..count..' Lua scenario assertions (fake CS objects; not in-game or C# binding validation)')

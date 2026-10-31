@@ -95,7 +95,7 @@ namespace Aotenjo
                 int round = 1 + (player.Level - 1) / 4;
                 float intensity = GetIntensity(round);
                 return string.Format(func(coefficient > 0 ? "effect_add_fan_format" : "effect_minus_fan_format"),
-                    Mathf.Abs(coefficient * intensity));
+                    Utils.NumberToFormat(Mathf.Abs(coefficient * intensity)));
             }
 
             public override Artifact GetEffectSource()

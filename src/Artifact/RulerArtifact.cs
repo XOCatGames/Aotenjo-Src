@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,7 +52,7 @@ namespace Aotenjo
         {
             List<Artifact> artifacts = player.GetArtifacts();
             return artifacts.Where(a => a.GetNameID().Contains("orizuru") || a.GetNameID().Contains("orizulu"))
-                .Sum(a => a == Artifacts.TwinOrizulu ? 2 : 1);
+                .Sum(a => a.GetRegName() == Artifacts.TwinOrizulu.Id ? 2 : 1);
         }
     }
 }

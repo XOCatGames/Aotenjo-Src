@@ -37,7 +37,7 @@ namespace Aotenjo
                 {
                     Gadget newGadget = gadget.Copy();
                     newGadget.SetUses(1);
-                    evt.player.AddGadget(newGadget);
+                    evt.player.RequestGadgetReward(newGadget, source: this);
                 }
             }
         }

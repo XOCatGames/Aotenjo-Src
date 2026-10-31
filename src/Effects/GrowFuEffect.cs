@@ -19,7 +19,7 @@ namespace Aotenjo
 
         public override void Ingest(Player player)
         {
-            tile.addonFu += amount;
+            tile.AddFu(amount, player);
         }
 
         public override string GetEffectDisplay(Func<string, string> func)

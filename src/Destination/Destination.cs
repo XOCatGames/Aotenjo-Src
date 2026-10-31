@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Aotenjo;
 
 public abstract class Destination
@@ -39,7 +39,22 @@ public abstract class Destination
 
     public virtual string GetEventName()
     {
-        return "none";
+        return string.IsNullOrEmpty(eventName) ? "none" : eventName;
+    }
+
+    public virtual bool HasMutation() => GetEventName() != "none";
+
+    // 返回与鼠标提示追加内容相同的纯事件说明，保留其前缀和富文本格式。
+    public virtual string GetMutationDescription(Func<string, string> localize)
+    {
+        return HasMutation() ? GetSaleDescription(localize) : string.Empty;
+    }
+
+    public virtual string GetEventLabel(Func<string, string> localize)
+    {
+        string key = $"event_{name}_{GetEventName()}_name";
+        string label = localize(key);
+        return string.IsNullOrWhiteSpace(label) || label == key ? localize("path_selection_event") : label;
     }
 
     public virtual bool IsOnEvent()

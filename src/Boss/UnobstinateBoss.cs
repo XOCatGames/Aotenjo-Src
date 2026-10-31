@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
@@ -36,14 +36,27 @@ public class UnobstinateBoss : Boss
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnTileEffectArtifact($"{name}_reversed", 
-            Rarity.COMMON,
-            (_, perm, tile, effects) =>
-            {
-                int count = perm.ToTiles().Count(a => a != tile && a.CompatWith(tile));
-                if (count > 0)
-                    effects.Add(ScoreEffect.AddFu(count * 5, baseArtifact));
-            });
+        return new UnobstinateReversedArtifact(name, baseArtifact);
+    }
+
+    /// <summary>
+    /// 每次反转创建独立遗物类型；保留原触发条件、结算顺序及来源引用，不在结算时按 ID 重查吸收者。
+    /// </summary>
+    private sealed class UnobstinateReversedArtifact : Artifact
+    {
+        private readonly Artifact baseArtifact;
+
+        public UnobstinateReversedArtifact(string bossName, Artifact baseArtifact) : base($"{bossName}_reversed", Rarity.COMMON)
+        {
+            this.baseArtifact = baseArtifact;
+        }
+
+        public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
+        {
+            int count = permutation.ToTiles().Count(a => a != tile && a.CompatWith(tile));
+            if (count > 0)
+                effects.Add(ScoreEffect.AddFu(count * 5, baseArtifact));
+        }
     }
 
     public override Boss GetHarderBoss() => new UnobstinateHarderBoss();

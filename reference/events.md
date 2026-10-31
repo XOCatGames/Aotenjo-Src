@@ -7,6 +7,18 @@ Subscribe to the exact published type. Payload fields may be inherited; follow t
 
 | 类型 / Type declaration | 源码 / Source |
 | --- | --- |
+| `ArtifactEffectEvent : PlayerEvent` | [ArtifactEffectEvent](../src/Event/ArtifactEffectEvent.cs) |
+| `Self : ArtifactEffectEvent` | [ArtifactEffectEvent](../src/Event/ArtifactEffectEvent.cs) |
+| `Tile : ArtifactEffectEvent` | [ArtifactEffectEvent](../src/Event/ArtifactEffectEvent.cs) |
+| `Block : ArtifactEffectEvent` | [ArtifactEffectEvent](../src/Event/ArtifactEffectEvent.cs) |
+| `RoundEnd : ArtifactEffectEvent` | [ArtifactEffectEvent](../src/Event/ArtifactEffectEvent.cs) |
+| `ArtifactQueryEvent : PlayerArtifactEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `Capacity : ArtifactQueryEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `Sale : ArtifactQueryEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `ApplyAffix : ArtifactQueryEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `Transfer : ArtifactQueryEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `RarityWeightsEvent : PlayerEvent` | [ArtifactQueryEvent](../src/Event/ArtifactQueryEvent.cs) |
+| `ArtifactScoreValueEvent : PlayerArtifactEvent` | [ArtifactScoreValueEvent](../src/Event/ArtifactScoreValueEvent.cs) |
 | `FullScreenAnimationEffectEvent : PlayerEvent` | [FullScreenAnimationEffectEvent](../src/Event/ClientSideEvent/FullScreenAnimationEffectEvent.cs) |
 | `TileChangeAnimationEvent : PlayerEvent` | [TileAnimationFXEvent](../src/Event/ClientSideEvent/TileAnimationFXEvent.cs) |
 | `TileAnimationFXEvent : PlayerEvent` | [TileAnimationFXEvent](../src/Event/ClientSideEvent/TileAnimationFXEvent.cs) |
@@ -14,9 +26,13 @@ Subscribe to the exact published type. Payload fields may be inherited; follow t
 | `DrawArtifactInShopEvent : PlayerEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
 | `On : DrawArtifactInShopEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
 | `Post : DrawArtifactInShopEvent` | [DrawArtifactInShopEvent](../src/Event/DrawArtifactInShopEvent.cs) |
+| `InventoryAcquiredEvent : PlayerEvent` | [InventoryAcquiredEvent](../src/Event/InventoryAcquiredEvent.cs) |
+| `PendingInventoryReward` | [InventoryRewardRequestedEvent](../src/Event/InventoryRewardRequestedEvent.cs) |
+| `InventoryRewardRequestedEvent : PlayerEvent` | [InventoryRewardRequestedEvent](../src/Event/InventoryRewardRequestedEvent.cs) |
 | `MechanicalPartChangedEvent : PlayerTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
 | `MechanicalTileGrownEvent : PlayerTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
 | `PostKongTilesEvent : PlayerKongTileEvent` | [MechanicalEvents](../src/Event/MechanicalEvents.cs) |
+| `AttributeEventSubscriptions : IDisposable` | [AttributeEventSubscriptions](../src/Event/NewEventSystem/AttributeEventSubscriptions.cs) |
 | `EventBus` | [EventBus](../src/Event/NewEventSystem/EventBus.cs) |
 | `SubscribeToEventAttribute : Attribute` | [SubscribeToEventAttribute](../src/Event/NewEventSystem/SubscribeToEventAttribute.cs) |
 | `OnIBookUpgradeYakuEvent : PlayerEvent` | [OnIBookUpgradeYakuEvent](../src/Event/OnIBookUpgradeYakuEvent.cs) |
@@ -100,6 +116,7 @@ Subscribe to the exact published type. Payload fields may be inherited; follow t
 | `Pre : Skip` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
 | `Post : Skip` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
 | `Start : PlayerRoundEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
+| `Prepare : Start` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
 | `Pre : Start` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
 | `Post : Start` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
 | `End : PlayerRoundEvent` | [PlayerRoundEvent](../src/Event/PlayerRoundEvent.cs) |
@@ -115,6 +132,7 @@ Subscribe to the exact published type. Payload fields may be inherited; follow t
 | `PlayerDetermineTileFaceCompatibilityEvent : PlayerTileEvent` | [PlayerDetermineTileFaceCompatibilityEvent](../src/Event/PlayerTileEvent/PlayerDetermineTileFaceCompatibilityEvent.cs) |
 | `PlayerTileEvent : PlayerEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
 | `RetrieveBaseFu : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
+| `FuGained : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
 | `DeterminePlayerSelectingTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
 | `PlayerDrawTileEvent : PlayerTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |
 | `Pre : PlayerDrawTileEvent` | [PlayerTileEvent](../src/Event/PlayerTileEvent/PlayerTileEvent.cs) |

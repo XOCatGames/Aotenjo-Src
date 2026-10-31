@@ -25,5 +25,6 @@ namespace Aotenjo
         }
 
         public static readonly EffectTag CyclingSuit = new EffectTag("lunhuanhuase");
+        public static readonly EffectTag BlockScoring = new EffectTag("block_scoring");
     }
 }

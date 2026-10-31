@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
@@ -23,13 +23,26 @@ public class UnwashedBoss : Boss
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnBlockEffectArtifact($"{this.name}_reversed", 
-            Rarity.COMMON,
-            (player, perm, block, effects) =>
-            {
-                if(perm.blocks.Any(b => b != block && b.OfSameCategory(block)))
-                    effects.Add(ScoreEffect.MulFan(1.2f, baseArtifact));
-            });
+        return new UnwashedReversedArtifact(name, baseArtifact);
+    }
+
+    /// <summary>
+    /// 每次反转创建独立遗物类型；保留原触发条件、结算顺序及来源引用，不在结算时按 ID 重查吸收者。
+    /// </summary>
+    private sealed class UnwashedReversedArtifact : Artifact
+    {
+        private readonly Artifact baseArtifact;
+
+        public UnwashedReversedArtifact(string bossName, Artifact baseArtifact) : base($"{bossName}_reversed", Rarity.COMMON)
+        {
+            this.baseArtifact = baseArtifact;
+        }
+
+        public override void AddOnBlockEffects(Player player, Permutation permutation, Block block, List<Effect> effects)
+        {
+            if(permutation.blocks.Any(b => b != block && b.OfSameCategory(block)))
+                effects.Add(ScoreEffect.MulFan(1.2f, baseArtifact));
+        }
     }
 
     private void BlockEventListener(Permutation perm, Player player, List<IAnimationEffect> lst)

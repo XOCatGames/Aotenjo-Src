@@ -13,7 +13,7 @@ namespace Aotenjo
 
         public override string GetDescription(Player player, Func<string, string> localizer)
         {
-            return string.Format(base.GetDescription(player, localizer), MUL_PER_LEVEL, GetMul(player));
+            return string.Format(base.GetDescription(player, localizer), MUL_PER_LEVEL, Utils.NumberToFormat(GetMul(player)));
         }
 
         public override (string, double) GetAdditionalDisplayingInfo(Player player)

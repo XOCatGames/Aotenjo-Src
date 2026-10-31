@@ -1,10 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Aotenjo
 {
     public class MuseumAchievement : Achievement
     {
-        private int number;
+        private readonly Dictionary<CollectorsAmuletArtifact, int> counts = new();
 
         public MuseumAchievement(string id) : base(id)
         {
@@ -20,29 +21,22 @@ namespace Aotenjo
         {
             EventBus.Unsubscribe<PlayerEvents.PostSettlePermutationEvent>(player, PostSettle);
             EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, PreAppendPlayHand);
+            counts.Clear();
         }
 
         private void PreAppendPlayHand(PlayerPermutationEvent evt)
         {
-            if (evt.player.GetArtifacts().Contains(Artifacts.CollectorsAmulet))
-            {
-                number = ((CollectorsAmuletArtifact)Artifacts.CollectorsAmulet).collectedMaterials.Count();
-            }
-            else
-            {
-                number = 0;
-            }
+            counts.Clear();
+            foreach (var artifact in evt.player.GetArtifacts().OfType<CollectorsAmuletArtifact>())
+                counts.Add(artifact, artifact.collectedMaterials.Count);
         }
 
         private void PostSettle(PlayerPermutationEvent permutationEvent)
         {
-            if (permutationEvent.player.GetArtifacts().Contains(Artifacts.CollectorsAmulet))
-            {
-                int diff = ((CollectorsAmuletArtifact)Artifacts.CollectorsAmulet).collectedMaterials.Count() - number;
-                if (diff >= 4) SetComplete();
-            }
-
-            number = 0;
+            // 分别比较每件遗物的新增收藏，不把多件的增长相加，也不因重排切换比较对象。
+            if (permutationEvent.player.GetArtifacts().OfType<CollectorsAmuletArtifact>()
+                .Any(artifact => artifact.collectedMaterials.Count - counts.GetValueOrDefault(artifact) >= 4)) SetComplete();
+            counts.Clear();
         }
     }
 }

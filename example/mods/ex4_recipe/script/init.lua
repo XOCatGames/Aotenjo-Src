@@ -12,11 +12,11 @@ function init()
         :OnSelfEffect(function(player, perm, effects, artifact)
             effects:Add(A.ScoreEffect.AddFan(5, artifact))
         end):BuildAndRegisterCraftable()
-    -- A real C# List<Artifact>, not a Lua table. 真正的 C# List<Artifact>。
-    local inputs = CS.System.Collections.Generic.List(A.Artifact)()
-    inputs:Add(copper)
-    inputs:Add(silver)
-    local recipe = A.LuaArtifactRecipeBuilder.BuildAndRegister("tutorial_recipe:tokens", inputs, combined)
+    -- 配方保存稳定 ID，注册记录不能当作对局实例传入。
+    local inputs = CS.System.Collections.Generic.List(CS.System.String)()
+    inputs:Add(copper:GetRegName())
+    inputs:Add(silver:GetRegName())
+    local recipe = A.LuaArtifactRecipeBuilder.BuildAndRegister("tutorial_recipe:tokens", inputs, combined:GetRegName())
     assert(recipe ~= nil, "tutorial_recipe: recipe registration failed")
     A.Logger.Log("[tutorial_recipe] registered tokens recipe")
 end

@@ -17,7 +17,8 @@ public class ErhuArtifact : InstrumentArtifact
     {
         int fu = 60;
         if (player.IsArtifactDebuffed(this)) fu = 0;
-        player.RoundAccumulatedScore = player.RoundAccumulatedScore.AddFu(fu);
+        // 演奏计数仍由乐器流程处理，番符数值统一经过效果查询，供宿主词条修正。
+        ScoreEffect.AddFu(fu, this).Ingest(player);
     }
 
     public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
@@ -38,13 +39,12 @@ public class ErhuArtifact : InstrumentArtifact
         if ((IsTuned(player) ? 2 : 1) == chordNum)
         {
             int fu = 60;
-            player.GetArtifacts();
             if (player.IsArtifactDebuffed(this))
             {
                 fu = 0;
             }
 
-            return $"{string.Format(func("effect_add_fu_format"), fu)}";
+            return ScoreEffect.AddFu(fu, this).GetEffectDisplay(player, func);
         }
 
         return string.Format(func($"effect_instrument_{GetNameID()}_name"), chordNum);

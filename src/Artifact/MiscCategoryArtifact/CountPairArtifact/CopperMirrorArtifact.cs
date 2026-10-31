@@ -25,7 +25,7 @@ namespace Aotenjo
             {
                 foreach (var (b1, b2) in GetPairsWithDiff(permutation, 0, player))
                 {
-                    player.playHandEffectStack.Push(ScoreEffect.AddFu(FU, this).OnMultipleTiles(b1.tiles.Union(b2.tiles).ToList(), b1.tiles[1]));
+                    QueuePairScoringEffect(player, ScoreEffect.AddFu(FU, this), b1, b2);
                 }
             }));
         }

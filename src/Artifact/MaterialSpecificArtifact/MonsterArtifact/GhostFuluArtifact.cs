@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,12 +15,12 @@ namespace Aotenjo
 
         public override bool ShouldHighlightTile(Tile t, Player player)
         {
-            return t.CompatWith(tile);
+            return !IsPreview && tile != null && t.CompatWith(tile);
         }
 
         public override string GetDescription(Player player, Func<string, string> loc)
         {
-            return string.Format(base.GetDescription(player, loc), tile.GetLocalizedName(loc));
+            return string.Format(base.GetDescription(player, loc), IsPreview ? loc("ui_artifact_preview_preset") : tile.GetLocalizedName(loc));
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,7 +26,7 @@ namespace Aotenjo
         private double GetMult(Player player)
         {
             List<Tile> unused = player.GetUnusedTilesInHand();
-            if (player.GetArtifacts().Contains(Artifacts.PorcelainSword) && player.GetCurrentSelectedPerm() != null)
+            if (player.HasArtifact(Artifacts.PorcelainSword.Id) && player.GetCurrentSelectedPerm() != null)
                 unused.AddRange(player.GetScoringTiles(player.GetCurrentSelectedPerm()));
             int diffTypeCount = unused.Where(t => t.CompatWithMaterial(FAMILLE_VERTE_PORCELAIN, player))
                 .Select(t => t.GetCategory()).ToHashSet().Count();

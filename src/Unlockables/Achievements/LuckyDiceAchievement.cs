@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -16,11 +16,11 @@ namespace Aotenjo
         private void OnObtainArtifact(PlayerArtifactEvent evt)
         {
             Player player = evt.player;
-            if (!player.GetArtifacts().Contains(Artifacts.LeadBlock)) return;
+            if (!player.HasArtifact(Artifacts.LeadBlock.Id)) return;
 
-            Artifact[] dice = { Artifacts.D10Dice, Artifacts.GoldenD4Dice, Artifacts.IvoryD3Dice };
+            string[] dice = { Artifacts.D10Dice.Id, Artifacts.GoldenD4Dice.Id, Artifacts.IvoryD3Dice.Id };
 
-            if (dice.All(d => player.GetArtifacts().Contains(d)))
+            if (dice.All(player.HasArtifact))
             {
                 SetComplete();
             }

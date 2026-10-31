@@ -32,7 +32,7 @@ namespace Aotenjo
             BambooDeckPlayer player = discardTileEvent.player as BambooDeckPlayer;
             if (player.DetermineDora(discardTileEvent.tile) >= 1)
             {
-                player.DiscardLeft += DISCARD_RETURN;
+                player.RequestDiscardReward(DISCARD_RETURN, this);
             }
         }
     }

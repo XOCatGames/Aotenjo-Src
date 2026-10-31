@@ -4,6 +4,8 @@
 
 青天井通过 xLua 加载模组的 Lua 脚本。我们先运行一个最简单的 Hello 示例，确认模组放对了位置，再来制作自己的第一个遗物。
 
+只添加翻译可以直接看[添加语言](localization.md)。
+
 ## 1. 先让游戏加载一个模组
 
 1. 先退出游戏，在 Steam 中右键青天井，选择“管理 → 浏览本地文件”，打开游戏安装目录。
@@ -39,10 +41,16 @@ mods/
   "modID": "my_first_mod",
   "name": "My First Mod / 我的第一个模组",
   "version": "1.0.0",
+  "artifactApiVersion": 2,
+  "supportedGameVersions": [
+    { "minInclusive": "0.8.0.0-PRE1", "maxInclusive": "0.8.0.0-PRE1" }
+  ],
   "author": "Your name",
   "description": "Played twos earn 2 coins / 打出的二获得2金币"
 }
 ```
+
+`version` 是模组自己的版本；`supportedGameVersions` 必须填写你测试的游戏版本。这里与下载示例一样固定为当前源码配置的 `0.8.0.0-PRE1`；连续范围、多个范围及 `PRE` 的写法见[版本兼容](compatibility.md)。
 
 ## 3. 给二号硬币添加效果
 

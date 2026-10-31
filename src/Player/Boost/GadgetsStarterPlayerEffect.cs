@@ -46,7 +46,7 @@ public class GadgetsStarterPlayerEffect : StarterBoostEffect
 
         public override void Boost(Player player)
         {
-            player.SetGadgetLimit(player.GetGadgetLimit() + 1);
+            player.ChangeGadgetLimit(1);
             MessageManager.Instance.OnSoundEvent("ReceiveGadget");
         }
     }

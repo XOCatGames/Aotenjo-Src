@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Aotenjo.Tile;
@@ -40,7 +40,7 @@ namespace Aotenjo
             base(tilePool, randomSeed, deck, PlayerProperties.DEFAULT, 0, SkillSet.ScarletSkillSet(), set,
                 ascensionLevel)
         {
-            ObtainArtifact(Artifacts.ScarletCore);
+            ObtainArtifact(GetRunArtifact(Artifacts.ScarletCore.Id));
         }
 
         public ScarletCoreArtifact GetScarletCore()
@@ -128,7 +128,7 @@ namespace Aotenjo
 
         public override BlockCombinator GetCombinator()
         {
-            if (GetArtifacts().Contains(Artifacts.DottledPig)) return BlockCombinator.Default;
+            if (HasArtifact(Artifacts.DottledPig.Id)) return BlockCombinator.Default;
             ScarletCoreArtifact scarletCore = GetScarletCore();
             ScarletCoreArtifact.ScarletCoreArtifactData data = scarletCore.data;
             return BlockCombinator.Scarlet(data.unusedCategory);

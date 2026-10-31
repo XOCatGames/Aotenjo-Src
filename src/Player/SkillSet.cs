@@ -129,14 +129,14 @@ namespace Aotenjo
             return Set;
         }
 
-        public YakuPackConsumeResult Consume(YakuPack pack, Player p)
+        public YakuPackConsumeResult Consume(YakuPack pack, Player p, bool inShop = false)
         {
             List<YakuType> availableYakus = p.deck.GetAvailableYakus().Select(y => y.GetYakuType()).ToList();
             YakuPackConsumeResult result = new YakuPackConsumeResult(pack, 1);
             for (int i = 0; i < p.GetYakuPackResultCount(); i++)
             {
                 DrawYakuResult drawResult = pack.Draw(player.GetRng("yakupack"), availableYakus,
-                    p.Level / 4);
+                    p.Level / 4, adjustWeights: weights => p.QueryRarityWeights(weights, inShop));
                 YakuType yaku = drawResult.yaku;
                 result.yakus.Add(yaku);
             }

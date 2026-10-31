@@ -15,11 +15,13 @@ public class OrderMirrorGadget : Gadget
         return Rarity.COMMON;
     }
 
+    protected override TileTransform CreateTileTransform(Player player, Tile tile) => new TileTransformMirrored();
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (ShouldHighlightTile(tile, player))
         {
-            tile.AddTransform(new TileTransformMirrored(), player);
+            tile.AddTransform(CreateTileTransform(player, tile), player);
             return true;
         }
 

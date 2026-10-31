@@ -45,7 +45,7 @@ namespace Aotenjo
                 if (!success) return;
                 Gadget gadget = player.GenerateGadgets(1, false, 19, 1)[0];
                 if (gadget.IsConsumable()) gadget.uses = 1;
-                player.AddGadget(gadget);
+                player.RequestGadgetReward(gadget, source: artifact);
             }
         }
     }

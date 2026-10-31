@@ -38,7 +38,7 @@ namespace Aotenjo
                 {
                     DandelionSeedGadget gadget = new DandelionSeedGadget(order);
                     gadget.uses = 1;
-                    player.AddGadget(gadget);
+                    player.RequestGadgetReward(gadget, source: this);
                 }).MaybeTriggerWithChance(CHANCE, "dandelion"));
             }
         }

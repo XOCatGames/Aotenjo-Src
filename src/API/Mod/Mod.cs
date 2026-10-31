@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -13,12 +14,28 @@ namespace Aotenjo
         public string modID;
         public string name; //模组名称
         public string version; //模组版本
+        public int artifactApiVersion; // 遗物 API 契约；使用运行实例接口的模组填写 2。
+        public List<SupportedGameVersionRange> supportedGameVersions;
         public string author; //模组作者
         public string description; //模组描述
         public string modDir;
         public bool isFromWorkshop = false;
         public string itemUrl = "";
         public string workshopId = "";
+        [NonSerialized, JsonIgnore] public bool requestedEnabled = true;
+        [NonSerialized, JsonIgnore] public bool loaded;
+        [NonSerialized, JsonIgnore] public bool loadFailed;
+        [NonSerialized, JsonIgnore] public string blockReasonKey;
+        [NonSerialized, JsonIgnore] public string diagnostic;
+        [JsonIgnore] public bool CanEnable => string.IsNullOrEmpty(blockReasonKey);
+        [JsonIgnore] public bool ShouldLoad => requestedEnabled && CanEnable;
+        [JsonIgnore] public bool PendingRestart => CanEnable && requestedEnabled != loaded;
+
+        [JsonIgnore] public string StatusKey => loadFailed ? (requestedEnabled ? "ui_mod_load_failed" : "ui_mod_disable_pending") :
+            !CanEnable ? blockReasonKey : PendingRestart ? (requestedEnabled ? "ui_mod_enable_pending" : "ui_mod_disable_pending") :
+            loaded ? "ui_mod_enabled" : "ui_mod_disabled";
+
+        public Mod() { }
         public Mod(string name, string version, string author, string description)
         {
             this.name = name;

@@ -34,6 +34,11 @@ public class UnlockRequirement
         return new OrRequirement(this, other);
     }
 
+    public UnlockRequirement Or(UnlockRequirement other, bool hideDescription)
+    {
+        return new OrRequirement(this, other, hideDescription);
+    }
+
     public static UnlockRequirement UnlockedByDefault()
     {
         return new UnlockRequirement();

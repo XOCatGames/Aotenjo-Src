@@ -10,6 +10,7 @@ namespace Aotenjo
         TILE_DESTORYED,
         EAT_FOOD,
         WUMENQI_WIN,
-        SAME_TILES_TWO_IN_A_ROW
+        SAME_TILES_TWO_IN_A_ROW,
+        MAX_SCORING_COUNT
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,15 @@ namespace Aotenjo
         [SerializeReference] public TileProperties properties;
         [SerializeReference] private List<TileTransform> transforms;
         [SerializeField] public double addonFu;
+
+        /// <summary>Apply gameplay fu growth; save restoration and copying keep using the serialized field.</summary>
+        public void AddFu(double amount, Player player)
+        {
+            double previous = addonFu;
+            addonFu += amount;
+            if (player != null && addonFu > previous)
+                EventBus.Publish(new PlayerTileEvent.FuGained(player, this, addonFu - previous));
+        }
 
         public Tile(Tile tile)
         {
@@ -357,7 +366,7 @@ namespace Aotenjo
 
         public bool ContainsRed(Player player)
         {
-            if (player.GetArtifacts().Contains(Artifacts.ThreeDGlasses) && Artifacts.ThreeDGlasses.IsActive(player))
+            if (player.HasArtifact(Artifacts.ThreeDGlasses.Id) && ((ThreeDGlassesArtifact)player.GetRunArtifact(Artifacts.ThreeDGlasses.Id)).IsActive(player))
             {
                 return OriginallyContainsGreen(player);
             }
@@ -422,7 +431,7 @@ namespace Aotenjo
 
         public bool ContainsGreen(Player player)
         {
-            if (player.GetArtifacts().Contains(Artifacts.ThreeDGlasses) && Artifacts.ThreeDGlasses.IsActive(player))
+            if (player.HasArtifact(Artifacts.ThreeDGlasses.Id) && ((ThreeDGlassesArtifact)player.GetRunArtifact(Artifacts.ThreeDGlasses.Id)).IsActive(player))
             {
                 return OriginallyContainsRed(player);
             }
@@ -434,7 +443,7 @@ namespace Aotenjo
         {
             if (new Hand("23468s6z").tiles.Any(a => a.GetCategory() == GetCategory() && a.GetOrder() == GetOrder()))
                 return true;
-            if (player.GetArtifacts().Contains(Artifacts.ThreeDGlasses) && Artifacts.ThreeDGlasses.IsActive(player))
+            if (player.HasArtifact(Artifacts.ThreeDGlasses.Id) && ((ThreeDGlassesArtifact)player.GetRunArtifact(Artifacts.ThreeDGlasses.Id)).IsActive(player))
             {
                 if (properties.font.GetRegName() == TileFont.COLORLESS.GetRegName()) return false;
                 if (transforms != null && transforms.Count > 0 &&
@@ -591,6 +600,15 @@ namespace Aotenjo
         public void AppendToListOnTileUnusedEffect(Player player, Permutation perm, List<Effect> effects, Tile onTile)
         {
             properties.AppendToListOnTileUnusedEffect(player, perm, effects, this, onTile);
+        }
+
+        public Tile CopyWithPermanentFace()
+        {
+            Tile copy = Copy();
+            copy.category = GetCategory();
+            copy.order = GetOrder();
+            copy.transforms.Clear();
+            return copy;
         }
 
         public void AddTransformForced(TileTransform transform)

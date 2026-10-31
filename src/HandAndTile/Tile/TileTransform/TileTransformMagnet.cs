@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Aotenjo;
 
 [Serializable]
@@ -16,7 +16,7 @@ public class TileTransformMagnet : TileTransform
     public override int GetDisplayID(Tile tile, Player player, PlayerStats stats)
     {
         int res = 54 + GetTransformedOrder(tile) - 1;
-        if (player.GetArtifacts().Contains(Artifacts.ThreeDGlasses) && Artifacts.ThreeDGlasses.IsActive(player))
+        if (player.HasArtifact(Artifacts.ThreeDGlasses.Id) && ((ThreeDGlassesArtifact)player.GetRunArtifact(Artifacts.ThreeDGlasses.Id)).IsActive(player))
         {
             res += 4;
         }

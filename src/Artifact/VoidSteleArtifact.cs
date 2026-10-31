@@ -14,7 +14,8 @@ namespace Aotenjo
 
         public override string GetDescription(Player player, Func<string, string> localizer)
         {
-            return string.Format(base.GetDescription(localizer), MUL, 1 + MUL * GetUniqueEpicYakuPlayed(player));
+            return string.Format(base.GetDescription(localizer), MUL,
+                Utils.NumberToFormat(1 + MUL * GetUniqueEpicYakuPlayed(player)));
         }
 
         public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)

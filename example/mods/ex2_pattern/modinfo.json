@@ -2,6 +2,13 @@
   "modID": "tutorial_yaku",
   "name": "All Twos / 全二",
   "version": "2.0.0",
+  "artifactApiVersion": 2,
+  "supportedGameVersions": [
+    {
+      "minInclusive": "0.8.0.0-PRE1",
+      "maxInclusive": "0.8.0.0-PRE1"
+    }
+  ],
   "author": "Aotenjo tutorial",
   "description": "A custom yaku with a pure predicate. / 使用纯判定函数的自定义番种。"
 }

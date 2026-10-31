@@ -1,5 +1,8 @@
 # Artifacts: conditions, effects, and growth
 
+The current source uses Artifact API v2. Registration returns a definition; obtain runtime state from callback `a` or `player:GetRunArtifact(id)`. See the [migration guide](../ArtifactRuntimeApiV2.md).
+
+
 [Contents](README.md) · [中文](../zh/artifacts.md) · [Complete mod](../../example/mods/ex1_artifact) · [Implementation](../../src/API/Artifact/LuaArtifactBuilder.cs)
 
 Run Coin of Twos first, then inspect Practice Jade in the same mod. The first filters newly played twos; the second demonstrates formatted descriptions, effect queues, and string state. All callbacks are optional; omitted callbacks retain base behavior.
@@ -11,7 +14,7 @@ Run Coin of Twos first, then inspect Practice Jade in the same mod. The first fi
 | Method | Return value and purpose |
 | --- | --- |
 | `Build()` | Creates a `LuaArtifact` without registering it |
-| `BuildAndRegister()` | Creates and adds to `Artifacts.ArtifactList`; use for ordinary artifacts |
+| `BuildAndRegister()` | Registers a frozen factory and returns `ArtifactRegistration`; use for ordinary artifacts |
 | `BuildCraftable()` | Creates an unregistered `LuaCraftableArtifact` |
 | `BuildAndRegisterCraftable()` | Creates and registers a craft result; also register its [recipe](recipes.md) |
 

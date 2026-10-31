@@ -10,11 +10,13 @@ public class RiceGadget : Gadget
     {
     }
 
+    protected override TileTransform CreateTileTransform(Player player, Tile tile) => new TileTransformRice();
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (!ShouldHighlightTile(tile, player)) return false;
 
-        tile.AddTransform(new TileTransformRice(), player);
+        tile.AddTransform(CreateTileTransform(player, tile), player);
         MessageManager.Instance.OnSoundEvent("Rice");
         return true;
     }

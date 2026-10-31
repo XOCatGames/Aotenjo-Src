@@ -14,7 +14,7 @@ namespace Aotenjo
         protected override IEnumerable<IAnimationEffect> GetAnimationEffects(Artifact artifact)
         {
             List<Effect> effects = new List<Effect>();
-            artifact.AddOnBlockEffects(player, permutation, block, effects);
+            artifact.CollectBlockEffects(player, permutation, block, effects);
             List<IAnimationEffect> animationEffects = new  List<IAnimationEffect>();
             animationEffects.AddRange(effects.ConvertAll(e => e.OnBlock(block)));
             artifact.AppendPostBlockAnimationEffects(player, permutation, block, animationEffects);

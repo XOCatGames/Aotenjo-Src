@@ -24,12 +24,12 @@ namespace Aotenjo
         private readonly Action<Player, Artifact> preGameInitialized;
         private readonly Action<Player, Artifact> resetArtifactState;
 
-        private new readonly Action<Player, Permutation, Tile, List<Effect>, Artifact> onTileEffect;
+        private readonly Action<Player, Permutation, Tile, List<Effect>, Artifact> onTileEffect;
         private readonly Action<Player, Permutation, Tile, List<Effect>, Artifact> onTilePostEffect;
         private readonly Action<Player, Permutation, Tile, List<Effect>, Artifact> onUnusedTileEffect;
         private readonly Action<Player, Tile, List<IAnimationEffect>, bool, bool, Artifact> onDiscardTileEffect;
 
-        private new readonly Action<Player, Permutation, Block, List<Effect>, Artifact> onBlockEffect;
+        private readonly Action<Player, Permutation, Block, List<Effect>, Artifact> onBlockEffect;
         private readonly Action<Player, Permutation, Block, List<IAnimationEffect>, Artifact> onBlockAnimEffect;
 
         private readonly Action<Player, Permutation, List<Effect>, Artifact> onSelfEffect;
@@ -52,7 +52,8 @@ namespace Aotenjo
 
         public override void Deserialize(string data)
         {
-            luaData = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+            luaData = JsonConvert.DeserializeObject<Dictionary<string, string>>(data)
+                ?? throw new System.IO.InvalidDataException("Missing Lua artifact state: " + GetRegName());
         }
         
         public override string Serialize()

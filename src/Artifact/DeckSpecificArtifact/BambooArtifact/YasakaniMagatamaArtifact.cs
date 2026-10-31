@@ -13,7 +13,7 @@ public class YasakaniMagatamaArtifact : LevelingArtifact, IMultiplierProvider
 
     public override string GetDescription(Player p, Func<string, string> localizer)
     {
-        return string.Format(base.GetDescription(localizer), MUL_PER_LEVEL, GetMul(p));
+        return string.Format(base.GetDescription(localizer), MUL_PER_LEVEL, Utils.NumberToFormat(GetMul(p)));
     }
 
     public override (string, double) GetAdditionalDisplayingInfo(Player player)

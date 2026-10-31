@@ -26,7 +26,7 @@ namespace Aotenjo
                 foreach (var (b1, b2) in Utils.FindPairs(permutation,
                              (b1, b2) => player.DetermineShiftedPair(b1, b2, 0, false)))
                 {
-                    player.playHandEffectStack.Push(ScoreEffect.AddFan(FAN, this).OnMultipleTiles(b1.tiles.Union(b2.tiles).ToList(), b1.tiles[1]));
+                    QueuePairScoringEffect(player, ScoreEffect.AddFan(FAN, this), b1, b2);
                 }
             }));
         }

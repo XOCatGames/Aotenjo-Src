@@ -16,7 +16,7 @@ namespace Aotenjo
         protected override IEnumerable<IAnimationEffect> GetAnimationEffects(Artifact artifact)
         {
             var onTileEffects = new List<Effect>();
-            artifact.AppendOnTileEffects(player, permutation, tile, onTileEffects);
+            artifact.CollectTileEffects(player, permutation, tile, onTileEffects);
             var animationEffects = onTileEffects.Select(e => e.OnTile(tile));
             return animationEffects;
         }

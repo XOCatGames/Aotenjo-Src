@@ -19,6 +19,8 @@ A type probe does not establish every method's platform binding. Execute the exa
 
 Find AML logs as described in [quick start](quickstart.md). Localization failures use Unity Debug and may appear only in `Player.log` under the same persistentDataPath, so inspect both. `No textures directory found` can be harmless for a script-only mod; focus on Lua exceptions and missing success markers.
 
+After adding translations, follow [Add a language](localization.md) to restart, select the language, and check the displayed text.
+
 ## Enable a test console
 
 Temporarily add `CS.Constants.CONSOLE_ENABLED = true` inside the test mod's `init()`, fully restart, enter a fresh test run, and press F2. Constants is a global runtime type absent from this public snapshot. Older builds or other platforms may lack this switch. Remove the line if it errors; test available features through normal gameplay/collections and record the build version. Do not modify a real save to work around this. Remove the switch from release packages.

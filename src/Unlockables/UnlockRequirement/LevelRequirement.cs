@@ -22,7 +22,7 @@ public class LevelRequirement : UnlockRequirement
         return stats.GetUnseededRunRecords().Any(record =>
             (deck == null || record.deckName == deck.regName)
             && record.acsensionLevel >= ascensionLevel
-            && (record.roundStats.maxLevel > level || (level == 16 && record.won))
+            && (record.MaxLevel > level || (level == 16 && record.won))
             && (materialSet == null || record.materialSet == materialSet.regName));
     }
 

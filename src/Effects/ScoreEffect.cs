@@ -64,32 +64,44 @@ namespace Aotenjo
             };
         }
 
-        public override string GetEffectDisplay(Func<string, string> func)
+        private double ResolveValue(Player player)
         {
             if (supplier != null)
                 value = supplier();
+            if (player == null || effectSource == null) return value;
+            // 每次先读取原始值，再让已订阅的来源监听修正本次结果；反复显示或执行不会重复折半。
+            var evt = new ArtifactScoreValueEvent(player, effectSource, type, value);
+            EventBus.PublishRequired(evt);
+            return evt.Value;
+        }
+
+        public override string GetEffectDisplay(Func<string, string> func) =>
+            GetEffectDisplay(effectSource?.RuntimeOwner, func);
+
+        public override string GetEffectDisplay(Player player, Func<string, string> func)
+        {
+            double resolved = ResolveValue(player);
             return type switch
             {
                 EffectType.ADD_FU =>
-                    $"{string.Format(func(value >= 0 ? "effect_add_fu_format" : "effect_minus_fu_format"), Math.Abs(value).ToShortString())}",
+                    $"{string.Format(func(resolved >= 0 ? "effect_add_fu_format" : "effect_minus_fu_format"), Math.Abs(resolved).ToShortString())}",
                 EffectType.ADD_FAN =>
-                    $"{string.Format(func(value >= 0 ? "effect_add_fan_format" : "effect_minus_fan_format"), Math.Abs(value).ToShortString())}",
-                EffectType.MUL_FAN => $"{string.Format(func("effect_mul_fan_format"), value.ToShortString())}",
+                    $"{string.Format(func(resolved >= 0 ? "effect_add_fan_format" : "effect_minus_fan_format"), Math.Abs(resolved).ToShortString())}",
+                EffectType.MUL_FAN => $"{string.Format(func("effect_mul_fan_format"), resolved.ToShortString())}",
                 _ => throw new InvalidOperationException("Invalid EffectType for ScoreEffect"),
             };
         }
 
         public override void Ingest(Player player)
         {
-            if (supplier != null)
-                value = supplier();
+            double resolved = ResolveValue(player);
             Score score = player.RoundAccumulatedScore;
 
             switch (type)
             {
-                case EffectType.ADD_FU: player.RoundAccumulatedScore = score.AddFu(value); break;
-                case EffectType.ADD_FAN: player.RoundAccumulatedScore = score.AddFan(value); break;
-                case EffectType.MUL_FAN: player.RoundAccumulatedScore = score.MultiplyFan(value); break;
+                case EffectType.ADD_FU: player.RoundAccumulatedScore = score.AddFu(resolved); break;
+                case EffectType.ADD_FAN: player.RoundAccumulatedScore = score.AddFan(resolved); break;
+                case EffectType.MUL_FAN: player.RoundAccumulatedScore = score.MultiplyFan(resolved); break;
                 default: throw new InvalidOperationException("Invalid EffectType for ScoreEffect");
             }
         }

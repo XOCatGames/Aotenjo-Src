@@ -24,8 +24,7 @@ namespace Aotenjo
         private void OnPostDiscardTileEvent(PlayerDiscardTileEvent.Post discardTileEvent)
         {
             if (discardTileEvent.tile is FlowerTile)
-                discardTileEvent.player.DiscardLeft += DISCARD_RETURN;
-            AudioSystem.PlayAddSwapChanceSound();
+                discardTileEvent.player.RequestDiscardReward(DISCARD_RETURN, this);
         }
 
         public override void UnsubscribeToPlayer(Player player)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +11,10 @@ using Random = Unity.Mathematics.Random;
 namespace Aotenjo
 {
     [Serializable]
-    public class Player
+    public partial class Player
     {
+        public const int SecondPathDestinationUnlockLevel = 9;
+
         #region 变量
         
         /// <summary>
@@ -192,6 +194,12 @@ namespace Aotenjo
         [SerializeField] public bool tutorialFirstDrawArtifact = true;
         
         //计分相关
+        // Only effects ingested during this play's scoring contribute to the run's peak.
+        [NonSerialized] private int? currentPlayScoringCount;
+
+        // 复用计分统计的生命周期，让逐次计分能力排除弃置及小局结束阶段，无需另存一份状态。
+        public bool IsResolvingScoringEffects => currentPlayScoringCount.HasValue;
+
         public Stack<IAnimationEffect> playHandEffectStack;
         public Stack<IAnimationEffect> roundEndEffectsStack;
         public Stack<IAnimationEffect> discardTileEffectsStack;
@@ -202,7 +210,7 @@ namespace Aotenjo
 
         public void SetArtifactLimit(int n)
         {
-            properties.ArtifactLimit = n;
+            properties.ArtifactLimit = n - ArtifactCapacityBonus;
         }
 
         public void SetHandLimit(int n)
@@ -230,16 +238,7 @@ namespace Aotenjo
             CurrentAccumulatedBlock = perm;
         }
 
-        public virtual List<Artifact> GetArtifacts()
-        {
-            var artifacts = NewHeldArtifacts.Select(Artifacts.GetArtifact).Where(a => a != null).ToList();
-            if (!artifacts.Any() && HeldArtifacts != null && HeldArtifacts.Any())
-            {
-                artifacts = HeldArtifacts.Select(a => Artifacts.ArtifactList.First(ar => ar.GetNumberID() == a)).ToList();
-                NewHeldArtifacts = artifacts.Select(a => a.GetRegName()).ToList();
-            }
-            return artifacts.ToList();
-        }
+        [SerializeField] public RunEnvironment runEnvironment;
 
         public virtual List<Tile> GetTilePool()
         {
@@ -302,7 +301,8 @@ namespace Aotenjo
             randomMap = new RandomMap();
             this.deck = deck;
             this.materialSet = materialSet;
-            ArtifactBank = Artifacts.ArtifactList
+            InitializeArtifactRuntime();
+            ArtifactBank = orderedRunArtifacts
                 .Where(a => a.IsAvailableGlobally(this) && 
                                     a.GetUnlockRequirement()
                                         .IsUnlocked(ProfileManager.GetCurrentPlayerProfile().profileStats))
@@ -312,8 +312,8 @@ namespace Aotenjo
 
             tilePool.ForEach(AddTileToPool);
 
-            //Initialize all artifacts
-            Artifacts.ArtifactList.ToList().ForEach(a =>
+            // 保持原目录顺序与初始化时机，未持有的随机预设也属于本局。
+            orderedRunArtifacts.ForEach(a =>
             {
                 a.ResetArtifactState(this);
                 a.PreGameInitialized(this);
@@ -397,9 +397,9 @@ namespace Aotenjo
             return skillSet.GetYakus().Where(y => !nativeYakus.Contains(y) && skillSet.GetLevel(y) > 0).ToArray();
         }
 
-        public YakuPackConsumeResult ConsumeYakuPack(YakuPack pack)
+        public YakuPackConsumeResult ConsumeYakuPack(YakuPack pack, bool inShop = false)
         {
-            return skillSet.Consume(pack, this);
+            return skillSet.Consume(pack, this, inShop);
         }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace Aotenjo
         {
             if (GetMoney() < price) return null;
             SpendMoney(price);
-            return ConsumeYakuPack(pack);
+            return ConsumeYakuPack(pack, true);
         }
 
         public int GetHandLimit()
@@ -427,7 +427,7 @@ namespace Aotenjo
 
         public int GetArtifactLimit()
         {
-            return properties.ArtifactLimit;
+            return Math.Max(0, properties.ArtifactLimit + ArtifactCapacityBonus);
         }
 
         public List<Tile> GetHandDeckCopy()
@@ -454,7 +454,9 @@ namespace Aotenjo
 
         public List<Tile> GetUnusedTilesInHand()
         {
-            return GetHandDeckCopy().Except(CurrentSelectedTiles).ToList();
+            // Mid-scoring discards leave empty slots when the wall is exhausted.
+            // Keep those positions in HandDeck, but never target them with effects.
+            return GetHandDeckCopy().Where(tile => tile != null).Except(CurrentSelectedTiles).ToList();
         }
 
         public double GetLevelTarget()
@@ -559,6 +561,7 @@ namespace Aotenjo
 
         public void ResetScore()
         {
+            currentPlayScoringCount = null;
             RoundAccumulatedScore = Score.Base();
         }
 
@@ -569,6 +572,13 @@ namespace Aotenjo
 
             if (effect.WillTrigger())
             {
+                // Use the same trigger boundary as Observer, including follow-up effects.
+                if (currentPlayScoringCount.HasValue)
+                {
+                    currentPlayScoringCount++;
+                    stats.UpdateMaxCustomStats(PlayerStatsType.MAX_SCORING_COUNT, currentPlayScoringCount.Value);
+                }
+
                 var triggered = new PlayerEvents.PostIngestEffectEvent(this,
                     GetCurrentSelectedPerm() ?? CurrentAccumulatedBlock, effect, artifactsAtTrigger);
                 EventBus.Publish(triggered);
@@ -607,7 +617,7 @@ namespace Aotenjo
         {
             List<IAnimationEffect> animationEffects = new();
             List<Effect> effects = new();
-            GetArtifacts().ForEach(a => a.AddOnBlockEffects(this, permutation, block, effects));
+            GetArtifacts().ForEach(a => a.CollectBlockEffects(this, permutation, block, effects));
             animationEffects.AddRange(effects.Select(e => new OnBlockAnimationEffect(block, e)));
             GetArtifacts().ForEach(a => a.AppendPostBlockAnimationEffects(this, permutation, block, animationEffects));
             return animationEffects;
@@ -616,7 +626,7 @@ namespace Aotenjo
         public List<Effect> GetScoreEffectsFromArtifacts(Permutation permutation)
         {
             List<Effect> effects = new();
-            GetArtifacts().ForEach(a => a.AppendOnSelfEffects(this, permutation, effects));
+            GetArtifacts().ForEach(a => a.CollectSelfEffects(this, permutation, effects));
             return effects;
         }
 
@@ -661,7 +671,7 @@ namespace Aotenjo
 
         public int GetDiscardBonusMoney()
         {
-            return (GetArtifacts().Contains(Artifacts.Teppoudama) ? 2 : 1) * DiscardLeft / 5;
+            return (HasArtifact(Artifacts.Teppoudama.Id) ? 2 : 1) * DiscardLeft / 5;
         }
 
         public int GetInterestBonusMoney()
@@ -980,6 +990,7 @@ namespace Aotenjo
         /// <returns> 所有摸进手牌的牌 </returns>
         public List<Tile> Play(Hand hand)
         {
+            currentPlayScoringCount = null;
             EventBus.Publish(new PlayerEvents.PreSettlePermutationEvent(this, GetAccumulatedPermutation()));
             
             List<Tile> tiles = hand.tiles;
@@ -1001,7 +1012,8 @@ namespace Aotenjo
             
             Permutation perm = GetCurrentSelectedPerm();
             List<Block> blocks = GetCurrentSelectedBlocks();
-            DiscardLeft += 2 * blocks.Count(b => GetCombinator().IsKong(b));
+            foreach (var kong in blocks.Where(b => GetCombinator().IsKong(b)))
+                RequestDiscardReward(2, sourceTile: kong.tiles.FirstOrDefault());
             blocks.Where(b => GetCombinator().IsKong(b)).ToList().ForEach(b => OnKong(b, perm));
             SetCurrentAccumulatedBlock(perm ?? throw new ArgumentNullException());
 
@@ -1020,7 +1032,7 @@ namespace Aotenjo
             TriggerPostSettlePermutationEvent(perm);
             ResetScore();
             CurrentPlayingStage++;
-            DiscardLeft += properties.DiscardRefill;
+            RequestDiscardReward(properties.DiscardRefill);
 
             return drawTileResults;
         }
@@ -1037,7 +1049,7 @@ namespace Aotenjo
         {
             EventBus.Publish(new PlayerRoundEvent.Skip.Pre(this));
             SkipCount++;
-            DiscardLeft += 10;
+            RequestDiscardReward(10);
             CurrentPlayingStage++;
             EventBus.Publish(new PlayerRoundEvent.Skip.Post(this));
         }
@@ -1130,11 +1142,15 @@ namespace Aotenjo
             nextBossName = nextB.name;
         }
 
-        public void SetCurrentBoss(Boss boss)
+        [AotenjoCommand("setBoss", "ToBoss", "ToBool")]
+        public void SetCurrentBoss(Boss boss, bool forceHard = false)
         {
             EnsureNotChangingLevel();
             if (boss == null)
                 throw new ArgumentNullException(nameof(boss));
+
+            if (forceHard)
+                boss = boss.GetHarderBoss();
 
             if (currentLevel is BossLevel bossLevel && ReferenceEquals(bossLevel.Boss, boss) &&
                 currentLevel.Number == Level)
@@ -1221,8 +1237,19 @@ namespace Aotenjo
                 if (currentBoss != null && GameLevelFactory.IsScheduledBossLevel(Level))
                 {
                     int bossIndex = (Level / 4) - 1;
-                    while (upcomingBosses.Count <= bossIndex)
-                        GenerateNewUpcomingBosses();
+                    if (currentBoss is LosslessBoss)
+                    {
+                        // 只有不失需要保留缺失的历史，交给其内部占位能力处理。
+                        // 仅补到当前关卡，空位不写入「不对」身份，也不替未来圈预先指定 Boss。
+                        upcomingBosses ??= new List<string>();
+                        while (upcomingBosses.Count <= bossIndex)
+                            upcomingBosses.Add(null);
+                    }
+                    else
+                    {
+                        while (upcomingBosses.Count <= bossIndex)
+                            GenerateNewUpcomingBosses();
+                    }
                     upcomingBosses[bossIndex] = currentBoss.name;
                 }
 
@@ -1263,6 +1290,9 @@ namespace Aotenjo
 
         protected virtual Boss DrawNewBoss(bool finalRound)
         {
+            // 候选池随存档保存，旧局也必须停止新抽不借；已排定及当前遭遇仍按原身份恢复。
+            RemoveUnaidedFromBossPool(generalBossesNamePool, false);
+            RemoveUnaidedFromBossPool(terminalBossesNamePool, true);
             int generalBossCount = generalBossesNamePool.Count();
             int terminalBossCount = terminalBossesNamePool.Count();
 
@@ -1296,6 +1326,20 @@ namespace Aotenjo
                 generalBossesNamePool.Remove(result.name);
 
             return result;
+        }
+
+        private void RemoveUnaidedFromBossPool(List<string> pool, bool finalRound)
+        {
+            if (pool.RemoveAll(name => name == Bosses.Unaided.name) == 0 || pool.Count > 0)
+                return;
+
+            // 若旧池只剩被移除的身份，使用当前对应类型的候选补齐，避免空池抽选。
+            // 仅在移除不借导致空池时补齐，并沿用低进阶对高难 Boss 的排除规则。
+            IEnumerable<Boss> candidates = finalRound
+                ? Bosses.FinalBossList
+                : Bosses.BossList.Where(boss => !Bosses.FinalBossList.Contains(boss));
+            pool.AddRange(candidates.Where(boss => HarderBossesEnabled() || !Bosses.HardBossList.Contains(boss))
+                .Select(boss => boss.name));
         }
 
         public void SettleMoney()
@@ -1414,7 +1458,7 @@ namespace Aotenjo
             if (stillInTutorial && n == 3 && tutorialFirstDrawArtifact)
             {
                 tutorialFirstDrawArtifact = false;
-                return new List<Artifact> { Artifacts.CopperStatue, Artifacts.BaseOrizuru, Artifacts.PeachWoodSword };
+                return new List<Artifact> { GetRunArtifact(Artifacts.CopperStatue.Id), GetRunArtifact(Artifacts.BaseOrizuru.Id), GetRunArtifact(Artifacts.PeachWoodSword.Id) };
             }
 
             Dictionary<int, int[]> weightMap = new()
@@ -1426,7 +1470,7 @@ namespace Aotenjo
             };
 
             List<Artifact> artifactList = new List<Artifact>();
-            int[] weights = weightMap[Math.Min(4, Level / 4 + 1)];
+            int[] weights = QueryRarityWeights(weightMap[Math.Min(4, Level / 4 + 1)], true);
 
             for (int i = 0; i < n; i++)
             {
@@ -1435,11 +1479,12 @@ namespace Aotenjo
                 LotteryPool<Artifact> commonPool = GenerateEquatedPoolFromRarity(Rarity.COMMON);
                 LotteryPool<Artifact> rarePool = GenerateEquatedPoolFromRarity(Rarity.RARE);
                 LotteryPool<Artifact> epicPool = GenerateEquatedPoolFromRarity(Rarity.EPIC);
-                epicPool.Add(rarePool, 1);
+                if (!rarePool.IsEmpty()) epicPool.Add(rarePool, 1);
 
-                pool.Add(commonPool, weights[0]);
-                pool.Add(rarePool, weights[1]);
-                pool.Add(epicPool, weights[2]);
+                if (!commonPool.IsEmpty()) pool.Add(commonPool, weights[0]);
+                if (!rarePool.IsEmpty()) pool.Add(rarePool, weights[1]);
+                if (!epicPool.IsEmpty()) pool.Add(epicPool, weights[2]);
+                if (pool.IsEmpty()) break;
 
                 Artifact artifact = pool.Draw(max => GenerateRandomInt(max, "artifact_shop"));
                 artifact.IsBroken = false;
@@ -1459,9 +1504,11 @@ namespace Aotenjo
             return artifactList;
         }
 
+        internal IEnumerable<Artifact> GetArtifactPool() => ArtifactBank.Distinct().Select(GetRunArtifact);
+
         private LotteryPool<Artifact> GenerateEquatedPoolFromRarity(Rarity rarity)
         {
-            List<Artifact> bank = ArtifactBank.Select(Artifacts.GetArtifact).Where(a => a != null).ToList();
+            List<Artifact> bank = ArtifactBank.Select(GetRunArtifact).Where(a => a != null).ToList();
             LotteryPool<Artifact> pool = new();
             foreach (var artifact in bank.Where(artifact => artifact.GetRarity() == rarity && artifact.IsAvailableInShops(this)))
             {
@@ -1476,7 +1523,7 @@ namespace Aotenjo
         /// </summary>
         /// <param name="artifact"></param>
         /// <returns>是否成功购买工艺品, 0:成功购买, -1:没有足够金钱, -2:无法购买</returns>
-        public int BuyArtifact(Artifact artifact, bool reduced, int price)
+        public int BuyArtifact(Artifact artifact, bool reduced, int price, ArtifactAffix affix = ArtifactAffix.None)
         {
             if (reduced)
             {
@@ -1489,7 +1536,7 @@ namespace Aotenjo
                 return -1;
             }
 
-            if (!ObtainArtifact(artifact)) return -2;
+            if (!ObtainArtifactWithAffix(artifact, affix)) return -2;
             SpendMoney(price);
             stats.OnPurchaseArtifact(artifact);
             stats.RecordArtifactShopPurchase(artifact, Level, price, moneyAvailable);
@@ -1499,36 +1546,69 @@ namespace Aotenjo
         
         
 
-        [AotenjoCommand("give", "ToArtifact", "ToBool")]
+        public void ChangeArtifactLimit(int delta) => properties.ArtifactLimit += delta;
+        public void ChangeGadgetLimit(int delta) => properties.GadgetLimit += delta;
+
+        public bool CanSellArtifact(Artifact artifact)
+        {
+            bool canSell = HoldsArtifact(artifact) &&
+                artifact.CanBeSold(this) && !HasPendingArtifactReplacement(artifact);
+            if (canSell) canSell = artifact.Query(new ArtifactQueryEvent.Sale(this, artifact)).Allowed;
+            return canSell;
+        }
+
+
+        [AotenjoCommand("give", "ToNewArtifact", "ToBool")]
         public bool ObtainArtifact(Artifact artifact, bool forced = false)
         {
-            if (!forced && !TryObtainArtifact(artifact)) return false;
+            return GrantArtifact(artifact, null, forced);
+        }
 
-            if (artifact.IsTemporary) SetArtifactLimit(GetArtifactLimit() + 1);
-            NewHeldArtifacts.Add(artifact.GetRegName());
+        // 授予、预约和合成检查具体实例；同类型可以有多件，同一对象不能重复入库。
+        private bool IsArtifactAvailableForInventory(Artifact artifact) => OwnsArtifactInstance(artifact) &&
+            !heldArtifacts.Contains(artifact) && inventoryRewards?.Any(r =>
+                ReferenceEquals(ResolveArtifactReference(r.artifactId, r.artifactInstanceId), artifact)) != true;
+
+        public bool GrantArtifact(Artifact artifact, Artifact source, bool forced = false)
+        {
+            if (IsReservedForRecipe(artifact) || !IsArtifactAvailableForInventory(artifact) ||
+                (source != null && !OwnsArtifactInstance(source)) ||
+                (!forced && !TryObtainArtifact(artifact))) return false;
+            // 准入事件允许重入；回调之后再次检查，防止同一对象被获取两次。
+            if (IsReservedForRecipe(artifact) || !IsArtifactAvailableForInventory(artifact)) return false;
+
+            GrantArtifactCore(artifact, source);
+            return true;
+        }
+
+        private void GrantArtifactCore(Artifact artifact, Artifact source)
+        {
+            if (artifact.IsTemporary && !artifact.status.temporaryOccupiesSlot) ChangeArtifactLimit(1);
+            heldArtifacts.Add(artifact);
             artifact.OnObtain(this);
             ArtifactBank.Remove(artifact.GetRegName());
             stats.OnObtainArtifact(artifact);
 
             EventBus.Publish(new PlayerEvents.PostObtainArtifactEvent(this, artifact));
-
             OnArtifactOrderChanged();
-
-            return true;
+            EventBus.Publish(new InventoryAcquiredEvent(this, artifact, source));
         }
 
-        private bool TryObtainArtifact(Artifact artifact)
+        private bool TryObtainArtifact(Artifact artifact, int extraSlots = 0, ArtifactAffix? offeredAffix = null)
         {
             PlayerArtifactEvent.DetermineGettability evt =
                 new PlayerArtifactEvent.DetermineGettability(this, artifact, true);
-            if (!artifact.CanObtainBy(this) || (!artifact.IsTemporary &&
-                                                !artifact.CanBeBoughtWithoutSlotLimit(this) &&
-                                                GetArtifacts().Count >= properties.ArtifactLimit))
+            bool ignoresSlotLimit = IgnoresArtifactSlotLimit(artifact, offeredAffix);
+            if (!artifact.CanObtainBy(this) || (!ignoresSlotLimit &&
+                GetArtifacts().Count + ReservedArtifactSlots >= GetArtifactLimit() + extraSlots))
             {
                 evt.res = false;
             }
 
-            bool res = ArtifactBank.Contains(artifact.GetRegName());
+            // 抽池仍按类型去重；合成已有类型时允许独立产物，但仍经过容量、互斥和获取前事件。
+            bool res = ArtifactBank.Contains(artifact.GetRegName()) ||
+                (craftingArtifacts?.Contains(artifact) == true && (HasArtifact(artifact.GetRegName()) ||
+                    inventoryRewards?.Any(r => r.artifactId == artifact.GetRegName()) == true));
             if (!res) evt.res = false;
 
 
@@ -1552,30 +1632,41 @@ namespace Aotenjo
         /// <returns>玩家是否在售出的时候拥有这个遗物</returns>
         public bool SellArtifact(Artifact artifact)
         {
+            if (!CanSellArtifact(artifact)) return false;
             int price = artifact.GetSellingPrice();
             bool res = RemoveArtifact(artifact, true);
             if (!res) return false;
             EarnMoney(price);
+            artifact.OnSold(this);
             return true;
         }
 
         public bool RemoveArtifact(Artifact artifact, bool resetArtifactState, bool reshuffleIntoPool = true)
         {
+            if (IsReservedForRecipe(artifact) || !OwnsArtifactInstance(artifact) || !heldArtifacts.Contains(artifact)) return false;
+            return RemoveArtifactCore(artifact, resetArtifactState, reshuffleIntoPool);
+        }
+
+        private bool RemoveArtifactCore(Artifact artifact, bool resetArtifactState, bool reshuffleIntoPool)
+        {
             EventBus.Publish(new PlayerEvents.PreRemoveArtifactEvent(this, artifact));
-            NewHeldArtifacts.Remove(artifact.GetRegName());
+            if (!heldArtifacts.Remove(artifact)) return false;
             artifact.OnRemoved(this);
+            artifact.RuntimeAffix = new ArtifactAffixState();
             if (resetArtifactState)
                 artifact.ResetArtifactState(this);
             if (!(artifact.IsUnique()) && reshuffleIntoPool)
             {
-                if (GetArtifacts().Contains(Artifacts.BlackHole) && Artifacts.BlackHole.Level > 0)
+                var blackHole = GetArtifacts().OfType<BlackHoleArtifact>().FirstOrDefault(a => a.Level > 0);
+                if (blackHole != null)
                 {
-                    Artifacts.BlackHole.Level--;
+                    blackHole.Level--;
                     return true;
                 }
 
-                foreach (Artifact component in artifact.GetComponents())
-                    ArtifactBank.Add(component.GetRegName());
+                foreach (string componentId in artifact.GetComponentIds())
+                    if (!HasArtifact(componentId) && !ArtifactBank.Contains(componentId) &&
+                        inventoryRewards?.Any(r => r.artifactId == componentId) != true) ArtifactBank.Add(componentId);
             }
 
             return true;
@@ -1721,10 +1812,9 @@ namespace Aotenjo
                     pack.count++;
                 }
 
-                if (pack.bluePrint.material is TileMaterialMechPart &&
-                    pack.bluePrint.material.GetRarity() == Rarity.COMMON)
+                if (pack.bluePrint.material is TileMaterialMechPart)
                 {
-                    pack.count += 2;
+                    pack.count = pack.bluePrint.material.GetRarity() == Rarity.COMMON ? 5 : 2;
                 }
 
                 packs.Add(pack);
@@ -1835,12 +1925,15 @@ namespace Aotenjo
 
         public virtual void OnRoundStart()
         {
+            PrepareRoundStart();
             EventBus.Publish(new PlayerRoundEvent.Start.Pre(this));
 
             lastUsedConsumableGadget = null;
             HeldGadgets.ForEach(g => g.OnRoundStart(this));
             InitHandDeck();
             levelTarget = GetBasicLevelTarget();
+            if (CurrentLevel is BossLevel bossLevel)
+                levelTarget = bossLevel.Boss.GetStartingTarget(this, levelTarget);
 
             EventBus.Publish(new PlayerRoundEvent.Start.Post(this));
             inRound = true;
@@ -1872,7 +1965,7 @@ namespace Aotenjo
 
         public int GetGadgetLimit()
         {
-            return properties.GadgetLimit;
+            return Math.Max(0, properties.GadgetLimit);
         }
 
         internal List<Gadget> GetGadgets()
@@ -1882,6 +1975,11 @@ namespace Aotenjo
 
         [AotenjoCommand("giveGadget", nameof(ArgumentParsers.ToGadget), nameof(ArgumentParsers.ToBool))]
         public bool AddGadget(Gadget gadget, bool allowPartial = false)
+        {
+            return GrantGadget(gadget, allowPartial);
+        }
+
+        private bool AddGadgetCore(Gadget gadget, bool allowPartial)
         {
             bool partialTransfered = false;
             if (HeldGadgets.Count >= GetGadgetLimit())
@@ -1951,38 +2049,45 @@ namespace Aotenjo
 
         public void SetArtifactOrder(Artifact[] array)
         {
-            NewHeldArtifacts =
-                new List<string>(array.Where(a => a != null).Select(a => a.GetRegName()));
+            if (craftingArtifacts != null) return;
+            RequireArtifactRuntime();
+            // 重排只能改变当前持有对象的顺序，不能绕过获取或移除生命周期。
+            if (array == null || array.Length != heldArtifacts.Count || array.Distinct().Count() != array.Length ||
+                array.Any(a => !OwnsArtifactInstance(a) || !heldArtifacts.Contains(a)))
+                throw new ArgumentException("遗物顺序必须是当前库存的完整排列。", nameof(array));
+            heldArtifacts = new List<Artifact>(array);
             OnArtifactOrderChanged();
         }
 
         public void OnArtifactOrderChanged()
         {
+            if (preparingRoundStart || craftingArtifacts != null || updatingArtifactOrder) return;
             if (GameManager.Instance == null || GameManager.Instance.onCounting) return;
 
-            // 解绑所有遗物事件
-            foreach (Artifact artifact in GetArtifacts())
+            updatingArtifactOrder = true;
+            try
             {
-                artifact.UnsubscribeToPlayer(this);
-            }
-
-            //检查是否满足合成表
-            foreach (ArtifactRecipe recipe in ArtifactRecipes.recipes)
-            {
-                if (recipe.CheckFulfillRecipeRequirement(this))
+                // 获取回调会重入此入口；本轮集中执行成功的配方，拒绝的配方不能递归重试。
+                // 每轮重新解绑，最后按最终库存顺序绑定，避免连锁合成重复监听。
+                bool crafted;
+                do
                 {
-                    recipe.OnFulfillRecipeResult(this);
-
-                    OnArtifactOrderChanged();
-                    UIArtifactAnimationController.Instance.StartRecipe(recipe);
-                    return;
-                }
+                    foreach (var artifact in GetArtifacts()) artifact.UnsubscribeToPlayer(this);
+                    crafted = false;
+                    foreach (var recipe in ArtifactRecipes.recipes.ToArray())
+                        if (recipe != null && recipe.TryFulfillRecipeResult(this))
+                        {
+                            UIArtifactAnimationController.Instance?.StartRecipe(recipe,
+                                GetArtifacts().Last(a => a.GetRegName() == recipe.outputID[0]));
+                            crafted = true;
+                            break;
+                        }
+                } while (crafted);
             }
-
-            // 新绑定当前所有遗物
-            foreach (Artifact artifact in GetArtifacts())
+            finally
             {
-                artifact.SubscribeToPlayer(this);
+                updatingArtifactOrder = false;
+                foreach (var artifact in GetArtifacts()) artifact.SubscribeToPlayer(this);
             }
         }
 
@@ -2019,11 +2124,15 @@ namespace Aotenjo
             List<Gadget> gadgets = new();
             LotteryPool<Gadget> pool = new();
 
-            pool.Add(GetRareGadgetPool(pred, inShop), rareWeight);
-            pool.Add(GetCommonGadgetPool(pred, inShop), commonWeight);
+            int[] weights = QueryRarityWeights(new[] { commonWeight, rareWeight }, inShop);
+            LotteryPool<Gadget> rarePool = GetRareGadgetPool(pred, inShop);
+            LotteryPool<Gadget> commonPool = GetCommonGadgetPool(pred, inShop);
+            if (weights[1] > 0 && !rarePool.IsEmpty()) pool.Add(rarePool, weights[1]);
+            if (weights[0] > 0 && !commonPool.IsEmpty()) pool.Add(commonPool, weights[0]);
 
             for (int i = 0; i < n; i++)
             {
+                if (pool.IsEmpty()) break;
                 gadgets.Add(pool.Draw(t => GenerateRandomInt(t, "gadget"), false));
             }
 
@@ -2066,7 +2175,7 @@ namespace Aotenjo
             bool res = block.Kong(tile, GetCombinator());
             if (!res) throw new ArgumentException("INVALID KONG COMMAND RECEIVED");
             MoveFromHandToDiscard(tile);
-            DiscardLeft += 2;
+            RequestDiscardReward(2, sourceTile: tile);
             OnKong(block, perm);
             return DrawTileToHandDeck();
         }
@@ -2132,7 +2241,7 @@ namespace Aotenjo
         public void ListAvailableArtifacts(int count)
         {
             if (count <= 0) count = 20;
-            var artifacts = Artifacts.ArtifactList.Take(count).ToArray();
+            var artifacts = orderedRunArtifacts.Take(count).ToArray();
             Debug.Log($"Available artifacts (first {count}):");
             foreach (var artifact in artifacts)
             {
@@ -2232,7 +2341,7 @@ namespace Aotenjo
         /// <returns>抽取结果</returns>
         public virtual List<Destination> GenerateDestinations()
         {
-            int v = Level > 8 ? 4 : 2;
+            int v = Level >= SecondPathDestinationUnlockLevel ? 4 : 2;
             int saleIndex = GenerateRandomInt(v);
             LotteryPool<Destination> commonDestination = new();
 
@@ -2276,7 +2385,7 @@ namespace Aotenjo
 
         public List<Artifact> DrawRandomArtifact(Rarity rarity, int count)
         {
-            List<Artifact> validArtifacts = ArtifactBank.Select(Artifacts.GetArtifact)
+            List<Artifact> validArtifacts = ArtifactBank.Select(GetRunArtifact)
                 .Where(a => a != null && a.IsAvailableInShops(this) && a.GetRarity() == rarity).ToList();
             LotteryPool<Artifact> pool = new LotteryPool<Artifact>();
             pool.AddRange(validArtifacts);
@@ -2559,7 +2668,8 @@ namespace Aotenjo
 
         public bool CanInsertGadgets(List<Gadget> gadgetsToInsert)
         {
-            Gadget[] fakeInv = new Gadget[properties.GadgetLimit];
+            Gadget[] fakeInv = new Gadget[GetGadgetLimit()];
+            if (fakeInv.Length == 0) return gadgetsToInsert.Count == 0;
             for (int i = 0; i < GetGadgets().Count; i++)
             {
                 fakeInv[i] = GetGadgets()[i].Copy();
@@ -2601,7 +2711,9 @@ namespace Aotenjo
 
         public bool CanInsertArtifacts(List<Artifact> artifactsToInsert)
         {
-            int insertAmount = properties.ArtifactLimit - GetArtifacts().Count;
+            if (artifactsToInsert == null || artifactsToInsert.Any(a => !IsArtifactAvailableForInventory(a)) ||
+                artifactsToInsert.Distinct().Count() != artifactsToInsert.Count) return false;
+            int insertAmount = GetArtifactLimit() - GetArtifacts().Count - ReservedArtifactSlots;
             return insertAmount >= artifactsToInsert.Count;
         }
 
@@ -2681,7 +2793,7 @@ namespace Aotenjo
         {
             foreach (Artifact artifact in GetArtifacts())
             {
-                artifact.AddOnRoundEndEffects(this, GetAccumulatedPermutation(), onRoundEndEffects);
+                artifact.CollectRoundEndEffects(this, GetAccumulatedPermutation(), onRoundEndEffects);
             }
 
             AppendOnTileRoundEndEffect(onRoundEndEffects);
@@ -2763,8 +2875,8 @@ namespace Aotenjo
 
         public bool IsArtifactDebuffed(Artifact artifact)
         {
-            if (artifact.IsDebuffed) return true;
-            if (!(GetArtifacts().Contains(Artifacts.ClimbingKit) || GetArtifacts().Contains(Artifacts.TravelBag)))
+            if (artifact.IsSuppressed) return true;
+            if (!(HasArtifact(Artifacts.ClimbingKit.Id) || HasArtifact(Artifacts.TravelBag.Id)))
                 return false;
             return GetArtifacts().IndexOf(artifact) <= 2;
         }
@@ -2889,6 +3001,7 @@ namespace Aotenjo
         
         public void TriggerPreAppendSettleScoringEffectsEvent()
         {
+            currentPlayScoringCount = 0;
             EventBus.Publish(new PlayerEvents.PreAppendSettleScoringEffectsEvent(this, GetCurrentSelectedPerm()));
         }
 
@@ -2973,7 +3086,7 @@ namespace Aotenjo
         public int GetYakuPackResultCount()
         {
             //TODO: 改
-            if (GetArtifacts().Contains(Artifacts.Magnifier))
+            if (HasArtifact(Artifacts.Magnifier.Id))
             {
                 return 5;
             }
@@ -3011,7 +3124,7 @@ namespace Aotenjo
             {
                 basePrice += 2;
             }
-            if (GetArtifacts().Contains(Artifacts.Magnifier))
+            if (HasArtifact(Artifacts.Magnifier.Id))
             {
                 return basePrice + 1;
             }

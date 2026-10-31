@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,7 +14,8 @@ namespace Aotenjo
         {
             if (Level != 0)
                 return string.Format(base.GetDescription(localizer), Level, GetChanceMultiplier(player));
-            return localizer("artifact_black_hole_description_grown");
+            // 成长后的模板只接收概率分子，仍需应用赤云麻将的概率加成，避免直接显示占位符。
+            return string.Format(localizer("artifact_black_hole_description_grown"), GetChanceMultiplier(player));
         }
 
         public override bool IsAvailableInShops(Player player)
@@ -22,13 +23,12 @@ namespace Aotenjo
             return false;
         }
 
-        public override List<Artifact> GetComponents()
+        public override List<string> GetComponentIds()
         {
             return ArtifactRecipes.recipes
                 .First(r => r.outputID.Contains(GetNameID()))
                 .inputID
-                .Select(i => Artifacts.ArtifactList.First(a => a.GetNameID() == i))
-                .Append(this)
+                .Append(GetRegName())
                 .ToList();
         }
 
@@ -52,7 +52,7 @@ namespace Aotenjo
             {
                 Gadget newGadget = gadget.Copy();
                 newGadget.SetUses(1);
-                evt.player.AddGadget(newGadget);
+                evt.player.RequestGadgetReward(newGadget, source: this);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Aotenjo
@@ -33,8 +33,8 @@ namespace Aotenjo
 
         private void CheckPlayer(Player player)
         {
-            if (player.GetArtifacts().Contains(Artifacts.MagnetiteSample) &&
-                player.GetArtifacts().Contains(Artifacts.Compass))
+            if (player.HasArtifact(Artifacts.MagnetiteSample.Id) &&
+                player.HasArtifact(Artifacts.Compass.Id))
             {
                 List<Gadget> gadgets = player.GetGadgets();
                 int sum = gadgets.Select(g => (g.regName == Gadgets.Magnet.regName) ? g.uses : 0).Sum();

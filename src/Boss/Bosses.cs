@@ -44,7 +44,8 @@ public class Bosses
     public static readonly Boss Uneven = Register(() => new UnevenBoss());
     public static readonly Boss Unstable = Register(() => new UnstableBoss());
     public static readonly Boss Undetermined = Register(() => new UndeterminedBoss());
-    public static readonly Boss Unaided = Register(() => new UnaidedBoss(), finalBoss: true);
+    // 不借退出抽选池；保留工厂供旧存档遭遇、历史能力和葫芦反转恢复。
+    public static readonly Boss Unaided = Register(() => new UnaidedBoss(), finalBoss: true, available: false);
     public static readonly Boss Directionless = Register(() => new DirectionlessBoss());
     public static readonly Boss Undefeatable = Register(() => new UndefeatableBoss(), finalBoss: true);
     public static readonly Boss Timeless = Register(() => new TimelessBoss(), finalBoss: true);
@@ -53,6 +54,8 @@ public class Bosses
     public static readonly Boss Unfuriten = Register(() => new UnfuritenBoss());
     public static readonly Boss Uncompleted = Register(() => new UncompletedBoss());
     public static readonly Boss Numberless = Register(() => new NumberlessBoss(), available: false);
+    public static readonly Boss Lossless = Register(() => new LosslessBoss(), finalBoss: true);
+    public static readonly Boss Sightless = Register(() => new SightlessBoss());
 
     public static readonly Boss[] BossList = registrations.Where(r => r.Available).Select(r => r.Preview).ToArray();
     public static readonly Boss[] FinalBossList = registrations.Where(r => r.Available && r.FinalBoss).Select(r => r.Preview).ToArray();
@@ -83,8 +86,21 @@ public class Bosses
     }
 
     /// <summary>
-    /// Returns a shared preview for names, descriptions and selection. Do not mutate or subscribe it.
-    /// Null or unknown names redraw from the available pool, preserving the requested difficulty.
+    /// 只为已注册的身份创建独立实例，缺失时返回失败且不重抽。
+    /// 不失借此读取历史能力；缺失信息的展示由不失自己处理，不进入全局 Boss 工厂。
+    /// </summary>
+    public static bool TryCreateEncounter(string bossName, bool harderBoss, out Boss boss)
+    {
+        boss = null;
+        if (bossName == null || !registrationsByName.TryGetValue(bossName, out Registration registration))
+            return false;
+        boss = registration.CreateEncounter(harderBoss);
+        return true;
+    }
+
+    /// <summary>
+    /// 返回名称、说明与选取使用的共享预览，禁止修改或订阅。
+    /// 空名称或未知身份仍从可用池重抽，保留已有调用方的选择行为与请求难度。
     /// </summary>
     public static Boss GetPreviewOrElseRedraw(string bossName, bool harderBoss)
     {
@@ -92,8 +108,7 @@ public class Bosses
     }
 
     /// <summary>
-    /// Creates fresh mutable state owned by one encounter. Never returns a registry preview.
-    /// Null or unknown names redraw from the available pool, preserving the requested difficulty.
+    /// 返回单次遭遇独占的新实例；空名称或未知身份沿用原有重抽规则，并保留请求难度。
     /// </summary>
     public static Boss CreateEncounterOrElseRedraw(string bossName, bool harderBoss)
     {
@@ -103,7 +118,7 @@ public class Bosses
     [Obsolete("Use GetPreviewOrElseRedraw for display/selection, or CreateEncounterOrElseRedraw for gameplay.")]
     public static Boss GetBossOrElseRedraw(string bossName, bool harderBoss)
     {
-        // Preserve legacy identity, difficulty and unavailable-name fallback behavior for external callers.
+        // 保留兼容接口原有的共享实例、难度，以及未知或不可用名称的重抽行为。
         if (bossName != null && registrationsByName.TryGetValue(bossName, out Registration registration) && registration.Available)
             return harderBoss ? registration.Preview.GetHarderBoss() : registration.Preview;
 

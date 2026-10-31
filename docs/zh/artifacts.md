@@ -1,5 +1,8 @@
 # 自定义遗物
 
+当前源码采用遗物 API v2。注册结果是定义；运行状态只能来自回调里的 `a` 或 `player:GetRunArtifact(id)`。[迁移说明](../ArtifactRuntimeApiV2.md)。
+
+
 [目录](README.md) · [English](../en/artifacts.md) · [完整模组](../../example/mods/ex1_artifact) · [实现](../../src/API/Artifact/LuaArtifactBuilder.cs)
 
 在快速上手里，我们已经做出了二号硬币。这一篇继续看看它是怎么创建的，再给同一个模组里的练习玉加上成长效果。
@@ -15,7 +18,7 @@
 | 方法 | 返回值及用途 |
 | --- | --- |
 | `Build()` | `LuaArtifact`，只创建，不加入注册表 |
-| `BuildAndRegister()` | 创建并加入 `Artifacts.ArtifactList`，普通遗物用此方法 |
+| `BuildAndRegister()` | 注册冻结工厂并返回 `ArtifactRegistration`，普通遗物用此方法 |
 | `BuildCraftable()` | `LuaCraftableArtifact`，只创建合成结果 |
 | `BuildAndRegisterCraftable()` | 创建并注册合成结果，需同时注册[配方](recipes.md) |
 

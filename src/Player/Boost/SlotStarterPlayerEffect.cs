@@ -8,7 +8,7 @@ public class SlotStarterPlayerEffect : StarterBoostEffect
 
     public override void Boost(Player player)
     {
-        player.SetArtifactLimit(player.GetArtifactLimit() + 1);
+        player.ChangeArtifactLimit(1);
         MessageManager.Instance.OnSoundEvent("upgrade");
     }
 
@@ -20,7 +20,7 @@ public class SlotStarterPlayerEffect : StarterBoostEffect
 
         public override void Boost(Player player)
         {
-            player.SetArtifactLimit(player.GetArtifactLimit() + 2);
+            player.ChangeArtifactLimit(2);
             MessageManager.Instance.OnSoundEvent("upgrade");
         }
     }

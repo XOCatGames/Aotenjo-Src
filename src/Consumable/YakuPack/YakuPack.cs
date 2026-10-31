@@ -37,15 +37,15 @@ namespace Aotenjo
                     || ancient.Contains(yakuTypeID));
         }
 
-        public DrawYakuResult Draw(Func<int, int> rng, List<YakuType> includedYakus, int stage, int minimumRarity = 0)
+        public DrawYakuResult Draw(Func<int, int> rng, List<YakuType> includedYakus, int stage, int minimumRarity = 0, Func<int[], int[]> adjustWeights = null)
         {
-            return TryDraw(rng, includedYakus, stage, out DrawYakuResult result, minimumRarity)
+            return TryDraw(rng, includedYakus, stage, out DrawYakuResult result, minimumRarity, adjustWeights)
                 ? result
                 : new DrawYakuResult(FixedYakuType.Base, Rarity.COMMON);
         }
 
         public bool TryDraw(Func<int, int> rng, List<YakuType> includedYakus, int stage,
-            out DrawYakuResult result, int minimumRarity = 0)
+            out DrawYakuResult result, int minimumRarity = 0, Func<int[], int[]> adjustWeights = null)
         {
             result = null;
             List<List<YakuType>> pool = new()
@@ -84,6 +84,7 @@ namespace Aotenjo
                 weightedWeights[3] *= 2;
             }
 
+            if (adjustWeights != null) weightedWeights = adjustWeights(weightedWeights);
             // Filter before choosing a rarity: a weighted but unavailable tier is not a valid draw.
             LotteryPool<int> rangePool = new LotteryPool<int>();
             for (int i = Math.Max(0, minimumRarity); i < pool.Count; i++)

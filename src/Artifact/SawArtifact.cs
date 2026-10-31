@@ -41,8 +41,7 @@ namespace Aotenjo
             {
                 Level--;
                 bool res = player.RemoveTileFromDiscarded(tile);
-                player.DiscardLeft += DISCARD_RETURN;
-                AudioSystem.PlayAddSwapChanceSound();
+                player.RequestDiscardReward(DISCARD_RETURN, this);
                 if (!res) return;
                 MessageManager.Instance.OnRemoveTileEvent(new List<Tile> { tile });
             }

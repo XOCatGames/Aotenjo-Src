@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aotenjo;
 
 [Serializable]
@@ -10,8 +11,17 @@ public class WhiskGadget : Gadget
     {
     }
 
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        Tile display = targets[0].Copy();
+        if (display.properties.mask.IsDebuff()) display.properties.ChangeMask(TileMask.NONE);
+        if (display.properties.font.IsDebuff()) display.properties.ChangeFont(TileFont.PLAIN);
+        return new[] { new GadgetTilePreview(targets[0], display) };
+    }
+
     public override bool UseOnTile(Player player, Tile tile)
     {
+        if (tile?.properties == null) return false;
         bool res = false;
         if (tile.properties.mask.IsDebuff())
         {
@@ -41,7 +51,7 @@ public class WhiskGadget : Gadget
 
     public override bool ShouldHighlightTile(Tile tile, Player player)
     {
-        return tile.properties.IsDebuffed();
+        return tile?.properties != null && tile.properties.IsDebuffed();
     }
 
     public override Rarity GetRarity()

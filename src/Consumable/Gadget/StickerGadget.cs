@@ -10,11 +10,13 @@ public class StickerGadget : Gadget
     {
     }
 
+    protected override TileTransform CreateTileTransform(Player player, Tile tile) => new TileTransformSticker();
+
     public override bool UseOnTile(Player player, Tile tile)
     {
         if (!ShouldHighlightTile(tile, player)) return false;
 
-        tile.AddTransform(new TileTransformSticker(), player);
+        tile.AddTransform(CreateTileTransform(player, tile), player);
         MessageManager.Instance.OnSoundEvent("Sticker");
         return true;
     }

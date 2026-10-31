@@ -26,7 +26,7 @@ namespace Aotenjo
         public override void OnObtain(Player player)
         {
             base.OnObtain(player);
-            player.SetArtifactLimit(player.GetArtifactLimit() + 2);
+            player.ChangeArtifactLimit(2);
         }
 
         public override void SubscribeToPlayer(Player player)

@@ -257,8 +257,8 @@ namespace Aotenjo
 
         public override string GetDescription(Player player, Func<string, string> localizer) =>
             string.Format(CultureInfo.InvariantCulture, base.GetDescription(localizer),
-                MechanicalArtifactUtility.GetFormattedPartName(from, localizer),
-                MechanicalArtifactUtility.GetFormattedPartName(to, localizer));
+                IsPreview ? localizer("ui_artifact_preview_preset") : MechanicalArtifactUtility.GetFormattedPartName(from, localizer),
+                IsPreview ? localizer("ui_artifact_preview_preset") : MechanicalArtifactUtility.GetFormattedPartName(to, localizer));
 
         public override string Serialize() => $"{(int)from},{(int)to}";
         public override void Deserialize(string data)
@@ -396,7 +396,7 @@ namespace Aotenjo
             if (evt.kind is not (MechanicalPartChangeKind.Destroyed or MechanicalPartChangeKind.Transformed) ||
                 TileMaterialMechPart.GetPartRarity(evt.from) != Rarity.COMMON || evt.count <= 0) return;
             evt.player.EarnMoney(MONEY_PER_PART * evt.count);
-            if (evt.tile != null) evt.tile.addonFu += BASE_FU_PER_PART * evt.count;
+            if (evt.tile != null) evt.tile.AddFu(BASE_FU_PER_PART * evt.count, evt.player);
         }
 
         public override string GetDescription(Func<string, string> localizer) =>
@@ -407,14 +407,33 @@ namespace Aotenjo
     {
         private const int ADD_FU = 20;
         private const int INSTALL_COUNT = 1;
+        [NonSerialized] private Player owner;
 
         public StepperMotorArtifact() : base("stepper_motor", Rarity.COMMON) { }
+        public override void SubscribeToPlayer(Player player)
+        {
+            owner = player;
+            base.SubscribeToPlayer(player);
+        }
+        public override void UnsubscribeToPlayer(Player player)
+        {
+            base.UnsubscribeToPlayer(player);
+            owner = null;
+        }
         public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects) =>
             effects.Add(ScoreEffect.AddFu(ADD_FU, this));
         [SubscribeToEvent]
         private void AddDriveRod(MechanicalTileGrownEvent evt)
         {
-            if (evt.tile.IsNumbered()) MechanicalArtifactUtility.InstallParts(evt.player, evt.tile, MechPartType.DriveRod, INSTALL_COUNT);
+            if (evt.player == owner && evt.tile.IsNumbered())
+                MechanicalArtifactUtility.InstallParts(evt.player, evt.tile, MechPartType.DriveRod, INSTALL_COUNT);
+        }
+
+        [SubscribeToEvent]
+        private void AddDriveRodForFu(PlayerTileEvent.FuGained evt)
+        {
+            if (evt.player == owner && evt.amount > 0 && evt.tile.IsNumbered())
+                MechanicalArtifactUtility.InstallParts(evt.player, evt.tile, MechPartType.DriveRod, INSTALL_COUNT);
         }
 
         public override string GetDescription(Func<string, string> localizer) =>
@@ -562,12 +581,13 @@ namespace Aotenjo
 
         private const int Faces = 9;
         private int rolled = 1;
-        public MechanicalD9Artifact() : base("mechanical_d9", Rarity.COMMON) { }
+        public MechanicalD9Artifact() : base("mechanical_d9", Rarity.COMMON) =>
+            SetHighlightRequirement((tile, _) => tile != null && tile.IsNumbered() && tile.GetOrder() == rolled);
         [SubscribeToEvent]
         private void Roll(PlayerRoundEvent.Start.Pre evt)
         {
             rolled = evt.player.GenerateRandomInt(Faces, "mechanical_d9") + 1;
-            if (evt.player.GetArtifacts().Contains(Artifacts.LeadBlock)) rolled = Faces;
+            if (evt.player.HasArtifact(Artifacts.LeadBlock.Id)) rolled = Faces;
         }
 
         public override string GetDescription(Func<string, string> localizer) => GetDescription(null, localizer);

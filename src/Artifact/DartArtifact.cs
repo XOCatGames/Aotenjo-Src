@@ -7,7 +7,7 @@ namespace Aotenjo
 {
     public class DartArtifact : Artifact
     {
-        private const double MUL = 1.5D;
+        private const double MUL = 2D;
         private Tile.Category bounty = Tile.Category.Suo;
         
         public DartArtifact() : base("dart", Rarity.RARE)

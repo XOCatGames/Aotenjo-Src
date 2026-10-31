@@ -9,6 +9,12 @@ namespace Aotenjo
         {
         }
 
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        {
+            base.AppendOnSelfEffects(player, permutation, effects);
+            effects.Add(ScoreEffect.MulFan(1.5D, this));
+        }
+
         public override void SubscribeToPlayer(Player player)
         {
             base.SubscribeToPlayer(player);

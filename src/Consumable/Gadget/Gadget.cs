@@ -105,6 +105,28 @@ public abstract class Gadget : IPriced, ITileHighlighter
     {
     }
 
+    /// <summary>Read-only opt-in prediction. Never run UseOnTile, events, lifecycle hooks or RNG here.</summary>
+    public IReadOnlyList<GadgetTilePreview> GetPreview(Player player, IReadOnlyList<Tile> targets)
+    {
+        if (player == null || uses <= 0 || targets == null || targets.Count == 0)
+            return Array.Empty<GadgetTilePreview>();
+        var selected = new List<Tile>(targets);
+        if (selected.Exists(t => t == null) || !CanUseOnTiles(selected, player))
+            return Array.Empty<GadgetTilePreview>();
+        return BuildPreview(player, selected);
+    }
+
+    protected virtual IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        if (targets.Count != 1) return Array.Empty<GadgetTilePreview>();
+        TileTransform transform = CreateTileTransform(player, targets[0]);
+        return transform == null ? Array.Empty<GadgetTilePreview>() :
+            new[] { GadgetTilePreview.WithTransform(targets[0], transform) };
+    }
+
+    // Deterministic transform gadgets share this factory between the real use and the preview.
+    protected virtual TileTransform CreateTileTransform(Player player, Tile tile) => null;
+
     public virtual bool UseOnTile(Player player, Tile tile)
     {
         return false;

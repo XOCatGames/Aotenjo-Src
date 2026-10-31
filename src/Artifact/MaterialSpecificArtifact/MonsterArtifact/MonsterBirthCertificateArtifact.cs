@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,6 +26,8 @@ namespace Aotenjo
 
         protected override int GetSpriteID()
         {
+            // 预览不抽取本局预设，使用定义的默认图标。
+            if (IsPreview) return 180;
             string ghostName = TileMaterial.Ghost().GetRegName();
             string succubusName = TileMaterial.Succubus().GetRegName();
             string goldMouseName = TileMaterial.GoldMouse().GetRegName();
@@ -52,7 +54,7 @@ namespace Aotenjo
 
         public override string GetDescription(Player player, Func<string, string> loc)
         {
-            return string.Format(base.GetDescription(player, loc), loc(monsterMaterial.GetLocalizeKey()));
+            return string.Format(base.GetDescription(player, loc), IsPreview ? loc("ui_artifact_preview_preset") : loc(monsterMaterial.GetLocalizeKey()));
         }
     }
 }

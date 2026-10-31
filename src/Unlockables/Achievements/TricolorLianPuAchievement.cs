@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Aotenjo
@@ -33,7 +33,7 @@ namespace Aotenjo
             Effect effect)
         {
             List<Artifact> artifacts = player.GetArtifacts();
-            if (!artifacts.Contains(Artifacts.TricolorFlower) || !artifacts.Contains(Artifacts.SichuanLianPu))
+            if (!artifacts.Any(a => a.GetRegName() == Artifacts.TricolorFlower.Id) || !artifacts.Any(a => a.GetRegName() == Artifacts.SichuanLianPu.Id))
             {
                 return;
             }

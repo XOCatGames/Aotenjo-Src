@@ -18,6 +18,7 @@ namespace Aotenjo
 
         public override bool IsUnlocked(PlayerStats stats)
         {
+            // 不借已退出抽选；旧击败记录继续保留解锁资格，新玩家通过和级以上胜利解锁。
             return stats.GetUnseededRunRecords().Any(rec => rec.acsensionLevel >= 5 && rec.won) || Constants.DEBUG_MODE
                 || stats.GetCustomStats($"encounter_boss_{Bosses.Unaided.name}") > 0;
         }

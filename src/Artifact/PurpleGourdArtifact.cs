@@ -11,6 +11,9 @@ namespace Aotenjo
         public class PurpleGourdData
         {
             public List<string> consumedBosses = new List<string>();
+            // 保存反转遗物自己的数据，尤其是「不失」吸收时的三位 Boss 身份。
+            // 旧存档没有此字段时保留空表，仍按原有方式恢复其他 Boss 的反转效果。
+            public Dictionary<string, string> consumedBossData = new Dictionary<string, string>();
         }
         
         public List<Artifact> bossArtifacts = new List<Artifact>();
@@ -173,6 +176,7 @@ namespace Aotenjo
                 bossArtifact.ResetArtifactState(player);
             }
             data.consumedBosses.Clear();
+            data.consumedBossData?.Clear();
             bossArtifacts.Clear();
         }
 
@@ -208,13 +212,27 @@ namespace Aotenjo
 
         public override string Serialize()
         {
+            data.consumedBossData = new Dictionary<string, string>();
+            for (int i = 0; i < data.consumedBosses.Count; i++)
+            {
+                string state = bossArtifacts[i].Serialize();
+                if (!string.IsNullOrEmpty(state))
+                    data.consumedBossData[data.consumedBosses[i]] = state;
+            }
             return JsonConvert.SerializeObject(data);
         }
 
         public override void Deserialize(string json)
         {
             data = JsonConvert.DeserializeObject<PurpleGourdData>(json) ?? new PurpleGourdData();
-            bossArtifacts = data.consumedBosses.Select(boss => Bosses.GetPreviewOrElseRedraw(boss, false).GetReversedArtifact(this)).ToList();
+            bossArtifacts = data.consumedBosses.Select(bossName =>
+            {
+                Artifact artifact = Bosses.GetPreviewOrElseRedraw(bossName, false).GetReversedArtifact(this);
+                if (bossName != null && data.consumedBossData != null &&
+                    data.consumedBossData.TryGetValue(bossName, out string state))
+                    artifact.Deserialize(state);
+                return artifact;
+            }).ToList();
         }
 
         public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)

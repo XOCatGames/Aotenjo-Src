@@ -38,7 +38,7 @@ namespace Aotenjo
                 Tile cand = LotteryPool<Tile>.DrawFromCollection(
                     player.GetRiverTiles().Where(t => t.properties.material is TileMaterialWood),
                     player.GenerateRandomInt);
-                player.DiscardLeft++;
+                player.RequestDiscardReward(1, this);
                 player.RemoveTileFromDiscarded(cand);
                 player.AddTileToPool(cand);
                 player.priortizedDrawingList.Add(cand);

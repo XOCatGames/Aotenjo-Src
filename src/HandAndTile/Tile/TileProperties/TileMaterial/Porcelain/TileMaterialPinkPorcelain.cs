@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Aotenjo
 {
@@ -37,11 +38,9 @@ namespace Aotenjo
                 : player.DetermineTileCompatibility(scoringTile, (int)onEffectTile.GetCategory(), -1);
             if (sameCategory) return;
             effects.Add(ScoreEffect.AddFan(FAN_PER_TILE * (1 + ((player.Level - 1) / 4)), null));
-            if (player.GetArtifacts().Contains(Artifacts.PorcelainFish) && onEffectTile.ContainsRed(player))
-            {
-                effects.Add(new GrowFuEffect(Artifacts.PorcelainFish, onEffectTile,
-                    PorcelainFishArtifact.GROW_FU_AMOUNT));
-            }
+            if (onEffectTile.ContainsRed(player))
+                foreach (var fish in player.GetArtifacts().OfType<PorcelainFishArtifact>())
+                    effects.Add(new GrowFuEffect(fish, onEffectTile, PorcelainFishArtifact.GROW_FU_AMOUNT));
         }
     }
 }

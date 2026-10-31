@@ -1,59 +1,24 @@
 {
-  "source_commit": "406dba6623ad528224eac65f5d894269907681a8",
-  "upstream_commit": "c66f4500de0d2d19d627cc9d2455832ba7ff66c4",
-  "date": "2026-09-24",
+  "upstream_repository": "XOCatGames/Aotenjo-Unity",
+  "upstream_commit": "6f470d41fffe429fe0f51de29d4c3679a7815d04",
+  "commit_date": "2026-10-31T14:33:11+08:00",
+  "upstream_worktree_dirty": false,
+  "game_version": "0.8.0.0-PRE1",
   "normalization": "CRLF to LF, SHA-256",
-  "working_tree_omissions": [
-    "Assets/LogicScripts/Utils/Constants.cs"
-  ],
+  "source_directory": "Assets/LogicScripts",
+  "handbook_directory": "Docs/Modding/Handbook",
   "runtime_sources_reviewed": {
-    "Assets/Scripts/AotenjoModLoader/ModManager.cs": "292add05720c15febd157deef221af15fc3599f1569a7eaaa2371bb1257e9ab9",
-    "Assets/Scripts/AotenjoModLoader/ModLocalizationLoader.cs": "e699001541edc24a568844e09a8da2d26a0cdbfc1932646590e4e5541e842b1a",
+    "Assets/Scripts/AotenjoModLoader/ModManager.cs": "65613f62fd86ce258d556bccdf5d0946d7838a34f6ebe444c9db2f5fcc47cdc4",
+    "Assets/Scripts/AotenjoModLoader/ModLocalizationLoader.cs": "b526a8fc2984d3c0fe04b47dc22094dffe85ba6069f7df32942ef3111c554f6e",
+    "Assets/LocalizationConfig/Scripts/LocaleManager.cs": "b3b188f7fc6287bd2fb293f418521f5194b052c5bfbed9a5e1c9985e7f75b51e",
     "Assets/Scripts/Tile/TileFaceMaterialRegistry.cs": "92c064329a6395ec298b4b422774d33504cd0b721b8369613247d9748c703cf8",
     "Assets/Scripts/Tile/SpriteManager.cs": "5680bbe0132a15dbf5df56e1271f99125c5ae6b4b0027a4ca8cae491ab99e14b",
-    "Assets/Scripts/Console/ArgumentParsers.cs": "13cfa5729f3fb4665cb88c50447e4b9540003ca14eb4d75762cbdefb1bed3791",
-    "Assets/Scripts/Console/AotenjoCommandSystem.cs": "b897af8d9f4b91d57a6ce7240e844bdc1a0188f8f3e6ffb87279718e3f1a1731",
-    "Assets/Scripts/UI/UIConsole.cs": "f18303a3bc7e579f59a66abe65caffebdd1ebb9cbc9e6db62c263585ebd5d7b8",
-    "Assets/Scripts/Integration/SteamWorkshopIntegration.cs": "0514c6e303f999b55020d8eedb4ef8e1a21b88767671a4e35309b2dc04804cca",
-    "Assets/Scripts/UI/MainMenu/ModManager/UIMainMenuModManager.cs": "264d6809a09392574c045a055c7300037bfc4881aa42a6e5b4a194a9438b754e",
+    "Assets/Scripts/Console/ArgumentParsers.cs": "a4f2430cd72011689c3fc27bf68431883db5e397d23cc803249fe7527560c76a",
+    "Assets/Scripts/Console/AotenjoCommandSystem.cs": "bec4d6cff9dcb02e86f9fd7264af065bedd238de44fba32c2017e4b43c245617",
+    "Assets/Scripts/UI/UIConsole.cs": "18f510714f4f2d9327325bd79a039a122751c25f7aa7843fea0b7f3f36dd8b86",
+    "Assets/Scripts/Integration/SteamWorkshopIntegration.cs": "7893e1a8972505664ba493683e3de3d85420804743dc2ae7b44684ae7d746e6f",
+    "Assets/Scripts/UI/MainMenu/ModManager/UIMainMenuModManager.cs": "a578c373c33ae4ec5b86290fda345ccae93116d4b95fcfaa4478e0a20a9bbba7",
     "Assets/Resources/Config/YakuPacks.json": "3764b2609fb8dcb36d628cce3ad3ca7674ae8e6691f207d4a4466600b4f41a7a"
   },
-  "source_files": 640,
-  "baseline_source_files": 638,
-  "feature_supplements": [
-    {
-      "feature": "terms",
-      "minimum_game_version": "0.7.1.0",
-      "upstream_branch": "dev-0.7.1.0",
-      "upstream_commit": "69382c07ec20305bf283209d74eab180875c0ef7",
-      "date": "2026-10-03",
-      "files": {
-        "Assets/LogicScripts/API/Terms/LuaTermBuilder.cs": {
-          "public_path": "src/API/Terms/LuaTermBuilder.cs",
-          "sha256": "e4d05ae2158804e8ca3655388c8947ca35326acbc6aa7e0e5cf5d7e615bc6b6d"
-        },
-        "Assets/LogicScripts/API/Terms/link.xml": {
-          "public_path": "src/API/Terms/link.xml",
-          "sha256": "9f11f7eefa80a7227c0205c68e1baad07f42bdbe29a2698ac044884a333b8aab"
-        }
-      }
-    },
-    {
-      "feature": "materials",
-      "minimum_game_version": "0.7.1.0",
-      "upstream_branch": "dev-0.7.1.0",
-      "upstream_commit": "69382c07ec20305bf283209d74eab180875c0ef7",
-      "date": "2026-10-03",
-      "files": {
-        "Assets/LogicScripts/API/TileProperties/LuaTileMaterialBuilder.cs": {
-          "public_path": "src/API/TileProperties/LuaTileMaterialBuilder.cs",
-          "sha256": "07dcf4bcd6772a0e963e6daa8182d96eed235874ac5145328a8edb5b06a090e2"
-        },
-        "Assets/LogicScripts/API/TileProperties/LuaTileMaterial.cs": {
-          "public_path": "src/API/TileProperties/LuaTileMaterial.cs",
-          "sha256": "e5d6d2560dba104dadaf71404e073c61df8cbbca68855defff4f3fe4e7dc658d"
-        }
-      }
-    }
-  ]
+  "source_files": 723
 }

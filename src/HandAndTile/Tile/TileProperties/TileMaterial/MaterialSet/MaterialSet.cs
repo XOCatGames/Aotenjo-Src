@@ -149,17 +149,6 @@ namespace Aotenjo
 
         public static MaterialSet Mech = new MechMaterialSet();
         
-        // public static MaterialSet MechPart = new MaterialSet(6, "mech_parts", new List<string>
-        // {
-        //     "gear"
-        // });
-        //
-        // public static MaterialSet Custom = new MaterialSet(7, "custom", new List<string>
-        // {
-        //     "green_porcelain", "golden", "dessert_butter", "demon", "mo",
-        //     "succubus", "gold_mouse"
-        // });
-        
         public static MaterialSet[] MaterialSets = new []
         {
             Basic, Ore, Porcelain, Monsters, Wood, Dessert, Mech

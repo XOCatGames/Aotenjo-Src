@@ -1,4 +1,5 @@
-﻿using System;
+using System.Collections.Generic;
+using System;
 using Aotenjo;
 
 public class UnrestBoss : Boss
@@ -21,12 +22,22 @@ public class UnrestBoss : Boss
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnTileEffectArtifact($"artifact_{this.name}_reversed", 
-            Rarity.COMMON,
-            (player, perm, tile, effects) =>
-            {
-                throw new NotImplementedException();
-            });
+        return new UnrestReversedArtifact(name);
+    }
+
+    /// <summary>
+    /// 旧版未实现的反转能力仍显式抛出异常，保留兼容身份；类拆分不擅自新增玩法。
+    /// </summary>
+    private sealed class UnrestReversedArtifact : Artifact
+    {
+        public UnrestReversedArtifact(string bossName) : base($"artifact_{bossName}_reversed", Rarity.COMMON)
+        {
+        }
+
+        public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     private void IncreaseLevelTarget(PlayerEvent eventData)

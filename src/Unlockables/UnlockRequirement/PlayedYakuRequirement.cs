@@ -18,11 +18,7 @@ public class PlayedYakuRequirement : UnlockRequirement
 
     public override bool IsUnlocked(PlayerStats stats)
     {
-        return stats
-                   .GetPlayedHands()
-                   .Count(r => r.ActivatedYakuTypes.Contains(type)
-                               && (!needFull || (Math.Abs(YakuTester.InfoMap[type].growthFactor - 1) < 0.01f || r.AllTiles.Count == 14))) >=
-               count;
+        return GetCurrent(stats) >= count;
     }
 
     public override string GetDescription(Func<string, string> loc)
@@ -37,9 +33,7 @@ public class PlayedYakuRequirement : UnlockRequirement
 
     public override int GetCurrent(PlayerStats stats)
     {
-        return stats
-            .GetPlayedHands().Count(r => r.ActivatedYakuTypes.Contains(type)
-                                         && (!needFull || (Math.Abs(YakuTester.InfoMap[type].growthFactor - 1) < 0.01f || r.AllTiles.Count == 14)));
+        return stats.GetPlayedYakuCount(type, needFull && Math.Abs(YakuTester.InfoMap[type].growthFactor - 1) >= 0.01f);
     }
 
     public override int GetMax()

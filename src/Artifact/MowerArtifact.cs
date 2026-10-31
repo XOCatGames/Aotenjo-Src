@@ -34,9 +34,8 @@ namespace Aotenjo
 
             if (Level > 0 && player.DiscardLeft < 1)
             {
-                player.DiscardLeft += EXTRA_CHANCE;
+                player.RequestDiscardReward(EXTRA_CHANCE, this);
                 Level--;
-                AudioSystem.PlayAddSwapChanceSound();
             }
         }
 

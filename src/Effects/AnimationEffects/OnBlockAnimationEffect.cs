@@ -9,6 +9,10 @@ namespace Aotenjo
         public OnBlockAnimationEffect(Block block, Effect effect): base(effect)
         {
             this.block = block;
+            // Preserve the scoring scope when the animation wrapper is unwrapped for ingestion.
+            Effect scoringEffect = effect.GetEffect();
+            if (!scoringEffect.HasTag(EffectTag.BlockScoring))
+                scoringEffect.tags.Add(EffectTag.BlockScoring);
         }
 
         public override List<Tile> GetAffectedTiles(Player player)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Aotenjo
 {
@@ -40,19 +39,11 @@ namespace Aotenjo
             return string.Format(base.GetDescription(localizer), lastRoundTriggers, FU);
         }
 
-        public override void SubscribeToPlayer(Player player)
+        [SubscribeToEvent]
+        private void OnPostAddScoringAnimationEffect(PlayerEvents.OnPostAddScoringAnimationEffectEvent eventData)
         {
-            base.SubscribeToPlayer(player);
-            EventBus.Subscribe<PlayerEvents.PostIngestEffectEvent>(player, OnPostIngest);
-            EventBus.Subscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            EventBus.Subscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, OnPreAppendSettleScoringEffects);
-            EventBus.Subscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
-        }
-
-        private void OnPostAddScoringAnimationEffect(Permutation permutation, Player player,
-            List<IAnimationEffect> list)
-        {
-            list.Add(ScoreEffect.AddFu(() =>
+            Player player = eventData.player;
+            eventData.effects.Add(ScoreEffect.AddFu(() =>
             {
                 lastRoundTriggers = GetFu(player);
                 return GetFu(player);
@@ -64,26 +55,20 @@ namespace Aotenjo
             return FU * Level;
         }
 
-        private void OnPreAppendSettleScoringEffects(PlayerPermutationEvent permutationEvent)
+        [SubscribeToEvent]
+        private void OnPreAppendSettleScoringEffects(PlayerEvents.PreAppendSettleScoringEffectsEvent eventData)
         {
             Level = 0;
         }
 
-        private void OnPostIngest(Permutation permutation, Player player, Effect effect)
+        [SubscribeToEvent]
+        private void OnPostIngest(PlayerEvents.PostIngestEffectEvent eventData)
         {
             Level++;
         }
 
-        public override void UnsubscribeToPlayer(Player player)
-        {
-            base.UnsubscribeToPlayer(player);
-            EventBus.Unsubscribe<PlayerEvents.PostIngestEffectEvent>(player, OnPostIngest);
-            EventBus.Unsubscribe<PlayerRoundEvent.End.Post>(PostRoundEnd);
-            EventBus.Unsubscribe<PlayerEvents.PreAppendSettleScoringEffectsEvent>(player, OnPreAppendSettleScoringEffects);
-            EventBus.Unsubscribe<PlayerEvents.OnPostAddScoringAnimationEffectEvent>(player, OnPostAddScoringAnimationEffect);
-        }
-
-        private void PostRoundEnd(PlayerEvent playerEvent)
+        [SubscribeToEvent]
+        private void PostRoundEnd(PlayerRoundEvent.End.Post eventData)
         {
             Level = 0;
         }

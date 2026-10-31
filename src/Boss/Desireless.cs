@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Aotenjo;
 
@@ -35,17 +35,27 @@ public class DesirelessBoss : Boss
 
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnTileEffectArtifact($"{this.name}_reversed", 
-            Rarity.COMMON,
-            (player, perm, tile, effects) =>
+        return new DesirelessReversedArtifact(name);
+    }
+
+    /// <summary>
+    /// 每次反转创建独立遗物类型；保留原触发条件、结算顺序及来源引用，不在结算时按 ID 重查吸收者。
+    /// </summary>
+    private sealed class DesirelessReversedArtifact : Artifact
+    {
+        public DesirelessReversedArtifact(string bossName) : base($"{bossName}_reversed", Rarity.COMMON)
+        {
+        }
+
+        public override void AppendOnTileEffects(Player player, Permutation permutation, Tile tile, List<Effect> effects)
+        {
+            if (player.Selecting(tile) && ((tile.IsNumbered() && tile.GetOrder() < 5)
+                                           || tile.GetCategory() == Tile.Category.Jian))
             {
-                if (player.Selecting(tile) && ((tile.IsNumbered() && tile.GetOrder() < 5)
-                                               || tile.GetCategory() == Tile.Category.Jian))
-                {
-                    effects.Add(new IncreaseTargetEffect(0.95D, "desireless"));
-                    MessageManager.Instance.OnSetProgressBarLength(0.95f);
-                }
-            });
+                effects.Add(new IncreaseTargetEffect(0.95D, "desireless"));
+                MessageManager.Instance.OnSetProgressBarLength(0.95f);
+            }
+        }
     }
 
     public override Boss GetHarderBoss() => new DesirelessHarderBoss();

@@ -1,17 +1,74 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Aotenjo
 {
     [Serializable]
     public class RoundRecord
     {
+        [SerializeReference, FormerlySerializedAs("history")] private RunHistorySnapshot savedHistory;
+        [NonSerialized] private Func<RunHistorySnapshot> loadSnapshot;
+        [NonSerialized] private Func<RoundRecord> loadDetails;
+        [NonSerialized] private int archivedMaxLevel;
+        [NonSerialized] private string originalArchiveJson;
+        [NonSerialized] internal Func<string> loadArchiveJson;
+        public string preservedArchiveJson
+        {
+            get => originalArchiveJson ??= loadArchiveJson?.Invoke();
+            set { originalArchiveJson = value; loadArchiveJson = null; }
+        }
+
+        public RunHistorySnapshot history
+        {
+            get
+            {
+                if (loadSnapshot != null)
+                {
+                    savedHistory = loadSnapshot();
+                    loadSnapshot = null;
+                }
+                return savedHistory;
+            }
+            set { savedHistory = value; loadSnapshot = null; }
+        }
+
+        public int MaxLevel => loadDetails != null ? archivedMaxLevel : savedRoundStats?.maxLevel ?? 0;
+
+        internal void DeferArchive(int maxLevel, Func<RunHistorySnapshot> snapshot, Func<RoundRecord> details)
+        {
+            archivedMaxLevel = maxLevel;
+            loadSnapshot = snapshot;
+            loadDetails = details;
+        }
+
+        private void EnsureDetails()
+        {
+            if (loadDetails == null) return;
+            var restored = loadDetails();
+            savedRoundStats = restored.savedRoundStats;
+            heldArtifacts = restored.heldArtifacts;
+            newHeldArtifacts = restored.newHeldArtifacts;
+            if (loadSnapshot != null) history = restored.history;
+            loadDetails = null;
+        }
+
+        public RoundRecord() { roundStats = PlayerStats.New(); }
+
+        // A list entry only needs its snapshot; the complete run graph is loaded
+        // when a caller asks for roundStats or held artifacts.
+        public RunHistorySnapshot GetHistorySnapshot() => history;
         /// <summary>
         /// 该局统计信息
         /// </summary>
-        [SerializeField] public PlayerStats roundStats;
+        [SerializeField, FormerlySerializedAs("roundStats")] private PlayerStats savedRoundStats;
+        public PlayerStats roundStats
+        {
+            get { EnsureDetails(); return savedRoundStats; }
+            set { savedRoundStats = value; loadDetails = null; }
+        }
 
         /// <summary>
         /// 套牌
@@ -85,8 +142,10 @@ namespace Aotenjo
 
         public List<Artifact> GetHeldArtifacts()
         {
-            if (newHeldArtifacts.Any()) return newHeldArtifacts.Select(a => Artifacts.GetArtifact(a)).ToList();
-            return heldArtifacts.Select(a => Artifacts.ArtifactList.FirstOrDefault(ar => ar.GetNumberID() == a)).ToList();
+            EnsureDetails();
+            if (newHeldArtifacts != null && newHeldArtifacts.Any()) return newHeldArtifacts.Select(id => ArtifactRegistry.TryGetDefinition(id, out _) ? ArtifactRegistry.CreatePreview(id) : null).ToList();
+            return (heldArtifacts ?? new List<int>()).Select(number => ArtifactRegistry.FindLegacyDefinition(number))
+                .Select(entry => entry == null ? null : ArtifactRegistry.CreatePreview(entry.Id)).ToList();
         }
     }
 }

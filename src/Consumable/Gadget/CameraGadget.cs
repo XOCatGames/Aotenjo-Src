@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aotenjo;
 
 [Serializable]
@@ -8,6 +9,13 @@ public class CameraGadget : Gadget
 
     public CameraGadget() : base("camera", 21, 1, 5)
     {
+    }
+
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        Tile copy = targets[0].Copy();
+        copy.properties = copy.properties.CopyWithFont(TileFont.COLORLESS);
+        return new[] { new GadgetTilePreview(targets[0], copy) };
     }
 
     public override bool UseOnTile(Player player, Tile tile)

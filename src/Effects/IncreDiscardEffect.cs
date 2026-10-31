@@ -5,10 +5,12 @@ namespace Aotenjo
     public class IncreDiscardEffect : ArtifactEffect
     {
         private int num;
+        private readonly Tile sourceTile;
 
-        public IncreDiscardEffect(string name, Artifact artifact, int num) : base(name, artifact)
+        public IncreDiscardEffect(string name, Artifact artifact, int num, Tile sourceTile = null) : base(name, artifact)
         {
             this.num = num;
+            this.sourceTile = sourceTile;
         }
 
         public override string GetEffectDisplay(Func<string, string> func)
@@ -18,8 +20,7 @@ namespace Aotenjo
 
         public override void Ingest(Player player)
         {
-            player.DiscardLeft += num;
-            AudioSystem.PlayAddSwapChanceSound();
+            player.RequestDiscardReward(num, artifact, sourceTile);
         }
     }
 }

@@ -1,35 +1,29 @@
-# 源码基准与范围 / Source baseline and scope
+# 源码来源与范围 / Source provenance and scope
 
-- Date / 日期: 2026-09-24.
-- Public source / 公开源码: [406dba6623ad528224eac65f5d894269907681a8](https://github.com/XOCatGames/Aotenjo-Src/commit/406dba6623ad528224eac65f5d894269907681a8).
-- Upstream working checkout base / 上游工作区基线: `c66f4500de0d2d19d627cc9d2455832ba7ff66c4`.
-- 638 files copied from `Assets/LogicScripts` into `src`, excluding Unity `.meta`, `.git*`, and `.DS_Store`, following the existing public sync scope.
-- The current upstream working tree omits `Assets/LogicScripts/Utils/Constants.cs`; the public snapshot reflects that omission. No unrelated localization edits were included. The upstream worktree was not committed or modified by this documentation task.
+[首页 / Home](../README.md) · [维护与发布 / Authoring and publication](MAINTAINING.md)
 
-638个源码文件同步自当前 LogicScripts，遵循原有同步过滤。工作区已有的 Constants.cs 缺失反映在本次公开快照中；未带入无关本地化改动，也未提交或修改上游工作区。因此此仓库依然是逻辑参考，不能单独构建游戏。
+## 当前同步 / Current publication
 
-The handbook additionally traces the actual mod loader, localization loader, texture manager, face-color registry, console parsers, and Workshop uploader at this baseline. These runtime integration files are outside the public LogicScripts export. Their paths and normalized content hashes are recorded in [provenance.json](../reference/provenance.json); private project files, assets, credentials, and build dependencies are not added here.
+源码与手册从同一个 Aotenjo-Unity 提交同步。该次提交 SHA、提交日期、配置版本、运行时文件散列以及源码文件数见 [provenance.json](../reference/provenance.json)；[source-manifest.json](../reference/source-manifest.json) 列出 `src` 的完整文件清单及 CRLF→LF 归一化后的 SHA-256。
 
-文档额外核对了 LogicScripts 以外的加载器、图片、配色、控制台和上传流程；来源路径及哈希见上表链接。生成的[贴图目录](../reference/textures.csv)只列路径、名称和尺寸，不分发游戏贴图。
+Source and handbook are exported from the same Aotenjo-Unity commit. The generated provenance records its SHA, commit date, configured version, runtime integration hashes and source count. The source manifest covers every public source file using CRLF→LF-normalized SHA-256 hashes.
 
-[source-manifest.json](../reference/source-manifest.json) contains SHA-256 hashes after CRLF→LF normalization, allowing exact content verification across Git line-ending settings. The original source's whitespace is preserved. New handbook/example files are checked separately for whitespace errors.
+导出范围为 `Assets/LogicScripts` → `src`，排除 `.meta`、`.git*`、`.DS_Store`；公开手册来自 `Docs/Modding/Handbook`。`src` 不能单独构建游戏。加载器、本地化、语言界面、图片、配色、控制台和 Workshop 上传等运行时文件在该范围之外，只记录核对用的路径与散列。生成的[贴图目录](../reference/textures.csv)只列路径、名称和尺寸。
 
-源码散列使用 CRLF→LF 归一化，以适配 Git 换行设置；源码原有空白保持不变，新文档和示例另行检查。源码快照不是 Steam 发行版本号，未推断最低发行版；请按[中文测试指南](zh/testing.md) / [English testing guide](en/testing.md)验证安装版本。
+The export maps `Assets/LogicScripts` to `src`, excluding `.meta`, `.git*` and `.DS_Store`, and publishes the handbook from `Docs/Modding/Handbook`. This is not a standalone game project. Loader, localization, language UI, texture/color, console and Workshop runtime files outside this scope are represented only by paths and hashes. The texture catalog contains metadata, not game artwork.
 
-## 0.7.1.0 接口补充 / API supplements for 0.7.1.0
+本地预演的 `upstream_worktree_dirty: true` 表示有已跟踪文件尚未提交，SHA 仅标识基线；正式同步使用干净的精确提交。`game_version` 是源码配置，不证明此版本已发行。尚未发布的功能按章节中的“下一版本 / Unreleased”说明判断；安装版本的实际能力仍需按[中文](zh/testing.md) / [English](en/testing.md)测试指南验证。
 
-**下面的新接口仅在青天井 0.7.1.0 及之后版本可用，0.7.0.x 不支持。**
-**The new APIs below are available only in Aotenjo 0.7.1.0 and later, not in 0.7.0.x.**
+In a local preview, `upstream_worktree_dirty: true` means tracked changes are uncommitted and the SHA identifies only their base. Publication uses a clean exact checkout. `game_version` is configuration metadata, not a release assertion. Follow chapter availability notes and test against the actual installed build.
 
-补充来源为 `Aotenjo-Unity/dev-0.7.1.0` 的提交 `69382c07ec20305bf283209d74eab180875c0ef7`，核对日期为 2026-10-03。
-Source: commit `69382c07ec20305bf283209d74eab180875c0ef7` on `Aotenjo-Unity/dev-0.7.1.0`, reviewed on 2026-10-03.
+## 迁入的历史基线 / Imported historical baseline
 
-| 接口 / API | 教程 / Guide | 同步的公开源码 / Public source supplement |
-| --- | --- | --- |
-| `LuaTermBuilder.Register` | [中文](zh/terms.md) / [English](en/terms.md) | `API/Terms/LuaTermBuilder.cs`、`API/Terms/link.xml` |
-| `LuaTileMaterialBuilder.WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` | [中文](zh/materials.md) / [English](en/materials.md) | `API/TileProperties/LuaTileMaterialBuilder.cs`、`API/TileProperties/LuaTileMaterial.cs` |
+以下记录描述迁入前的手册，供追溯使用。主仓库中的初始 `reference` 保留此基线；预演及发布时，生成器会替换为当前代码的完整索引与来源记录。
 
-这里只补充表中接口所需的源码，其他文件继续沿用上面的 2026-09-24 基准；没有执行整个开发分支的源码同步。
-Only the listed API sources are supplemented; other files retain the 2026-09-24 baseline. This is not a full export of the development branch.
-每次补充的最低游戏版本、上游提交、公开路径与内容哈希记录在 [provenance.json](../reference/provenance.json) 的 `feature_supplements` 中；[source-manifest.json](../reference/source-manifest.json) 校验当前混合快照的完整文件清单。
-The `feature_supplements` entries in provenance record minimum versions, upstream commits, public paths, and hashes; the source manifest validates the current combined inventory.
+These entries describe the handbook before migration. Its initially imported references retain this baseline; preview and publication regenerate the complete references from current code.
+
+- 2026-09-24：公开提交 [`406dba6623ad528224eac65f5d894269907681a8`](https://github.com/XOCatGames/Aotenjo-Src/commit/406dba6623ad528224eac65f5d894269907681a8)，上游基线 `c66f4500de0d2d19d627cc9d2455832ba7ff66c4`，638 个源码文件；当时工作区缺少 `Assets/LogicScripts/Utils/Constants.cs`，快照反映了该缺失。
+- 2026-10-03：从上游 `69382c07ec20305bf283209d74eab180875c0ef7` 补入 `LuaTermBuilder.Register` 和四个动态牌体外观回调，形成 640 文件的混合快照。教程：[术语 / Terms](zh/terms.md)、[动态牌体 / Materials](en/materials.md)。这些新增接口要求 0.7.1.0 或之后版本。
+- 2026-10-08：从 Aotenjo-Src 提交 `3e6165db6c28a648c88d2923683e2b8beef31957` 完整迁入 104 个非 `src` 文件，并逐文件核对原始字节。之后改为在主仓库维护、源码和手册一同发布。
+
+The initial 2026-09-24 export had 638 files and reflected the missing Constants.cs file in that historical working tree. The 2026-10-03 API supplements brought it to 640 files. On 2026-10-08, all 104 non-source files were imported byte-for-byte from public commit `3e6165d`; subsequent publications are full exports of source and handbook from upstream.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -67,9 +67,9 @@ namespace Aotenjo
 
         private TileMaterial DrawMaterial(Player player)
         {
-            if (player.GetArtifacts().Contains(Artifacts.MonsterBirthCertificate))
+            if (player.HasArtifact(Artifacts.MonsterBirthCertificate.Id))
             {
-                return ((MonsterBirthCertificateArtifact)Artifacts.MonsterBirthCertificate).monsterMaterial.Copy();
+                return ((MonsterBirthCertificateArtifact)player.GetRunArtifact(Artifacts.MonsterBirthCertificate.Id)).monsterMaterial.Copy();
             }
 
             LotteryPool<TileMaterial> pool = new LotteryPool<TileMaterial>();

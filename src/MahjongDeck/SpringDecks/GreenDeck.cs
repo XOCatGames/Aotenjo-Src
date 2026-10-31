@@ -36,7 +36,7 @@ namespace Aotenjo
             public override void OnRoundStart()
             {
                 base.OnRoundStart();
-                DiscardLeft += 5;
+                RequestDiscardReward(5);
             }
         }
     }

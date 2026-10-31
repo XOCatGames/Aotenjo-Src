@@ -16,22 +16,34 @@ namespace Aotenjo
             return player.deck.regName != MahjongDeck.GalaxyDeck.regName;
         }
 
+        private static int GetShift(Block block)
+        {
+            int deviation = block.tiles[1].GetOrder() - 5;
+            return deviation > 0 ? block.tiles.Select(t => 9 - t.GetOrder()).Min() :
+                block.tiles.Select(t => 1 - t.GetOrder()).Max();
+        }
+
+        private static TileTransform ShiftTransform(Tile tile, int shift) =>
+            new TileTransformHairDryer(tile.GetCategory(), tile.GetOrder() + shift,
+                shift > 0 ? Direction.RIGHT : Direction.LEFT);
+
+        protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+        {
+            Block block = Block.FormValidBlock(targets.ToArray(), player);
+            int shift = GetShift(block);
+            return targets.Select(t => GadgetTilePreview.WithTransform(t, ShiftTransform(t, shift))).ToArray();
+        }
+
         public override bool UseOnBlock(Player player, Block block)
         {
             if(!CanUseOnTiles(block.tiles.ToList(), player)) return false;
 
-            int deviation = block.tiles[1].GetOrder() - 5;
-
-            int shiftValue = deviation > 0
-                ? block.tiles.Select(t => 9 - t.GetOrder()).Min()
-                : block.tiles.Select(t => 1 - t.GetOrder()).Max();
-
-            Direction direction = shiftValue > 0 ? Direction.RIGHT : Direction.LEFT;
+            int shiftValue = GetShift(block);
 
             foreach (var item in block.tiles)
             {
                 item.AddTransform(
-                    new TileTransformHairDryer(item.GetCategory(), item.GetOrder() + shiftValue, direction),
+                    ShiftTransform(item, shiftValue),
                     player);
             }
 

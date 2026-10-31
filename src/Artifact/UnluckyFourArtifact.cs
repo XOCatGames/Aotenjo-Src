@@ -85,8 +85,8 @@ namespace Aotenjo
         {
             if (artifact.Level > 0)
             {
-                player.DiscardLeft += 4;
-                tile.addonFu += 4;
+                player.RequestDiscardReward(4, artifact);
+                tile.AddFu(4, player);
                 artifact.Level--;
             }
         }

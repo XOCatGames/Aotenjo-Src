@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -48,7 +48,7 @@ namespace Aotenjo
             if (player.IsPlayingTile(tile))
             {
                 effects.Add(new FractureAndUpgradeEffect(this,
-                    player.GetArtifacts().Any(a => a == Artifacts.EssencePot) ? Artifacts.EssencePot : null, tile));
+                    player.GetArtifacts().Any(a => a.GetRegName() == Artifacts.EssencePot.Id) ? player.GetRunArtifact(Artifacts.EssencePot.Id) : null, tile));
             }
 
             effects.Add(ScoreEffect.AddFan(FAN, null));
@@ -88,7 +88,7 @@ namespace Aotenjo
 
                 if (taotieTile.properties.material != tileMaterialTaotie) return;
 
-                if (player.GetArtifacts().Contains(Artifacts.SilverDogLeash))
+                if (player.HasArtifact(Artifacts.SilverDogLeash.Id))
                 {
                     cands = cands.Where(t => taotieTile.GetCategory() != t.GetCategory()).ToList();
                 }
@@ -102,9 +102,9 @@ namespace Aotenjo
                 Tile tile = cands[player.GenerateRandomInt(cands.Count)];
                 tile.SetMask(TileMask.Fractured(), player);
 
-                if (player.GetArtifacts().Any(a => a == Artifacts.EssencePot))
+                if (player.GetArtifacts().Any(a => a.GetRegName() == Artifacts.EssencePot.Id))
                 {
-                    taotieTile.addonFu += 20;
+                    taotieTile.AddFu(20, player);
                     tile.addonFu -= 20;
                 }
 

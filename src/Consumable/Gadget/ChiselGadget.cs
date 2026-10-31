@@ -76,17 +76,33 @@ public class ChiselGadget : ReusableGadget
         return formedBlock != null;
     }
 
+    private static TileTransform PreviousFace(Player player, Tile tile)
+    {
+        Tile previous = player.GetUniqueFullDeck().FirstOrDefault(t => player.GetCombinator().ASuccB(tile, t));
+        return previous == null ? null : new TileTransformChisel(previous.GetOrder(), previous.GetCategory());
+    }
+
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        var result = new List<GadgetTilePreview>();
+        foreach (Tile target in targets)
+        {
+            TileTransform transform = PreviousFace(player, target);
+            if (transform == null) return Array.Empty<GadgetTilePreview>();
+            result.Add(GadgetTilePreview.WithTransform(target, transform));
+        }
+        return result;
+    }
+
     public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
     {
         if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
         if (!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
 
-        foreach (var memberTile in tiles)
-        {
-            Tile predTile = player.GetUniqueFullDeck()
-                .FirstOrDefault(t => player.GetCombinator().ASuccB(memberTile, t));
-            memberTile.AddTransform(new TileTransformChisel(predTile.GetOrder(), predTile.GetCategory()), player);
-        }
+        var transforms = tiles.Select(t => PreviousFace(player, t)).ToList();
+        if (transforms.Any(t => t == null)) return GadgetUseResult.Failed;
+        for (int i = 0; i < tiles.Count; i++)
+            tiles[i].AddTransform(transforms[i], player);
 
         MessageManager.Instance.OnSoundEvent("Chisel");
         return GadgetUseResult.Succeeded(tiles);

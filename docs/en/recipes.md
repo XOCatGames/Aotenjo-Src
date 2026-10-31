@@ -7,16 +7,16 @@ The example combines Copper Token (+8 Fu) and Silver Token (+2 Fan) into Double 
 Register the ordinary inputs first, create the output with `BuildAndRegisterCraftable()`, and then register the recipe:
 
 ```lua
--- copper, silver, and combined are Artifact objects registered earlier.
-local inputs = CS.System.Collections.Generic.List(CS.Aotenjo.Artifact)()
-inputs:Add(copper)
-inputs:Add(silver)
+-- copper、silver 和 combined 是前面返回的定义记录。
+local inputs = CS.System.Collections.Generic.List(CS.System.String)()
+inputs:Add(copper:GetRegName())
+inputs:Add(silver:GetRegName())
 local recipe = CS.Aotenjo.LuaArtifactRecipeBuilder.BuildAndRegister(
-    "tutorial_recipe:tokens", inputs, combined)
+    "tutorial_recipe:tokens", inputs, combined:GetRegName())
 assert(recipe ~= nil, "Recipe registration failed")
 ```
 
-`Build(id, List<Artifact>, Artifact)` only creates a recipe. `BuildAndRegister(...)` also adds it to `ArtifactRecipes.recipes`, returning an `ArtifactRecipe` on success or nil with an error log on conflict. Craftable outputs return false from `IsAvailableInShops`; an ordinary `BuildAndRegister()` output does not automatically gain that rule.
+`Build(id, List<string>, string)` only creates a recipe. `BuildAndRegister(...)` also adds it to `ArtifactRecipes.recipes`, returning an `ArtifactRecipe` on success or nil with an error log on conflict. Craftable outputs return false from `IsAvailableInShops`; an ordinary `BuildAndRegister()` output does not automatically gain that rule.
 
 ## Current matching semantics
 

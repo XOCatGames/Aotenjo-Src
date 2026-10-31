@@ -60,7 +60,8 @@ namespace Aotenjo
                 if (artifact.Level > 0)
                 {
                     artifact.Level--;
-                    tile.addonFu += player.GetBaseFuOfTile(tile);
+                    tile.AddFu(player.GetBaseFuOfTile(tile), player);
+                    player.stats.RecordCustomStats(PlayerStatsType.EAT_FOOD, 1);
                 }
             }
 

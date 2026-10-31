@@ -11,9 +11,9 @@
 1. 先看[快速上手](quickstart.md)，运行 Hello 示例，再做一个“打出二时获得金币”的遗物。
 2. 如果对代码里的 `CS`、冒号或者 `effects:Add(...)` 不太熟悉，可以接着看 [Lua 与游戏对象](lua-bridge.md)。
 3. 第一个模组能运行之后，就可以按自己的想法选择：[自定义遗物](artifacts.md)、[番种](yakus.md)、[牌材质](materials.md)、[合成配方](recipes.md)或[材质包与配色](textures.md)。
-4. 在[图片与双语文本](assets.md)里，我们会给模组补上图标、名字和中英文说明。
+4. 在[图片与双语文本](assets.md)里，我们会给模组补上图标、名字和中英文说明；[添加语言](localization.md)介绍如何添加新的可选语言。
 5. 想继续加些特殊效果，可以看看[更多玩法示例](cookbook.md)，试着组合不同的条件、奖励和成长效果。
-6. 最后按[测试与发布](testing.md)里的步骤检查一遍，就可以准备把模组分享给其他玩家了。
+6. 按[版本兼容](compatibility.md)填写 `modinfo.json` 的支持范围，再按[测试与发布](testing.md)里的步骤检查一遍，就可以准备把模组分享给其他玩家了。
 
 ## 2. 这些接口可以做什么
 
@@ -22,6 +22,7 @@
 | 想法 | 使用的接口 | 使用时要注意 |
 | --- | --- | --- |
 | 特定牌加分、赚钱、弃牌或关末触发、成长遗物 | `LuaArtifactBuilder` | 各回调参数不同，使用传入的 `player` |
+| 为遗物添加自定义附魔及成长 | [`LuaArtifactAffixBuilder`](artifact-affixes.md) | 随遗物词条功能开发，须确认游戏包含此接口；注册后主动赋予 |
 | 自定义番种条件、继承、加入已有番种包 | `CustomYakuBuilder` | 判定、可用范围、包索引、继承分别设置 |
 | 自定义牌材质效果、创建可选材质组 | `LuaTileMaterialBuilder`、`LuaMaterialSetBuilder` | 注册材质不等于给手牌应用它 |
 | 根据状态切换牌体图片、装饰和阴影 | [`LuaTileMaterialBuilder` 的四个外观回调](materials.md) | **`WithSpriteID`、`WithSpriteNamespaceID`、`WithOrnamentSpriteID`、`WithShadowID` 仅在 0.7.1.0 及之后版本可用；0.7.0.x 不支持** |
@@ -29,6 +30,7 @@
 | 将几件不同遗物合成新遗物 | `LuaArtifactRecipeBuilder` | 配方检查是否拥有所需物品，不计算同名物品的数量 |
 | 替换现有图片 | `texture-pack.json` | 只改外观；整张贴图尺寸必须匹配 |
 | 改已有字体的色彩、渐变、深度 | `TileFaceMaterialRegistry` | 注册外观不会创建新字体的玩法规则 |
+| 为游戏和模组添加可选语言 | [`lang/<语言代码>.json`](localization.md) | 添加 JSON 翻译文件，重启后在语言菜单中选择 |
 | 新 Boss、小道具、麻将套组、地点、番种包类型 | 暂无对应 Lua Builder | 还需要游戏提供相应的注册、复制和存档支持 |
 
 教程之外的公开 C# 方法也可以研究，不过部分接口会随游戏更新而变化。需要查询参数时，可以打开 [API 参数速查](../../reference/api-signatures.md)，里面也附有对应源码。对于还没有 Lua Builder 的内容，建议先确认游戏是否提供了所需接口，再动手制作。

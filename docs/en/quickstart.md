@@ -2,6 +2,8 @@
 
 [Contents](README.md) · [中文](../zh/quickstart.md) · Next: [Lua and game objects](lua-bridge.md)
 
+For translation-only changes, see [Add a language](localization.md).
+
 ## Run a complete example first
 
 1. Open Aotenjo's installation folder from Steam (Manage → Browse local files), then close the game.
@@ -33,10 +35,16 @@ mods/
   "modID": "my_first_mod",
   "name": "My First Mod / 我的第一个模组",
   "version": "1.0.0",
+  "artifactApiVersion": 2,
+  "supportedGameVersions": [
+    { "minInclusive": "0.8.0.0-PRE1", "maxInclusive": "0.8.0.0-PRE1" }
+  ],
   "author": "Your name",
   "description": "Played twos earn 2 coins / 打出的二获得2金币"
 }
 ```
+
+`version` is your mod's own version; `supportedGameVersions` must declare the game versions you test. Like the downloads, this example is pinned to the current source configuration, `0.8.0.0-PRE1`. See [Version compatibility](compatibility.md) for continuous ranges, separate ranges, and `PRE` versions.
 
 The complete `script/init.lua`:
 

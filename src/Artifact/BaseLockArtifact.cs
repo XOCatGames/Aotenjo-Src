@@ -13,7 +13,7 @@ namespace Aotenjo
 
         protected abstract double FanMultiplier { get; }
         protected virtual int TaskTarget => 0;
-        protected virtual BaseLockArtifact NextLock => null;
+        protected virtual string NextLockId => null;
         protected abstract int ShopCircle { get; }
 
         protected BaseLockArtifact(string name, Rarity rarity) : base(name, rarity, 0)
@@ -69,11 +69,14 @@ namespace Aotenjo
         private void CaptureActivatedYakus(PlayerEvents.PreAppendSettleScoringEffectsEvent evt)
         {
             // Capture the scored set before end-of-settlement unlocks or other relics modify the hand.
-            pendingYakus = evt.permutation?.GetYakus(evt.player)
-                .Where(type => type.GetYakuDefinition().rarity == Rarity.COMMON &&
-                               evt.player.GetSkillSet().GetLevel(type) > 0)
-                .Distinct().ToArray();
+            pendingYakus = GetActivatedCommonYakus(evt.player, evt.permutation);
         }
+
+        protected static YakuType[] GetActivatedCommonYakus(Player player, Permutation permutation) =>
+            permutation?.GetYakus(player)
+                .Where(type => type.GetYakuDefinition().rarity == Rarity.COMMON &&
+                               player.GetSkillSet().GetLevel(type) > 0)
+                .Distinct().ToArray() ?? Array.Empty<YakuType>();
 
         private void CompleteSettlement(PlayerEvents.PostSettlePermutationEvent evt)
         {
@@ -81,39 +84,29 @@ namespace Aotenjo
             pendingYakus = null;
             if (activated == null || activated.Length == 0) return;
 
-            RewardActivatedYakus(evt.player, activated);
             if (TaskTarget == 0) return;
             Level = Math.Min(TaskTarget, Level + activated.Length);
             if (Level >= TaskTarget) Evolve(evt.player);
         }
 
-        protected virtual void RewardActivatedYakus(Player player, YakuType[] activated) { }
-
-        protected void UpgradeYakus(Player player, IEnumerable<YakuType> yakus)
+        protected void AddUpgradeEffect(List<IAnimationEffect> effects, IEnumerable<YakuType> yakus)
         {
-            foreach (YakuType yaku in yakus) player.UpgradeYaku(yaku, UPGRADE_LEVELS);
-            MessageManager.Instance.OnActivateArtifactEvent(this, new TextEffect("effect_lock_cultivate", this));
+            // Keep the round-end hand's candidates fixed while the queued animation plays.
+            YakuType[] targets = yakus.ToArray();
+            if (targets.Length == 0) return;
+            effects.Add(new SimpleEffect("effect_lock_cultivate", this, player =>
+            {
+                foreach (YakuType yaku in targets) player.UpgradeYaku(yaku, UPGRADE_LEVELS);
+            }));
         }
 
         private void Evolve(Player player)
         {
-            BaseLockArtifact next = NextLock;
             int index = player.GetArtifacts().IndexOf(this);
-            if (next == null || index < 0) return;
-            bool temporary = IsTemporary;
-            bool broken = IsBroken;
-            bool debuffed = IsDebuffed;
+            if (NextLockId == null || index < 0 || player.HasPendingArtifactReplacement(this)) return;
+            Artifact next = player.GetAvailableArtifact(NextLockId);
             MessageManager.Instance.OnActivateArtifactEvent(this, new TextEffect("effect_lock_evolve", this));
-            player.RemoveArtifact(this, true, false);
-            next.ResetArtifactState();
-            next.IsTemporary = temporary;
-            next.IsBroken = broken;
-            next.IsDebuffed = debuffed;
-            player.ObtainArtifact(next, true);
-            List<Artifact> artifacts = player.GetArtifacts();
-            artifacts.Remove(next);
-            artifacts.Insert(Math.Min(index, artifacts.Count), next);
-            player.SetArtifactOrder(artifacts.ToArray());
+            player.RequestArtifactReplacement(this, next);
         }
 
         public override (string, double) GetAdditionalDisplayingInfo(Player player) =>
@@ -128,7 +121,7 @@ namespace Aotenjo
         public override void Deserialize(string data)
         {
             if (!int.TryParse(data, NumberStyles.Integer, CultureInfo.InvariantCulture, out int progress) ||
-                progress < 0 || (TaskTarget > 0 ? progress >= TaskTarget : progress != 0))
+                progress < 0 || (TaskTarget > 0 ? progress > TaskTarget : progress != 0))
                 throw new FormatException("Invalid lock task progress.");
             Level = progress;
             pendingYakus = null;

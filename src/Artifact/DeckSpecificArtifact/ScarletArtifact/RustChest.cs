@@ -42,7 +42,7 @@ namespace Aotenjo
                 {
                     Gadget gadget = generated[0];
                     gadget.uses = 1;
-                    player.AddGadget(gadget);
+                    player.RequestGadgetReward(gadget, source: GetEffectSource());
 
                     MessageManager.Instance.OnSoundEvent("ReceiveGadget");
                 }

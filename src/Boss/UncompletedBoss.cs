@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Aotenjo;
@@ -46,15 +46,28 @@ public class UncompletedBoss : Boss
     
     public override Artifact GetReversedArtifact(Artifact baseArtifact)
     {
-        return Artifact.CreateOnSelfEffectArtifact($"{this.name}_reversed", 
-            Rarity.COMMON,
-            (player, perm, effects) =>
-            {
-                effects.Add(ScoreEffect.AddFu(40 * perm.ToTiles()
-                    .Select(p => p.GetCategory())
-                    .Distinct()
-                    .Count(),
-                    baseArtifact));
-            });
+        return new UncompletedReversedArtifact(name, baseArtifact);
+    }
+
+    /// <summary>
+    /// 每次反转创建独立遗物类型；保留原触发条件、结算顺序及来源引用，不在结算时按 ID 重查吸收者。
+    /// </summary>
+    private sealed class UncompletedReversedArtifact : Artifact
+    {
+        private readonly Artifact baseArtifact;
+
+        public UncompletedReversedArtifact(string bossName, Artifact baseArtifact) : base($"{bossName}_reversed", Rarity.COMMON)
+        {
+            this.baseArtifact = baseArtifact;
+        }
+
+        public override void AppendOnSelfEffects(Player player, Permutation permutation, List<Effect> effects)
+        {
+            effects.Add(ScoreEffect.AddFu(40 * permutation.ToTiles()
+                .Select(p => p.GetCategory())
+                .Distinct()
+                .Count(),
+                baseArtifact));
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Aotenjo;
 
 [Serializable]
@@ -26,7 +26,7 @@ public class TileTransformRedMarker : TileTransformOrderShift
         int v = 9 * 9 + 16 * 9 + stackShift + order + catShift;
 
         //如果有3D眼镜，往下平移16行
-        if (player.GetArtifacts().Contains(Artifacts.ThreeDGlasses) && Artifacts.ThreeDGlasses.IsActive(player))
+        if (player.HasArtifact(Artifacts.ThreeDGlasses.Id) && ((ThreeDGlassesArtifact)player.GetRunArtifact(Artifacts.ThreeDGlasses.Id)).IsActive(player))
         {
             v += 16 * 9;
         }

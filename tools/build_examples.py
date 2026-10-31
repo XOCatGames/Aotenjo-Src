@@ -10,6 +10,9 @@ import shutil
 ROOT = Path(__file__).resolve().parents[1]
 MODS = ROOT / 'example' / 'mods'
 
+# 示例声明固定的源码配置版本；扩大范围前须验证对应发行版，并同步双语兼容说明。
+SUPPORTED_GAME_VERSIONS = [dict(minInclusive='0.8.0.0-PRE1', maxInclusive='0.8.0.0-PRE1')]
+
 def write(folder, relative, text):
     path = MODS / folder / relative
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -17,7 +20,8 @@ def write(folder, relative, text):
 
 def manifest(folder, mod_id, name, description):
     write(folder, 'modinfo.json', json.dumps(dict(modID=mod_id, name=name,
-          version='2.0.0', author='Aotenjo tutorial', description=description), ensure_ascii=False, indent=2))
+          version='2.0.0', artifactApiVersion=2, supportedGameVersions=SUPPORTED_GAME_VERSIONS,
+          author='Aotenjo tutorial', description=description), ensure_ascii=False, indent=2))
 
 def langs(folder, entries):
     for lang, column in [('zh-CN', 0), ('en-US', 1)]:
@@ -184,11 +188,11 @@ function init()
         :OnSelfEffect(function(player, perm, effects, artifact)
             effects:Add(A.ScoreEffect.AddFan(5, artifact))
         end):BuildAndRegisterCraftable()
-    -- A real C# List<Artifact>, not a Lua table. 真正的 C# List<Artifact>。
-    local inputs = CS.System.Collections.Generic.List(A.Artifact)()
-    inputs:Add(copper)
-    inputs:Add(silver)
-    local recipe = A.LuaArtifactRecipeBuilder.BuildAndRegister("tutorial_recipe:tokens", inputs, combined)
+    -- 配方保存稳定 ID，注册记录不能当作对局实例传入。
+    local inputs = CS.System.Collections.Generic.List(CS.System.String)()
+    inputs:Add(copper:GetRegName())
+    inputs:Add(silver:GetRegName())
+    local recipe = A.LuaArtifactRecipeBuilder.BuildAndRegister("tutorial_recipe:tokens", inputs, combined:GetRegName())
     assert(recipe ~= nil, "tutorial_recipe: recipe registration failed")
     A.Logger.Log("[tutorial_recipe] registered tokens recipe")
 end

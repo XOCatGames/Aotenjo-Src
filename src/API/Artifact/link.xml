@@ -1,0 +1,20 @@
+<linker>
+  <assembly fullname="Assembly-CSharp">
+    <!-- Lua 通过反射使用定义和查询入口，裁剪时必须保留新公开契约。 -->
+    <type fullname="Aotenjo.ArtifactRegistration" preserve="all" />
+    <type fullname="Aotenjo.ArtifactDefinitionSnapshot" preserve="all" />
+    <type fullname="Aotenjo.ArtifactRegistry" preserve="all" />
+    <type fullname="Aotenjo.LuaArtifactAffixBuilder" preserve="all" />
+    <type fullname="Aotenjo.Player">
+      <method name="GetRunArtifact" />
+      <method name="GetRunArtifacts" />
+      <method name="GetArtifacts" />
+      <method name="HasArtifact" />
+      <method name="SetCustomArtifactAffix" />
+      <method name="ClearArtifactAffix" />
+      <method name="GetArtifactAffixId" />
+      <method name="GetArtifactAffixData" />
+      <method name="SetArtifactAffixData" />
+    </type>
+  </assembly>
+</linker>

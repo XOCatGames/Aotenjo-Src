@@ -18,18 +18,28 @@ public class TweezerGadget : Gadget
         return UseOnTiles(player, selectingTiles).Success;
     }
 
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets)
+    {
+        return new[]
+        {
+            GadgetTilePreview.WithTransform(targets[0], SwapTransform(targets[0], targets[1])),
+            GadgetTilePreview.WithTransform(targets[1], SwapTransform(targets[1], targets[0]))
+        };
+    }
+
+    private static TileTransform SwapTransform(Tile target, Tile other) =>
+        new TileTransformTweezed(other.GetOrder(), target.GetCategory());
+
     public override GadgetUseResult UseOnTiles(Player player, List<Tile> tiles)
     {
         if (tiles == null || tiles.Count == 0 || uses <= 0) return GadgetUseResult.Failed;
         if (!CanUseOnTiles(tiles, player)) return GadgetUseResult.Failed;
         Tile tile1 = tiles[0];
         Tile tile2 = tiles[1];
-        int order = tile2.GetOrder();
-        Tile.Category cat = tile1.GetCategory();
-        int order1 = tile1.GetOrder();
-        Tile.Category cat1 = tile2.GetCategory();
-        tile1.AddTransform(new TileTransformTweezed(order, cat), player);
-        tile2.AddTransform(new TileTransformTweezed(order1, cat1), player);
+        TileTransform first = SwapTransform(tile1, tile2);
+        TileTransform second = SwapTransform(tile2, tile1);
+        tile1.AddTransform(first, player);
+        tile2.AddTransform(second, player);
         return GadgetUseResult.Succeeded(tiles);
     }
 

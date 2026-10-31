@@ -21,6 +21,7 @@ CHAPTERS = [
     ('9.-Cookbook-玩法食谱', 'cookbook', '更多玩法示例 / Gameplay cookbook'),
     ('10.-Testing-and-Publishing-测试与发布', 'testing', '测试与发布 / Testing and publishing'),
     ('11.-Glossary-Terms-术语', 'terms', '术语（仅 0.7.1.0+） / Terms (0.7.1.0+ only)'),
+    ('12.-Language-Packs-语言包', 'localization', '添加语言 / Add a language'),
 ]
 
 
@@ -126,7 +127,7 @@ Rewritten against the current source snapshot, which is not a Steam release vers
         f'[API reference]({WEB}/blob/main/reference/api-signatures.md)')
     pages['_Footer'] = (
         f'[中文]({WEB}/blob/main/docs/zh/README.md) · [English]({WEB}/blob/main/docs/en/README.md) · '
-        f'[Edit canonical docs]({WEB}/tree/main/docs) · '
+        f'[维护方式 / Contributing]({WEB}/blob/main/docs/MAINTAINING.md) · '
         '`python tools/sync_wiki.py --wiki-root ../Aotenjo-Src.wiki`')
     for name, text in pages.items():
         (wiki / (name + '.md')).write_text(text.strip() + '\n', encoding='utf-8', newline='\n')

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Aotenjo
 {
@@ -13,7 +13,7 @@ namespace Aotenjo
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
             int num = 1 + player.GenerateRandomInt(4);
-            if (player.GetArtifacts().Contains(Artifacts.LeadBlock))
+            if (player.HasArtifact(Artifacts.LeadBlock.Id))
             {
                 effects.Add(new TextEffect("effect_leaded_name", this));
                 num = 4;

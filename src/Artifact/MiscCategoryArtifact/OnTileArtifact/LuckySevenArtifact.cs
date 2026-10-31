@@ -40,7 +40,7 @@ namespace Aotenjo
                 base.Ingest(player);
                 if(artifact is LuckySevenArtifact luckySevenArtifact)
                     luckySevenArtifact.Level++;
-                tile.addonFu += 17;
+                tile.AddFu(17, player);
             }
 
             public override string GetEffectDisplay(Func<string, string> func)

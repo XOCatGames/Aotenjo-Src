@@ -42,7 +42,9 @@ namespace Aotenjo
                 subscribers[type] = list;
             }
 
-            list.Add(new Subscriber
+            // 同优先级按订阅先后执行，避免不稳定排序打乱遗物库存顺序。
+            int index = list.FindIndex(s => s.Priority < priority);
+            list.Insert(index < 0 ? list.Count : index, new Subscriber
             {
                 Handler = handler,
                 Invoker = invoker,
@@ -50,7 +52,6 @@ namespace Aotenjo
                 Priority = priority,
                 Once = once
             });
-            list.Sort((a, b) => b.Priority.CompareTo(a.Priority));
         }
 
         public static void Subscribe<T>(Player player,
@@ -220,6 +221,20 @@ namespace Aotenjo
 
         public static void Publish<T>(T evt)
         {
+            Dispatch(evt, false);
+        }
+
+        /// <summary>
+        /// 同步执行必须成功的游戏阶段。计分收集和开局准备不能在处理器失败后
+        /// 继续进入后续阶段；异常交给调用方处理，原有通知事件仍使用 Publish 的日志隔离策略。
+        /// </summary>
+        public static void PublishRequired<T>(T evt) where T : PlayerEvent
+        {
+            Dispatch(evt, true);
+        }
+
+        private static void Dispatch<T>(T evt, bool propagateExceptions)
+        {
             var type = typeof(T);
             if (!subscribers.TryGetValue(type, out var list) || list.Count == 0)
                 return;
@@ -237,6 +252,7 @@ namespace Aotenjo
                 }
                 catch (Exception ex)
                 {
+                    if (propagateExceptions) throw;
                     UnityEngine.Debug.LogError($"[EventBus] Exception in subscriber of {type.Name}: {ex}");
                 }
 
@@ -250,6 +266,13 @@ namespace Aotenjo
         public static void ClearAll()
         {
             subscribers.Clear();
+        }
+
+        public static void ClearForPlayer(Player player)
+        {
+            if (player == null) throw new ArgumentNullException(nameof(player));
+            foreach (var list in subscribers.Values)
+                list.RemoveAll(s => ReferenceEquals(s.Player, player));
         }
     }
 }

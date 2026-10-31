@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Aotenjo
@@ -30,7 +30,7 @@ namespace Aotenjo
         private void PostIngestEffect(Permutation permutation, Player player,
             Effect effect)
         {
-            if (effect.GetEffectSource() == Artifacts.CakeExpert)
+            if (effect.GetEffectSource()?.GetRegName() == Artifacts.CakeExpert.Id)
             {
                 cakeCount++;
             }

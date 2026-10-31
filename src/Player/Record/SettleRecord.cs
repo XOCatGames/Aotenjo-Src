@@ -8,6 +8,7 @@ using UnityEngine.Serialization;
 [Serializable]
 public class SettleRecord
 {
+    [NonSerialized] public string preservedArchiveJson;
     //ID: HASH(level, roundrecord, time)
     //foreign: roundrecord_ID
     [SerializeField] public int level;

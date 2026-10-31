@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Aotenjo
@@ -58,7 +58,7 @@ namespace Aotenjo
 
                 TileMaterial newMaterial = pool.Draw(player.GenerateRandomInt);
 
-                if (player.GetArtifacts().Contains(Artifacts.AgateIdentification))
+                if (player.HasArtifact(Artifacts.AgateIdentification.Id))
                 {
                     newMaterial = Agate();
                 }

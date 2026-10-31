@@ -115,11 +115,11 @@ namespace Aotenjo
                 onUnsubscribeToPlayer
             )
             {
-                deckIn = deckIn,
-                deckBlocked = deckBlocked,
-                setIn = setIn,
-                setBlocked = setBlocked,
-                materialRequired = materialRequired
+                deckIn = new List<string>(deckIn),
+                deckBlocked = new List<string>(deckBlocked),
+                setIn = new List<string>(setIn),
+                setBlocked = new List<string>(setBlocked),
+                materialRequired = new List<string>(materialRequired)
             };
 
             return artifact;
@@ -156,28 +156,38 @@ namespace Aotenjo
                 onUnsubscribeToPlayer
             )
             {
-                deckIn = deckIn,
-                deckBlocked = deckBlocked,
-                setIn = setIn,
-                setBlocked = setBlocked,
-                materialRequired = materialRequired
+                deckIn = new List<string>(deckIn),
+                deckBlocked = new List<string>(deckBlocked),
+                setIn = new List<string>(setIn),
+                setBlocked = new List<string>(setBlocked),
+                materialRequired = new List<string>(materialRequired)
             };
 
             return artifact;
         }
 
-        public LuaCraftableArtifact BuildAndRegisterCraftable()
+        // 值、字符串和委托槽位随浅复制固定；五个可变列表另行复制，隔离注册后的 Builder 修改。
+        private LuaArtifactBuilder Snapshot()
         {
-            LuaCraftableArtifact artifact = BuildCraftable();
-            Artifacts.ArtifactList.Add(artifact);
-            return artifact;
+            var snapshot = (LuaArtifactBuilder)MemberwiseClone();
+            snapshot.deckIn = new List<string>(deckIn);
+            snapshot.deckBlocked = new List<string>(deckBlocked);
+            snapshot.setIn = new List<string>(setIn);
+            snapshot.setBlocked = new List<string>(setBlocked);
+            snapshot.materialRequired = new List<string>(materialRequired);
+            return snapshot;
         }
-        
-        public LuaArtifact BuildAndRegister()
+
+        public ArtifactRegistration BuildAndRegisterCraftable()
         {
-            LuaArtifact artifact = Build();
-            Artifacts.ArtifactList.Add(artifact);
-            return artifact;
+            var snapshot = Snapshot();
+            return ArtifactRegistry.Register(name, () => snapshot.BuildCraftable());
+        }
+
+        public ArtifactRegistration BuildAndRegister()
+        {
+            var snapshot = Snapshot();
+            return ArtifactRegistry.Register(name, () => snapshot.Build());
         }
     }
 }

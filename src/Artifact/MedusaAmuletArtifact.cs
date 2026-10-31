@@ -14,6 +14,10 @@ namespace Aotenjo
             List<IAnimationEffect> effects)
         {
             base.AddOnRoundEndEffects(player, permutation, effects);
+            // 美杜莎之目独立于复制字牌的条件发放，固定获得1次使用量，并沿用道具奖励的入库与容量规则。
+            effects.Add(new SimpleEffect("gadget_snakes_eye_name", this,
+                p => p.RequestGadgetReward(Gadgets.SnakeEye.SetUses(1), source: this), "ReceiveGadget"));
+
             if (permutation == null) return;
             if (permutation.ToTiles().Any(t => t.IsHonor(player)))
             {

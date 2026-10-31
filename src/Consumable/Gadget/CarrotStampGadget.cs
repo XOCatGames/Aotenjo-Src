@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aotenjo;
 
 [Serializable]
@@ -14,6 +15,9 @@ public class CarrotStampGadget : Gadget
     {
         return Rarity.RARE;
     }
+
+    protected override IReadOnlyList<GadgetTilePreview> BuildPreview(Player player, List<Tile> targets) =>
+        new[] { new GadgetTilePreview(targets[0], targets[0].CopyWithPermanentFace()) };
 
     public override bool UseOnTile(Player player, Tile tile)
     {

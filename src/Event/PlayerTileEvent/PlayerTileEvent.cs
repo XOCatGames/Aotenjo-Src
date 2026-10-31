@@ -18,6 +18,16 @@
                 this.baseFu = baseFu;
             }
         }
+
+        public sealed class FuGained : PlayerTileEvent
+        {
+            public readonly double amount;
+
+            public FuGained(Player player, Tile tile, double amount) : base(player, tile)
+            {
+                this.amount = amount;
+            }
+        }
     }
 
     public class DeterminePlayerSelectingTileEvent : PlayerTileEvent

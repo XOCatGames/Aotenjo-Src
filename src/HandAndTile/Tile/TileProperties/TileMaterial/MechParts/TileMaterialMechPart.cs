@@ -21,18 +21,16 @@ namespace Aotenjo
         private const int LedMoneyPerColor = 1;
         private const int ShieldFan = 8;
         private const int ReactorDestroyedParts = 1;
-        private const int ReactorExtraScores = 1;
+        private const double ReactorFanMultiplier = 1.5;
 
         private const string PartSpriteSheet = "Tile/TileMaterial/MechParts";
         private const string InsertedSpriteSuffix = "_插入";
 
         [SerializeField] private List<MechPartType> parts = new();
         [SerializeField] private List<bool> temporaryParts = new();
+        [SerializeField] private List<bool> activatedReactors = new();
         [SerializeField] private double permanentBaseFu;
         [SerializeReference] private TileMaterial materialBeforeTemporaryConversion;
-
-        // The guard belongs to the material because all mechanical-part state must stay out of Tile.
-        [NonSerialized] private HashSet<Tile> reactorScoringTiles = new();
 
         public TileMaterialMechPart(int id, MechPartType part, bool temporary = false) : base(id, GetNameKey(part), null)
         {
@@ -41,12 +39,13 @@ namespace Aotenjo
         }
 
         private TileMaterialMechPart(int id, string nameKey, IEnumerable<MechPartType> parts,
-            IEnumerable<bool> temporaryParts, double permanentBaseFu,
+            IEnumerable<bool> temporaryParts, IEnumerable<bool> activatedReactors, double permanentBaseFu,
             TileMaterial materialBeforeTemporaryConversion)
             : base(id, nameKey, null)
         {
             this.parts = parts.Take(MaxParts).ToList();
             this.temporaryParts = temporaryParts.Take(MaxParts).ToList();
+            this.activatedReactors = activatedReactors.Take(MaxParts).ToList();
             this.permanentBaseFu = permanentBaseFu;
             this.materialBeforeTemporaryConversion = materialBeforeTemporaryConversion;
             NormalizePartMetadata();
@@ -77,10 +76,13 @@ namespace Aotenjo
             return GetParts().Count(installed => installed == part);
         }
 
-        public int GetCommonTriggerCount()
+        public int GetPartTriggerCount()
         {
             return 1 + GetPartCount(MechPartType.IntegratedChip) * IntegratedChipExtraTriggers;
         }
+
+        // Retain the existing public helper for callers that use common parts.
+        public int GetCommonTriggerCount() => GetPartTriggerCount();
 
         public bool HasEmptySlot => GetParts().Count < MaxParts;
 
@@ -96,7 +98,7 @@ namespace Aotenjo
 
         public override void AppendBonusEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
         {
-            effects.AddRange(BuildScoringPartEffects(player));
+            effects.AddRange(BuildScoringPartEffects(player, includeReactors: false));
 
             bool hasPlayedPart = GetParts().Any(part => part == MechPartType.Led);
             if (hasPlayedPart && player != null && tile != null && player.IsPlayingTile(tile))
@@ -104,14 +106,14 @@ namespace Aotenjo
                 effects.AddRange(BuildPlayedPartEffects(player, tile));
             }
 
-            AppendReactorEffects(player, perm, tile, effects);
+            AppendReactorEffects(player, tile, effects);
         }
 
         public override TileMaterial Copy()
         {
             NormalizePartMetadata();
             return new TileMaterialMechPart(GetSpriteID(), nameKey.Replace("_material", ""), GetParts(),
-                temporaryParts, permanentBaseFu, materialBeforeTemporaryConversion?.Copy());
+                temporaryParts, activatedReactors, permanentBaseFu, materialBeforeTemporaryConversion?.Copy());
         }
 
         public bool TryInstall(TileMaterialMechPart incoming)
@@ -123,6 +125,7 @@ namespace Aotenjo
                 parts.Add(incoming.GetParts()[i]);
                 bool temporary = incoming.IsPartTemporary(i);
                 temporaryParts.Add(temporary);
+                activatedReactors.Add(incoming.IsReactorActivated(i));
                 if (!temporary) materialBeforeTemporaryConversion = null;
                 changed = true;
             }
@@ -137,6 +140,7 @@ namespace Aotenjo
             parts.Add(part);
             temporaryParts.Add(temporary);
             if (!temporary) materialBeforeTemporaryConversion = null;
+            activatedReactors.Add(false);
             return true;
         }
 
@@ -185,6 +189,7 @@ namespace Aotenjo
             removed = parts[index];
             parts.RemoveAt(index);
             temporaryParts.RemoveAt(index);
+            activatedReactors.RemoveAt(index);
             EventBus.Publish(new MechanicalPartChangedEvent(player, carrier, kind, removed, null, 1));
             return true;
         }
@@ -196,6 +201,7 @@ namespace Aotenjo
             {
                 if (parts[i] != from) continue;
                 parts[i] = to;
+                activatedReactors[i] = false;
                 transformed++;
             }
 
@@ -224,9 +230,12 @@ namespace Aotenjo
             int index = candidates[player.GenerateRandomInt(candidates.Count, "mech_transfer_part")];
             MechPartType part = parts[index];
             bool temporary = temporaryParts[index];
+            bool activated = activatedReactors[index];
             parts.RemoveAt(index);
             temporaryParts.RemoveAt(index);
+            activatedReactors.RemoveAt(index);
             targetMaterial.TryInstall(part, temporary);
+            targetMaterial.activatedReactors[targetMaterial.parts.Count - 1] = activated;
             EventBus.Publish(new MechanicalPartChangedEvent(player, source,
                 MechanicalPartChangeKind.Transferred, part, part, 1, target));
             return true;
@@ -241,6 +250,7 @@ namespace Aotenjo
                 if (!temporaryParts[index]) continue;
                 parts.RemoveAt(index);
                 temporaryParts.RemoveAt(index);
+                activatedReactors.RemoveAt(index);
                 removed++;
             }
             if (parts.Count > 0) materialBeforeTemporaryConversion = null;
@@ -297,7 +307,7 @@ namespace Aotenjo
                 MechPartType.Led => string.Format(CultureInfo.InvariantCulture, description, LedMoneyPerColor),
                 MechPartType.Shield => string.Format(CultureInfo.InvariantCulture, description, ShieldFan),
                 MechPartType.IntegratedChip => string.Format(CultureInfo.InvariantCulture, description, IntegratedChipExtraTriggers),
-                MechPartType.Reactor => string.Format(CultureInfo.InvariantCulture, description, ReactorDestroyedParts, ReactorExtraScores),
+                MechPartType.Reactor => string.Format(CultureInfo.InvariantCulture, description, ReactorDestroyedParts, ReactorFanMultiplier),
                 _ => throw new ArgumentOutOfRangeException(nameof(part), part, null)
             };
         }
@@ -334,6 +344,7 @@ namespace Aotenjo
                 // Explicit enhancement replaces slot zero when full; automatic installs still need an empty slot.
                 merged.parts[0] = incomingMech.GetParts()[0];
                 merged.temporaryParts[0] = incomingMech.IsPartTemporary(0);
+                merged.activatedReactors[0] = incomingMech.IsReactorActivated(0);
                 if (!merged.temporaryParts[0]) merged.materialBeforeTemporaryConversion = null;
             }
             incoming.ChangeMaterial(merged);
@@ -352,13 +363,21 @@ namespace Aotenjo
             return current;
         }
 
-        private IEnumerable<Effect> BuildScoringPartEffects(Player player)
+        private IEnumerable<Effect> BuildScoringPartEffects(Player player, bool includeReactors = true)
         {
-            int triggerCount = GetCommonTriggerCount();
+            int triggerCount = GetPartTriggerCount();
             bool shieldActive = GetParts().All(part => part == MechPartType.Shield);
 
-            foreach (MechPartType part in GetParts())
+            for (int slot = 0; slot < GetParts().Count; slot++)
             {
+                MechPartType part = parts[slot];
+                if (part == MechPartType.Reactor)
+                {
+                    if (includeReactors && IsReactorActivated(slot))
+                        for (int trigger = 0; trigger < triggerCount; trigger++)
+                            yield return ScoreEffect.MulFan(ReactorFanMultiplier, null);
+                    continue;
+                }
                 if (part == MechPartType.Shield && !shieldActive)
                 {
                     continue;
@@ -384,7 +403,7 @@ namespace Aotenjo
 
         private IEnumerable<Effect> BuildPlayedPartEffects(Player player, Tile tile)
         {
-            int triggerCount = GetCommonTriggerCount();
+            int triggerCount = GetPartTriggerCount();
             IReadOnlyList<LedDetectedColor> colors = GetLedColors(tile, player);
             IReadOnlyList<MechPartType> installedParts = GetParts();
             for (int slot = 0; slot < installedParts.Count; slot++)
@@ -405,33 +424,97 @@ namespace Aotenjo
             }
         }
 
-        private void AppendReactorEffects(Player player, Permutation perm, Tile tile, List<Effect> effects)
+        public bool IsReactorActivated(int slot)
         {
-            int reactorCount = GetPartCount(MechPartType.Reactor);
-            if (reactorCount == 0 || player?.playHandEffectStack == null || tile == null ||
-                !player.IsPlayingTile(tile))
+            NormalizePartMetadata();
+            return slot >= 0 && slot < parts.Count && parts[slot] == MechPartType.Reactor &&
+                   activatedReactors[slot];
+        }
+
+        public void ResetReactorActivation()
+        {
+            NormalizePartMetadata();
+            for (int slot = 0; slot < activatedReactors.Count; slot++)
+                activatedReactors[slot] = false;
+        }
+
+        private int GetReactorSlot(int ordinal)
+        {
+            NormalizePartMetadata();
+            for (int slot = 0; slot < parts.Count; slot++)
+                if (parts[slot] == MechPartType.Reactor && ordinal-- == 0) return slot;
+            return -1;
+        }
+
+        private void AppendReactorEffects(Player player, Tile tile, List<Effect> effects)
+        {
+            int triggerCount = GetPartTriggerCount();
+            for (int ordinal = 0; ordinal < GetPartCount(MechPartType.Reactor); ordinal++)
             {
-                return;
+                // Destroying a common part shifts slots, but preserves reactor order.
+                for (int trigger = 0; trigger < triggerCount; trigger++)
+                {
+                    if (player != null && tile != null && player.IsPlayingTile(tile))
+                        effects.Add(new ReactorActivationEffect(this, tile, ordinal));
+                    effects.Add(new ReactorScoringEffect(this, ordinal));
+                }
+            }
+        }
+
+        private sealed class ReactorActivationEffect : SimpleEffect
+        {
+            private readonly TileMaterialMechPart material;
+            private readonly int reactor;
+            private bool? triggered;
+
+            public ReactorActivationEffect(TileMaterialMechPart material, Tile tile, int reactor)
+                : base((_, loc) => loc("tile_mech_reactor_material_name"), null, player =>
+                {
+                    int slot = material.GetReactorSlot(reactor);
+                    if (slot < 0 || material.IsReactorActivated(slot)) return;
+                    if (material.TryRemoveRandomCommonPart(player, tile, out _))
+                    {
+                        slot = material.GetReactorSlot(reactor);
+                        if (slot >= 0) material.activatedReactors[slot] = true;
+                    }
+                }, "Break")
+            {
+                this.material = material;
+                this.reactor = reactor;
             }
 
-            reactorScoringTiles ??= new HashSet<Tile>();
-            if (!reactorScoringTiles.Add(tile))
+            public override bool WillTrigger() => triggered ?? (
+                material.GetReactorSlot(reactor) >= 0 &&
+                !material.IsReactorActivated(material.GetReactorSlot(reactor)) &&
+                material.GetParts().Any(part => GetPartRarity(part) == Rarity.COMMON));
+
+            public override void Ingest(Player player)
             {
-                return;
+                if (triggered.HasValue) return;
+                triggered = WillTrigger();
+                if (triggered.Value) base.Ingest(player);
+            }
+        }
+
+        private sealed class ReactorScoringEffect : ScoreEffect
+        {
+            private readonly TileMaterialMechPart material;
+            private readonly int reactor;
+
+            public ReactorScoringEffect(TileMaterialMechPart material, int reactor)
+            {
+                this.material = material;
+                this.reactor = reactor;
+                type = EffectType.MUL_FAN;
+                value = ReactorFanMultiplier;
             }
 
-            for (int i = 0; i < reactorCount * ReactorDestroyedParts; i++)
-            {
-                effects.Add(new SimpleEffect((_, loc) => loc("tile_mech_reactor_material_name"), null,
-                    p => TryRemoveRandomCommonPart(p, tile, out _), "Break"));
-            }
+            public override bool WillTrigger() => material.IsReactorActivated(material.GetReactorSlot(reactor));
 
-            for (int i = 0; i < reactorCount * ReactorExtraScores; i++)
+            public override void Ingest(Player player)
             {
-                effects.Add(new TileScoringEffectAppendEffect(player, tile, perm, player.playHandEffectStack));
+                if (WillTrigger()) base.Ingest(player);
             }
-
-            effects.Add(new SilentEffect(() => reactorScoringTiles.Remove(tile)));
         }
 
         public static int CountPrimaryColors(Tile tile, Player player)
@@ -457,7 +540,7 @@ namespace Aotenjo
             if (tile.ContainsBlue(player)) colors.Add(LedDetectedColor.Blue);
 
             // Black and faded are separate detectable colors, but a single face can only be one of them.
-            if (player.GetArtifacts().Contains(Artifacts.Blackbody) && HasBlackOrFadedFace(tile))
+            if (player.HasArtifact(Artifacts.Blackbody.Id) && HasBlackOrFadedFace(tile))
                 colors.Add(tile.properties.font.GetRegName() == TileFont.COLORLESS.GetRegName()
                     ? LedDetectedColor.Faded : LedDetectedColor.Black);
             return colors;
@@ -488,11 +571,11 @@ namespace Aotenjo
             List<IAnimationEffect> effects, Tile tile, bool withForce, bool isClone)
         {
             base.AppendToListDiscardEffect(player, perm, effects, tile, withForce, isClone);
-            int triggerCount = GetCommonTriggerCount();
+            int triggerCount = GetPartTriggerCount();
             int networkCards = GetPartCount(MechPartType.NetworkCard);
             for (int i = 0; i < networkCards * triggerCount; i++)
             {
-                effects.Add(new IncreDiscardEffect("mech_network_card", null, NetworkCardDiscards).OnTile(tile, isClone));
+                effects.Add(new IncreDiscardEffect("mech_network_card", null, NetworkCardDiscards, tile).OnTile(tile, isClone));
             }
         }
 
@@ -500,10 +583,16 @@ namespace Aotenjo
         {
             parts ??= new List<MechPartType>();
             temporaryParts ??= new List<bool>();
+            activatedReactors ??= new List<bool>();
             if (parts.Count > MaxParts) parts.RemoveRange(MaxParts, parts.Count - MaxParts);
             if (temporaryParts.Count > parts.Count)
                 temporaryParts.RemoveRange(parts.Count, temporaryParts.Count - parts.Count);
             while (temporaryParts.Count < parts.Count) temporaryParts.Add(false);
+            if (activatedReactors.Count > parts.Count)
+                activatedReactors.RemoveRange(parts.Count, activatedReactors.Count - parts.Count);
+            while (activatedReactors.Count < parts.Count) activatedReactors.Add(false);
+            for (int slot = 0; slot < parts.Count; slot++)
+                if (parts[slot] != MechPartType.Reactor) activatedReactors[slot] = false;
         }
 
         public static Rarity GetPartRarity(MechPartType part)
