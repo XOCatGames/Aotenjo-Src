@@ -15,7 +15,7 @@ This example uses `0.8.0.0-PRE1`. Replace it with the game version you have test
   "version": "1.2.0",
   "artifactApiVersion": 2,
   "supportedGameVersions": [
-    { "minInclusive": "0.8.0.0-PRE1", "maxInclusive": "0.8.0.0-PRE1" }
+    { "minInclusive": "0.7.0.0", "maxInclusive": "0.7.1.0" }
   ],
   "author": "Your name",
   "description": "Example mod"
