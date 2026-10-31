@@ -37,7 +37,7 @@ mods/
   "version": "1.0.0",
   "artifactApiVersion": 2,
   "supportedGameVersions": [
-    { "minInclusive": "0.8.0.0-PRE1", "maxInclusive": "0.8.0.0-PRE1" }
+    { "minInclusive": "0.7.0.0", "maxInclusive": "0.7.1.0" }
   ],
   "author": "Your name",
   "description": "Played twos earn 2 coins / 打出的二获得2金币"
